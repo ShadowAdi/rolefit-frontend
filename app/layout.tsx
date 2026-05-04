@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/utils/queryClient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,7 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Rolefit",
-  description: "A simple app to generate your resume and Coverletter based on JD",
+  description:
+    "A simple app to generate your resume and Coverletter based on JD",
 };
 
 export default function RootLayout({
@@ -27,7 +30,9 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <QueryClientProvider client={queryClient}>
+        <body className="min-h-full flex flex-col">{children}</body>
+      </QueryClientProvider>
     </html>
   );
 }
