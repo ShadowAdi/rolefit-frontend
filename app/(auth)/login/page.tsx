@@ -45,9 +45,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex w-full">
-      {/* Left Column - Form */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 relative overflow-hidden">
-        {/* Background gradients */}
         <div className="pointer-events-none absolute -top-40 -right-40 h-80 w-80 rounded-full bg-lime-200/40 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-gray-200/40 blur-3xl" />
 

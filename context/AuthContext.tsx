@@ -1,20 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-interface User {
-  id: string;
-  email: string;
-}
-
-interface AuthContextType {
-  token: string | null;
-  user: User | null;
-  isLoading: boolean;
-  login: (token: string, user: User) => void;
-  logout: () => void;
-  isAuthenticated: boolean;
-}
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { User, AuthContextType, UserAuthenticatedResponse } from '@/types/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -34,11 +21,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(false);
   }, []);
 
-  const login = (newToken: string, newUser: User) => {
-    setToken(newToken);
-    setUser(newUser);
-    localStorage.setItem('authToken', newToken);
-    localStorage.setItem('auth_user', JSON.stringify(newUser));
+  const login = (response: UserAuthenticatedResponse) => {
+    const userData: User = {
+      id: response.id,
+      email: response.email,
+      created_at: response.created_at,
+    };
+    
+    setToken(response.access_token);
+    setUser(userData);
+    localStorage.setItem('authToken', response.access_token);
+    localStorage.setItem('auth_user', JSON.stringify(userData));
   };
 
   const logout = () => {
@@ -48,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('auth_user');
   };
 
-  const value = {
+  const value: AuthContextType = {
     token,
     user,
     isLoading,
