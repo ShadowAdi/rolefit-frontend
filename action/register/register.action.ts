@@ -1,25 +1,52 @@
 import axiosInstance from "@/api/axios-instance";
+import { ApiErrorResponse } from "@/types/api";
+import { UserRegisterResponseData } from "@/types/api";
 
-export const registerUser = async (payload:{email:string,password:string}) => {
-  const response = await axiosInstance.post("/user/register",payload,);
-  const data = await response.data;
+interface RegisterPayload {
+  email: string;
+  password: string;
+}
 
-  if (data.Success) {
+interface RegisterSuccess {
+  success: true;
+  data: UserRegisterResponseData;
+}
+
+interface RegisterError {
+  success: false;
+  message: string;
+  detail?: string;
+}
+
+type RegisterResult = RegisterSuccess | RegisterError;
+
+export const registerUser = async (payload: RegisterPayload): Promise<RegisterResult> => {
+  try {
+    const response = await axiosInstance.post<UserRegisterResponseData>(
+      "/user/register",
+      payload
+    );
+
+    const data = response.data;
+
+    if (response.status === 201 && data) {
+      return {
+        success: true,
+        data,
+      };
+    }
+
     return {
-      user: {
-        email: data.user.email,
-        id: data.user.id,
-        createdAt: data.user.created_at,
-      },
-      success: data.Success,
-      message: data.message,
+      success: false,
+      message: "Registration failed",
     };
-  } else {
+  } catch (error: any) {
+    const errorData = error.response?.data as ApiErrorResponse | undefined;
+
     return {
-      success: data.success,
-      message: data.message,
-      detail: data.detail,
-      error: data.error,
+      success: false,
+      message: errorData?.message || errorData?.detail || "Registration failed",
+      detail: errorData?.detail,
     };
   }
 };

@@ -9,15 +9,18 @@ import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { Zap, ArrowRight, Loader2, Mail, Lock, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/context/AuthContext"
+import { loginUser } from "@/action/login/login.action"
 
 const loginSchema = z.object({
   email: z.email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().min(3, "Password must be at least 3 characters"),
 })
 
 type LoginFormData = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
+  const { login } = useAuth()
 
   const {
     register,
@@ -30,10 +33,18 @@ export default function LoginPage() {
 
   const onSubmit = async (loginUserData: LoginFormData) => {
     try {
-      console.log("Login User Data ",{
-        "email":loginUserData.email,
-        "password":loginUserData.password
+      const result = await loginUser({
+        email: loginUserData.email,
+        password: loginUserData.password,
       })
+
+      if (result.success) {
+        login(result.data)
+        toast.success("Login successful!")
+        window.location.href = "/dashboard"
+      } else {
+        toast.error(result.message)
+      }
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -135,9 +146,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right Column - Marketing */}
       <div className="hidden lg:flex flex-1 bg-lime-400 items-center justify-center p-12 relative overflow-hidden">
-        {/* Decorative blobs */}
         <div className="pointer-events-none absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="pointer-events-none absolute bottom-0 left-0 w-80 h-80 bg-white/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 

@@ -1,26 +1,53 @@
 import axiosInstance from "@/api/axios-instance";
+import { ApiErrorResponse, isApiError } from "@/types/api";
+import { UserAuthenticatedResponse } from "@/types/auth";
 
-export const loginUser = async (payload:{email:string,password:string}) => {
-  const response = await axiosInstance.post("/auth/login",payload);
-  const data = await response.data;
+interface LoginPayload {
+  email: string;
+  password: string;
+}
 
-  if (data.Success) {
+interface LoginSuccess {
+  success: true;
+  data: UserAuthenticatedResponse;
+}
+
+interface LoginError {
+  success: false;
+  message: string;
+  detail?: string;
+}
+
+type LoginResult = LoginSuccess | LoginError;
+
+export const loginUser = async (payload: LoginPayload): Promise<LoginResult> => {
+  try {
+    const response = await axiosInstance.post<UserAuthenticatedResponse>(
+      "/auth/login",
+      payload
+    );
+
+    const data = response.data;
+
+    // Check if response is valid
+    if (response.status === 200 && data) {
+      return {
+        success: true,
+        data,
+      };
+    }
+
     return {
-      user: {
-        email: data.email,
-        id: data.id,
-      },
-      success: data.Success,
-      message: data.message,
-      access_token: data.access_token,
-      expires_in: data.expires_in,
+      success: false,
+      message: "Login failed",
     };
-  } else {
+  } catch (error: any) {
+    const errorData = error.response?.data as ApiErrorResponse | undefined;
+    
     return {
-      success: data.success,
-      message: data.message,
-      detail: data.detail,
-      error: data.error,
+      success: false,
+      message: errorData?.message || errorData?.detail || "Login failed",
+      detail: errorData?.detail,
     };
   }
 };
