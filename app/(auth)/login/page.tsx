@@ -48,14 +48,14 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-90">
           <Link href="/" className="inline-flex items-center gap-2 mb-10">
-            <div className="size-8 rounded-lg bg-brand flex items-center justify-center">
-              <Zap className="size-4 text-brand-foreground" />
+            <div className="size-8 rounded-lg bg-lime-400 flex items-center justify-center">
+              <Zap className="size-4 text-gray-950" />
             </div>
-            <span className="text-base font-semibold tracking-tight">Stepwise</span>
+            <span className="text-base font-semibold tracking-tight">RoleFit</span>
           </Link>
 
           <h1 className="text-2xl font-semibold tracking-tight mb-1">Welcome back</h1>
-          <p className="text-sm text-text-secondary mb-8">Sign in to continue to your account</p>
+          <p className="text-sm text-text-secondary mb-8">Sign in to tailor your resume</p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-1.5">
@@ -111,28 +111,28 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div className="hidden lg:flex flex-1 bg-brand items-center justify-center p-12">
+      <div className="hidden lg:flex flex-1 bg-lime-400 items-center justify-center p-12">
         <div className="max-w-md">
-          <h2 className="text-3xl font-semibold text-white tracking-tight mb-4">
-            Build interactive demos in minutes
+          <h2 className="text-3xl font-semibold text-gray-950 tracking-tight mb-4">
+            Every application deserves a perfect fit
           </h2>
-          <p className="text-indigo-200 text-[15px] leading-relaxed mb-8">
-            Transform static screenshots into engaging, clickable product
-            walkthroughs — no video recording needed.
+          <p className="text-gray-800 text-[15px] leading-relaxed mb-8">
+            Paste a job description, select what to emphasize, and download
+            clean, ATS-friendly PDFs. No fluff, just results.
           </p>
           <div className="space-y-4">
             {[
-              "Create unlimited interactive demos",
-              "Add clickable hotspots and tooltips",
-              "Share with your team or make public",
+              "AI-powered content matching",
+              "Multiple resume templates",
+              "Cover letters included",
             ].map((item) => (
               <div key={item} className="flex items-center gap-3">
-                <div className="size-5 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                   <svg className="size-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="size-5 rounded-full bg-white/30 flex items-center justify-center shrink-0">
+                   <svg className="size-3 text-gray-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                    </svg>
                  </div>
-                <span className="text-indigo-100 text-sm">{item}</span>
+                <span className="text-gray-800 text-sm">{item}</span>
               </div>
             ))}
           </div>

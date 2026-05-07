@@ -49,11 +49,11 @@ export default function RegisterPage() {
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-90">
           <Link href="/" className="inline-flex items-center gap-2 mb-10">
-            <div className="size-8 rounded-lg bg-brand flex items-center justify-center">
-              <Zap className="size-4 text-brand-foreground" />
+            <div className="size-8 rounded-lg bg-lime-400 flex items-center justify-center">
+              <Zap className="size-4 text-gray-950" />
             </div>
             <span className="text-base font-semibold tracking-tight">
-              Stepwise
+              RoleFit
             </span>
           </Link>
 
@@ -61,7 +61,7 @@ export default function RegisterPage() {
             Create your account
           </h1>
           <p className="text-sm text-text-secondary mb-8">
-            Get started with Stepwise — it&apos;s free
+            Get started with RoleFit — tailor resumes for every job
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -137,25 +137,25 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      <div className="hidden lg:flex flex-1 bg-brand items-center justify-center p-12">
+      <div className="hidden lg:flex flex-1 bg-lime-400 items-center justify-center p-12">
         <div className="max-w-md">
-          <h2 className="text-3xl font-semibold text-white tracking-tight mb-4">
-            Join thousands of teams
+          <h2 className="text-3xl font-semibold text-gray-950 tracking-tight mb-4">
+            Tailor faster, apply smarter
           </h2>
-          <p className="text-indigo-200 text-[15px] leading-relaxed mb-8">
-            Start building beautiful, interactive step-by-step demos that help
-            your users understand your product better.
+          <p className="text-gray-800 text-[15px] leading-relaxed mb-8">
+            Create one master profile, then generate role-specific resumes and
+            cover letters in minutes. Match keywords while staying authentic.
           </p>
           <div className="space-y-4">
             {[
-              "Free to start, upgrade anytime",
-              "No credit card required",
-              "Cancel anytime",
+              "One profile, unlimited applications",
+              "AI-powered resume tailoring",
+              "ATS-friendly PDFs",
             ].map((item) => (
               <div key={item} className="flex items-center gap-3">
-                <div className="size-5 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                <div className="size-5 rounded-full bg-white/30 flex items-center justify-center shrink-0">
                   <svg
-                    className="size-3 text-white"
+                    className="size-3 text-gray-950"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -168,7 +168,7 @@ export default function RegisterPage() {
                     />
                   </svg>
                 </div>
-                <span className="text-indigo-100 text-sm">{item}</span>
+                <span className="text-gray-800 text-sm">{item}</span>
               </div>
             ))}
           </div>
