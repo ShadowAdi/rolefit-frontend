@@ -1,26 +1,36 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import Link from "next/link"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
-import { Zap, ArrowRight, Loader2, Mail, Lock, CheckCircle2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useAuth } from "@/context/AuthContext"
-import { loginUser } from "@/action/login/login.action"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import {
+  Zap,
+  ArrowRight,
+  Loader2,
+  Mail,
+  Lock,
+  CheckCircle2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
+import { loginUser } from "@/action/login/login.action";
+import { useEffect, useState } from "react";
 
 const loginSchema = z.object({
   email: z.email("Please enter a valid email address"),
   password: z.string().min(3, "Password must be at least 3 characters"),
-})
+});
 
-type LoginFormData = z.infer<typeof loginSchema>
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const { login } = useAuth()
+  const { login, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
 
   const {
     register,
@@ -28,30 +38,46 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-  })
+  });
 
+  useEffect(() => {
+    if (!isAuthLoading && isAuthenticated) {
+      router.push("/brands");
+    }
+  }, [isAuthLoading, isAuthenticated, router]);
 
   const onSubmit = async (loginUserData: LoginFormData) => {
     try {
       const result = await loginUser({
         email: loginUserData.email,
         password: loginUserData.password,
-      })
+      });
 
       if (result.success) {
-        login(result.data)
-        toast.success("Login successful!")
-        window.location.href = "/dashboard"
+        login(result.data);
+        toast.success("Login successful!");
+        window.location.href = "/dashboard";
       } else {
-        toast.error(result.message)
+        toast.error(result.message);
       }
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "An unexpected error occurred. Please try again."
-      )
+          : "An unexpected error occurred. Please try again.",
+      );
     }
+  };
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-foreground mx-auto"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -81,7 +107,10 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+              <Label
+                htmlFor="email"
+                className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+              >
                 <Mail className="size-4 text-lime-600" />
                 Email
               </Label>
@@ -101,7 +130,10 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+              <Label
+                htmlFor="password"
+                className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+              >
                 <Lock className="size-4 text-lime-600" />
                 Password
               </Label>
@@ -118,7 +150,9 @@ export default function LoginPage() {
                   {errors.password.message}
                 </p>
               )}
-              <p className="text-xs text-gray-500 mt-1">At least 8 characters</p>
+              <p className="text-xs text-gray-500 mt-1">
+                At least 3 characters
+              </p>
             </div>
 
             <Button
@@ -139,7 +173,10 @@ export default function LoginPage() {
 
           <p className="text-center text-sm text-gray-600 mt-6">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="font-semibold text-gray-950 hover:text-lime-600 transition-colors">
+            <Link
+              href="/register"
+              className="font-semibold text-gray-950 hover:text-lime-600 transition-colors"
+            >
               Create one
             </Link>
           </p>
@@ -159,15 +196,25 @@ export default function LoginPage() {
               Ready to apply?
             </h2>
             <p className="text-lg text-white/90 leading-relaxed">
-              Paste a job description and let our AI match it to your experience. Download tailored PDFs in seconds.
+              Paste a job description and let our AI match it to your
+              experience. Download tailored PDFs in seconds.
             </p>
           </div>
 
           <div className="space-y-5 mt-10">
             {[
-              { title: "Smart Matching", desc: "AI matches your skills to job requirements" },
-              { title: "Multiple Templates", desc: "Choose from professional resume styles" },
-              { title: "ATS-Optimized", desc: "Passes applicant tracking systems" },
+              {
+                title: "Smart Matching",
+                desc: "AI matches your skills to job requirements",
+              },
+              {
+                title: "Multiple Templates",
+                desc: "Choose from professional resume styles",
+              },
+              {
+                title: "ATS-Optimized",
+                desc: "Passes applicant tracking systems",
+              },
             ].map((item, idx) => (
               <div key={idx} className="flex gap-4 items-start">
                 <div className="shrink-0">
@@ -185,11 +232,13 @@ export default function LoginPage() {
 
           <div className="mt-12 p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
             <p className="text-sm text-white/90">
-              <span className="font-semibold">Pro tip:</span> Save your master profile once, then customize for every job. Your time is too valuable to tailor manually.
+              <span className="font-semibold">Pro tip:</span> Save your master
+              profile once, then customize for every job. Your time is too
+              valuable to tailor manually.
             </p>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
