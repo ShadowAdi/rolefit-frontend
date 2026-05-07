@@ -7,9 +7,19 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Zap, ArrowRight, Loader2, Mail, Lock, CheckCircle2 } from "lucide-react";
+import {
+  Zap,
+  ArrowRight,
+  Loader2,
+  Mail,
+  Lock,
+  CheckCircle2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { registerUser } from "@/action/register/register.action";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const registerSchema = z.object({
   email: z.email("Please enter a valid email address"),
@@ -19,6 +29,9 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -26,6 +39,12 @@ export default function RegisterPage() {
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
+
+  useEffect(() => {
+    if (!isAuthLoading && isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthLoading, isAuthenticated, router]);
 
   const onSubmit = async (createUserData: RegisterFormData) => {
     try {
@@ -48,6 +67,17 @@ export default function RegisterPage() {
       );
     }
   };
+
+    if (isAuthLoading) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-foreground mx-auto"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex w-full">
@@ -76,7 +106,10 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+              <Label
+                htmlFor="email"
+                className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+              >
                 <Mail className="size-4 text-lime-600" />
                 Email
               </Label>
@@ -96,7 +129,10 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+              <Label
+                htmlFor="password"
+                className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+              >
                 <Lock className="size-4 text-lime-600" />
                 Password
               </Label>
@@ -113,12 +149,14 @@ export default function RegisterPage() {
                   {errors.password.message}
                 </p>
               )}
-              <p className="text-xs text-gray-500 mt-1">At least 8 characters</p>
+              <p className="text-xs text-gray-500 mt-1">
+                At least 3 characters
+              </p>
             </div>
 
-            <Button 
-              type="submit" 
-              disabled={isSubmitting} 
+            <Button
+              type="submit"
+              disabled={isSubmitting}
               className="w-full h-11 bg-lime-400 hover:bg-lime-500 text-gray-950 font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 mt-6"
             >
               {isSubmitting ? (
@@ -157,15 +195,25 @@ export default function RegisterPage() {
               Tailor faster
             </h2>
             <p className="text-lg text-white/90 leading-relaxed">
-              One master profile. Unlimited tailored applications. Watch your interview rate skyrocket.
+              One master profile. Unlimited tailored applications. Watch your
+              interview rate skyrocket.
             </p>
           </div>
 
           <div className="space-y-5 mt-10">
             {[
-              { title: "Smart Matching", desc: "AI matches your skills to job requirements" },
-              { title: "Multiple Templates", desc: "Choose from professional resume styles" },
-              { title: "ATS-Optimized", desc: "Passes applicant tracking systems" },
+              {
+                title: "Smart Matching",
+                desc: "AI matches your skills to job requirements",
+              },
+              {
+                title: "Multiple Templates",
+                desc: "Choose from professional resume styles",
+              },
+              {
+                title: "ATS-Optimized",
+                desc: "Passes applicant tracking systems",
+              },
             ].map((item, idx) => (
               <div key={idx} className="flex gap-4 items-start">
                 <div className="shrink-0">
