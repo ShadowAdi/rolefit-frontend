@@ -12,7 +12,6 @@ import { Zap, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
@@ -31,7 +30,6 @@ export default function RegisterPage() {
   const onSubmit = async (createUserData: RegisterFormData) => {
     try {
       console.log("User Data ", {
-        name: createUserData.name,
         email: createUserData.email,
         password: createUserData.password,
       });
@@ -65,21 +63,6 @@ export default function RegisterPage() {
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="name" className="text-sm font-medium">
-                Name
-              </Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Your name"
-                {...register("name")}
-                aria-invalid={!!errors.name}
-              />
-              {errors.name && (
-                <p className="text-xs text-error">{errors.name.message}</p>
-              )}
-            </div>
 
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-sm font-medium">
