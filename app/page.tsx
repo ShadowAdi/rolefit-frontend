@@ -4,11 +4,10 @@ import Link from "next/link";
 export default function Home() {
   return (
     <main className="flex flex-col items-center w-full">
-      {/* Hero */}
       <section className="w-full">
         <div className="relative overflow-hidden">
-          <div className="pointer-events-none absolute -top-24 right-[-120px] h-72 w-72 rounded-full bg-lime-200/70 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 left-[-140px] h-80 w-80 rounded-full bg-gray-200/70 blur-3xl" />
+          <div className="pointer-events-none absolute -top-24 -right-30 h-72 w-72 rounded-full bg-lime-200/70 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -left-35 h-80 w-80 rounded-full bg-gray-200/70 blur-3xl" />
 
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 flex flex-col items-center text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 shadow-sm">
@@ -61,7 +60,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features */}
       <section
         id="features"
         className="w-full bg-gray-50 py-16 md:py-20 border-y border-gray-100"
@@ -114,7 +112,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24">
           <div className="rounded-3xl border border-gray-200 bg-white p-10 md:p-14 text-center shadow-sm">
