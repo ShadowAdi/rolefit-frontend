@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import Header from "@/components/Header";
 import { Toaster } from "sonner";
+import { AuthProvider } from "@/context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,13 +33,13 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white text-gray-900">
-        <Providers>
-          <Header />
-          <div className="flex-1">
-            {children}
-          </div>
-          <Toaster />
-        </Providers>
+        <AuthProvider>
+          <Providers>
+            <Header />
+            <div className="flex-1">{children}</div>
+            <Toaster richColors/>
+          </Providers>
+        </AuthProvider>
       </body>
     </html>
   );
