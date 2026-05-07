@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { redirect } from "next/navigation";
 import { toast } from "sonner";
-import { Zap, ArrowRight, Loader2 } from "lucide-react";
+import { Zap, ArrowRight, Loader2, Mail, Lock, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const registerSchema = z.object({
@@ -43,76 +43,93 @@ export default function RegisterPage() {
   };
 
   return (
-    <>
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-90">
-          <Link href="/" className="inline-flex items-center gap-2 mb-10">
-            <div className="size-8 rounded-lg bg-lime-400 flex items-center justify-center">
-              <Zap className="size-4 text-gray-950" />
+    <div className="min-h-screen flex w-full">
+      <div className="flex-1 flex items-center justify-center px-6 py-12 relative overflow-hidden">
+        <div className="pointer-events-none absolute -top-40 -right-40 h-80 w-80 rounded-full bg-lime-200/40 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-gray-200/40 blur-3xl" />
+
+        <div className="w-full max-w-md relative z-10">
+          <Link href="/" className="inline-flex items-center gap-2 mb-12 group">
+            <div className="size-10 rounded-xl bg-lime-400 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+              <Zap className="size-5 text-gray-950" />
             </div>
-            <span className="text-base font-semibold tracking-tight">
+            <span className="text-xl font-bold tracking-tight text-gray-950">
               RoleFit
             </span>
           </Link>
 
-          <h1 className="text-2xl font-semibold tracking-tight mb-1">
-            Create your account
-          </h1>
-          <p className="text-sm text-text-secondary mb-8">
-            Get started with RoleFit — tailor resumes for every job
-          </p>
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold tracking-tight text-gray-950 mb-2">
+              Create account
+            </h1>
+            <p className="text-base text-gray-600">
+              Start tailoring resumes in minutes
+            </p>
+          </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-medium">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <Mail className="size-4 text-lime-600" />
                 Email
               </Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@company.com"
+                placeholder="you@example.com"
                 {...register("email")}
                 aria-invalid={!!errors.email}
+                className="h-11 border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-400 focus:ring-lime-400/20 transition-colors"
               />
               {errors.email && (
-                <p className="text-xs text-error">{errors.email.message}</p>
+                <p className="text-xs font-medium text-red-600 flex items-center gap-1">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-sm font-medium">
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <Lock className="size-4 text-lime-600" />
                 Password
               </Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Min. 8 characters"
+                placeholder="••••••••"
                 {...register("password")}
                 aria-invalid={!!errors.password}
+                className="h-11 border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-400 focus:ring-lime-400/20 transition-colors"
               />
               {errors.password && (
-                <p className="text-xs text-error">{errors.password.message}</p>
+                <p className="text-xs font-medium text-red-600 flex items-center gap-1">
+                  {errors.password.message}
+                </p>
               )}
+              <p className="text-xs text-gray-500 mt-1">At least 8 characters</p>
             </div>
 
-            <Button type="submit" disabled={isSubmitting} className="w-full">
+            <Button 
+              type="submit" 
+              disabled={isSubmitting} 
+              className="w-full h-11 bg-lime-400 hover:bg-lime-500 text-gray-950 font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 mt-6"
+            >
               {isSubmitting ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (
                 <>
                   Create account
-                  <ArrowRight className="size-4 ml-1" />
+                  <ArrowRight className="size-4 ml-2" />
                 </>
               )}
             </Button>
           </form>
 
-          <p className="text-center text-sm text-text-secondary mt-6">
+          <p className="text-center text-sm text-gray-600 mt-6">
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-medium text-text-primary hover:underline underline-offset-4"
+              className="font-semibold text-gray-950 hover:text-lime-600 transition-colors"
             >
               Sign in
             </Link>
@@ -120,43 +137,47 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      <div className="hidden lg:flex flex-1 bg-lime-400 items-center justify-center p-12">
-        <div className="max-w-md">
-          <h2 className="text-3xl font-semibold text-gray-950 tracking-tight mb-4">
-            Tailor faster, apply smarter
-          </h2>
-          <p className="text-gray-800 text-[15px] leading-relaxed mb-8">
-            Create one master profile, then generate role-specific resumes and
-            cover letters in minutes. Match keywords while staying authentic.
-          </p>
-          <div className="space-y-4">
+      {/* Right Column - Marketing */}
+      <div className="hidden lg:flex flex-1 bg-lime-400 items-center justify-center p-12 relative overflow-hidden">
+        {/* Decorative blobs */}
+        <div className="pointer-events-none absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="pointer-events-none absolute bottom-0 left-0 w-80 h-80 bg-white/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+
+        <div className="max-w-md relative z-10">
+          <div className="mb-8">
+            <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-white/20 backdrop-blur-sm mb-4">
+              <CheckCircle2 className="size-6 text-white" />
+            </div>
+            <h2 className="text-4xl font-bold text-white tracking-tight mb-4">
+              Tailor faster
+            </h2>
+            <p className="text-lg text-white/90 leading-relaxed">
+              One master profile. Unlimited tailored applications. Watch your interview rate skyrocket.
+            </p>
+          </div>
+
+          <div className="space-y-5 mt-10">
             {[
-              "One profile, unlimited applications",
-              "AI-powered resume tailoring",
-              "ATS-friendly PDFs",
-            ].map((item) => (
-              <div key={item} className="flex items-center gap-3">
-                <div className="size-5 rounded-full bg-white/30 flex items-center justify-center shrink-0">
-                  <svg
-                    className="size-3 text-gray-950"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2.5}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+              { title: "Smart Matching", desc: "AI matches your skills to job requirements" },
+              { title: "Multiple Templates", desc: "Choose from professional resume styles" },
+              { title: "ATS-Optimized", desc: "Passes applicant tracking systems" },
+            ].map((item, idx) => (
+              <div key={idx} className="flex gap-4 items-start">
+                <div className="shrink-0">
+                  <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-white/20 backdrop-blur-sm">
+                    <CheckCircle2 className="h-5 w-5 text-white" />
+                  </div>
                 </div>
-                <span className="text-gray-800 text-sm">{item}</span>
+                <div>
+                  <h3 className="font-semibold text-white">{item.title}</h3>
+                  <p className="text-sm text-white/80">{item.desc}</p>
+                </div>
               </div>
             ))}
           </div>
+
         </div>
       </div>
-    </>
+    </div>
   );
 }
