@@ -1,5 +1,6 @@
-import { UserAuthenticatedResponse, User } from './auth';
+import { UserAuthenticatedResponse } from './auth';
 
+export type UUID = string;
 // Generic API Response wrapper
 export interface ApiResponse<T> {
   success: boolean;
