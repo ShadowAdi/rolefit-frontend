@@ -1,5 +1,5 @@
 import axiosInstance from "@/api/axios-instance";
-import { ApiErrorResponse, isApiError } from "@/types/api";
+import { ApiErrorResponse } from "@/types/api";
 import { UserAuthenticatedResponse } from "@/types/auth";
 
 interface LoginPayload {
@@ -29,7 +29,6 @@ export const loginUser = async (payload: LoginPayload): Promise<LoginResult> => 
 
     const data = response.data;
 
-    // Check if response is valid
     if (response.status === 200 && data) {
       return {
         success: true,
