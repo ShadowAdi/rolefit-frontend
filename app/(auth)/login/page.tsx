@@ -42,7 +42,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isAuthLoading && isAuthenticated) {
-      router.push("/brands");
+      router.push("/dashboard");
     }
   }, [isAuthLoading, isAuthenticated, router]);
 
