@@ -4,6 +4,7 @@ import {
   ProfileAuthenticatedResponse,
   ProfilePayload,
   ProfileResult,
+  ProfileUpdatePayload,
 } from "@/types/profile.types";
 
 export const createProfile = async (
@@ -77,6 +78,43 @@ export const getProfile = async (token: string): Promise<ProfileResult> => {
       success: false,
       message:
         errorData?.message || errorData?.detail || "Profile fetch failed",
+      detail: errorData?.detail,
+    };
+  }
+};
+
+export const updateProfile = async (token: string,payload:ProfileUpdatePayload): Promise<ProfileResult> => {
+  try {
+    const response = await axiosInstance.patch<ProfileAuthenticatedResponse>(
+      "/profile/",
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    const data = response.data;
+
+    if (response.status === 200 && data) {
+      return {
+        success: true,
+        data,
+      };
+    }
+
+    return {
+      success: false,
+      message: "Profile Update failed",
+    };
+  } catch (error: any) {
+    const errorData = error.response?.data as ApiErrorResponse | undefined;
+
+    return {
+      success: false,
+      message:
+        errorData?.message || errorData?.detail || "Profile Update failed",
       detail: errorData?.detail,
     };
   }

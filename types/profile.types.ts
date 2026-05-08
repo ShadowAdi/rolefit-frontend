@@ -20,6 +20,15 @@ export interface ProfilePayload {
   links?: string[];
 }
 
+export interface ProfileUpdatePayload {
+  full_name?: string;
+  summary?: string;
+  headline?: string;
+  resume_link?: string;
+  cover_letter_link?: string;
+  links?: string[];
+}
+
 interface ProfileSuccess {
   success: true;
   data: ProfileAuthenticatedResponse;
