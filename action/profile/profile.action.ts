@@ -2,6 +2,9 @@ import axiosInstance from "@/api/axios-instance";
 import { ApiErrorResponse } from "@/types/api";
 import {
   ProfileAuthenticatedResponse,
+  ProfileDeleteResult,
+  ProfileDeleteResponse,
+  ProfileDeleteSuccess,
   ProfilePayload,
   ProfileResult,
   ProfileUpdatePayload,
@@ -115,6 +118,42 @@ export const updateProfile = async (token: string,payload:ProfileUpdatePayload):
       success: false,
       message:
         errorData?.message || errorData?.detail || "Profile Update failed",
+      detail: errorData?.detail,
+    };
+  }
+};
+
+export const deleteProfile = async (token: string): Promise<ProfileDeleteResult> => {
+  try {
+    const response = await axiosInstance.delete<ProfileDeleteResponse>(
+      "/profile/",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    const data = response.data;
+
+    if (response.status === 200 && data) {
+      return {
+        success: true,
+        data,
+      };
+    }
+
+    return {
+      success: false,
+      message: "Profile Deletion failed",
+    };
+  } catch (error: any) {
+    const errorData = error.response?.data as ApiErrorResponse | undefined;
+
+    return {
+      success: false,
+      message:
+        errorData?.message || errorData?.detail || "Profile Deletion failed",
       detail: errorData?.detail,
     };
   }

@@ -20,6 +20,12 @@ export interface ProfilePayload {
   links?: string[];
 }
 
+export interface ProfileDeleteResponse {
+  message:string;
+  id:string;
+  full_name:string
+}
+
 export interface ProfileUpdatePayload {
   full_name?: string;
   summary?: string;
@@ -34,6 +40,11 @@ interface ProfileSuccess {
   data: ProfileAuthenticatedResponse;
 }
 
+export interface ProfileDeleteSuccess {
+  success: true;
+  data: ProfileDeleteResponse;
+}
+
 export interface ProfileError {
   success: false;
   message: string;
@@ -41,3 +52,4 @@ export interface ProfileError {
 }
 
 export type ProfileResult = ProfileSuccess | ProfileError;
+export type ProfileDeleteResult = ProfileDeleteSuccess | ProfileError;
