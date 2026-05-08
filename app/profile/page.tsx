@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import {
   createProfile,
+  deleteProfileAction,
   getProfile,
   updateProfile,
 } from "@/action/profile/profile.action";
@@ -32,6 +33,7 @@ import {
   Loader2,
   CheckCircle2,
   Edit2,
+  Trash,
 } from "lucide-react";
 
 const profileSchema = z.object({
@@ -42,18 +44,12 @@ const profileSchema = z.object({
     .string()
     .optional()
     .or(z.literal(""))
-    .refine(
-      (val) => !val || isValidUrl(val),
-      "Invalid resume link URL"
-    ),
+    .refine((val) => !val || isValidUrl(val), "Invalid resume link URL"),
   cover_letter_link: z
     .string()
     .optional()
     .or(z.literal(""))
-    .refine(
-      (val) => !val || isValidUrl(val),
-      "Invalid cover letter link URL"
-    ),
+    .refine((val) => !val || isValidUrl(val), "Invalid cover letter link URL"),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -70,7 +66,9 @@ function isValidUrl(url: string): boolean {
 const ProfilePage = () => {
   const router = useRouter();
   const { token, isLoading: authLoading } = useAuth();
-  const [profile, setProfile] = useState<ProfileAuthenticatedResponse | null>(null);
+  const [profile, setProfile] = useState<ProfileAuthenticatedResponse | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -109,7 +107,7 @@ const ProfilePage = () => {
     try {
       const result = await getProfile(token);
 
-      console.log("fetvhing result ",result)
+      console.log("fetvhing result ", result);
 
       if (result.success && result.data) {
         setProfile(result.data);
@@ -164,7 +162,7 @@ const ProfilePage = () => {
         toast.success(
           profile
             ? "Profile updated successfully!"
-            : "Profile created successfully!"
+            : "Profile created successfully!",
         );
         setIsEditing(false);
         await fetchProfile();
@@ -174,6 +172,28 @@ const ProfilePage = () => {
     } catch (err) {
       console.error("Error saving profile:", err);
       toast.error("An error occurred while saving profile");
+    }
+  };
+
+  const deleteProfile = async () => {
+    if (!token) {
+      toast.error("Authentication token not found");
+      return;
+    }
+
+    try {
+      if (profile) {
+        const response = await deleteProfileAction(token);
+        if (response.success) {
+          toast.success("Delete Profile Successfull");
+          setProfile(null);
+        }
+      } else {
+        toast.error(`Profile do not exist`);
+      }
+    } catch (error) {
+      console.error("Error deleting profile:", error);
+      toast.error("An error occurred while deleting profile");
     }
   };
 
@@ -204,8 +224,6 @@ const ProfilePage = () => {
 
       <div className="flex items-center justify-center min-h-screen px-4 py-12 relative z-10">
         <div className="w-full max-w-2xl">
-  
-
           <div className="mb-8">
             <h1 className="text-3xl font-bold tracking-tight text-gray-950 mb-2">
               {profile && !isEditing ? "Your Profile" : "Create Your Profile"}
@@ -294,6 +312,13 @@ const ProfilePage = () => {
               >
                 <Edit2 className="size-4 mr-2" />
                 Edit Profile
+              </Button>
+              <Button
+                onClick={() => deleteProfile()}
+                className="w-full h-11 bg-stone-900 text-white  font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+              >
+                <Trash className="size-4 mr-2" />
+                Delete Profile
               </Button>
             </div>
           ) : (

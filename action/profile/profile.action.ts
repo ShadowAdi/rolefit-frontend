@@ -130,7 +130,7 @@ export const updateProfile = async (
   }
 };
 
-export const deleteProfile = async (
+export const deleteProfileAction = async (
   token: string,
 ): Promise<ProfileDeleteResult> => {
   try {
@@ -142,6 +142,8 @@ export const deleteProfile = async (
         },
       },
     );
+
+    console.log("delete response ",response.data)
 
     const data = response.data;
 
