@@ -77,7 +77,6 @@ const ProfilePage = () => {
         });
         setIsEditing(false);
       } else {
-        // Profile doesn't exist yet, show create form
         setProfile(null);
         setIsEditing(true);
       }
