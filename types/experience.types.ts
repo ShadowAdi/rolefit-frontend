@@ -51,13 +51,19 @@ export interface ExperienceUpdateRequest {
 }
 
 
-export interface ExperienceCreateResponse {
+export interface ExperienceCreatedData {
   id: UUID;
   company_name: string;
   role: string;
   profileId: UUID;
   created_at: string;
 }
+
+export interface ExperienceCreatedResponse {
+  success:boolean;
+  data:ExperienceCreatedData
+}
+
 
 export interface ExperienceGetResponse {
   id: UUID;

@@ -1,6 +1,13 @@
 import { UserAuthenticatedResponse } from './auth';
 
 export type UUID = string;
+
+export interface ValidationErrorField {
+  field: string;
+  code: string;
+  message: string;
+  constraint?: string;
+}
 // Generic API Response wrapper
 export interface ApiResponse<T> {
   success: boolean;
@@ -29,6 +36,7 @@ export interface ApiErrorResponse {
   message?: string;
   detail?: string;
   error?: string;
+  errors?: ValidationErrorField[];
   timestamp?: string;
 }
 
