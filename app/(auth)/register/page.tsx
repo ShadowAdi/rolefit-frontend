@@ -52,7 +52,7 @@ export default function RegisterPage() {
         email: createUserData.email,
         password: createUserData.password,
       });
-
+      
       if (result.success) {
         toast.success("Registration successful! Redirecting to login...");
         window.location.href = "/login";
