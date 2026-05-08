@@ -25,6 +25,8 @@ export const createProfile = async (
       },
     );
 
+    console.log("Raw response create profile ", response.data);
+
     const data = response.data;
 
     if (response.status === 200 && data) {
@@ -61,6 +63,8 @@ export const getProfile = async (token: string): Promise<ProfileResult> => {
       },
     );
 
+    console.log("Raw response fetch profile ", response.data);
+
     const data = response.data;
 
     if (response.status === 200 && data) {
@@ -86,7 +90,10 @@ export const getProfile = async (token: string): Promise<ProfileResult> => {
   }
 };
 
-export const updateProfile = async (token: string,payload:ProfileUpdatePayload): Promise<ProfileResult> => {
+export const updateProfile = async (
+  token: string,
+  payload: ProfileUpdatePayload,
+): Promise<ProfileResult> => {
   try {
     const response = await axiosInstance.patch<ProfileAuthenticatedResponse>(
       "/profile/",
@@ -123,7 +130,9 @@ export const updateProfile = async (token: string,payload:ProfileUpdatePayload):
   }
 };
 
-export const deleteProfile = async (token: string): Promise<ProfileDeleteResult> => {
+export const deleteProfile = async (
+  token: string,
+): Promise<ProfileDeleteResult> => {
   try {
     const response = await axiosInstance.delete<ProfileDeleteResponse>(
       "/profile/",

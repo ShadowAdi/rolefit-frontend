@@ -109,6 +109,8 @@ const ProfilePage = () => {
     try {
       const result = await getProfile(token);
 
+      console.log("fetvhing result ",result)
+
       if (result.success && result.data) {
         setProfile(result.data);
         setValue("full_name", result.data.full_name);
@@ -195,20 +197,14 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen flex w-full">
-      <div className="flex-1 flex items-center justify-center px-6 py-12 relative overflow-hidden">
-        <div className="pointer-events-none absolute -top-40 -right-40 h-80 w-80 rounded-full bg-lime-200/40 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-gray-200/40 blur-3xl" />
+    <div className="min-h-screen w-full bg-gradient-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
+      <div className="pointer-events-none absolute -top-40 -right-40 h-80 w-80 rounded-full bg-lime-200/30 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-blue-200/30 blur-3xl" />
+      <div className="pointer-events-none absolute top-1/2 left-1/2 w-96 h-96 rounded-full bg-lime-100/20 blur-3xl" />
 
-        <div className="w-full max-w-md relative z-10">
-          <Link href="/dashboard" className="inline-flex items-center gap-2 mb-12 group">
-            <div className="size-10 rounded-xl bg-lime-400 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-              <Zap className="size-5 text-gray-950" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-gray-950">
-              RoleFit
-            </span>
-          </Link>
+      <div className="flex items-center justify-center min-h-screen px-4 py-12 relative z-10">
+        <div className="w-full max-w-2xl">
+  
 
           <div className="mb-8">
             <h1 className="text-3xl font-bold tracking-tight text-gray-950 mb-2">
@@ -222,7 +218,6 @@ const ProfilePage = () => {
           </div>
 
           {profile && !isEditing ? (
-            // View Profile
             <div className="space-y-6 mb-8">
               <div className="bg-white/40 backdrop-blur-sm border border-white/60 rounded-lg p-5 space-y-4">
                 <div>
@@ -303,13 +298,13 @@ const ProfilePage = () => {
             </div>
           ) : (
             // Edit/Create Form
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              <div className="space-y-2">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-3">
                 <Label
                   htmlFor="full_name"
-                  className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+                  className="text-sm font-semibold text-gray-900 flex items-center gap-2"
                 >
-                  <User className="size-4 text-lime-600" />
+                  <User className="size-5 text-lime-600" />
                   Full Name
                 </Label>
                 <Input
@@ -318,21 +313,21 @@ const ProfilePage = () => {
                   placeholder="John Doe"
                   {...register("full_name")}
                   aria-invalid={!!errors.full_name}
-                  className="h-11 border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-400 focus:ring-lime-400/20 transition-colors"
+                  className="h-12 text-base border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all shadow-sm"
                 />
                 {errors.full_name && (
-                  <p className="text-xs font-medium text-red-600 flex items-center gap-1">
+                  <p className="text-sm font-medium text-red-600">
                     {errors.full_name.message}
                   </p>
                 )}
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Label
                   htmlFor="headline"
-                  className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+                  className="text-sm font-semibold text-gray-900 flex items-center gap-2"
                 >
-                  <Briefcase className="size-4 text-lime-600" />
+                  <Briefcase className="size-5 text-lime-600" />
                   Headline
                 </Label>
                 <Input
@@ -340,39 +335,39 @@ const ProfilePage = () => {
                   type="text"
                   placeholder="e.g., Senior Software Engineer"
                   {...register("headline")}
-                  className="h-11 border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-400 focus:ring-lime-400/20 transition-colors"
+                  className="h-12 text-base border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all shadow-sm"
                 />
-                <p className="text-xs text-gray-500">
-                  Your professional title or role
+                <p className="text-xs text-gray-600 mt-1">
+                  Your professional title or current role
                 </p>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Label
                   htmlFor="summary"
-                  className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+                  className="text-sm font-semibold text-gray-900 flex items-center gap-2"
                 >
-                  <FileText className="size-4 text-lime-600" />
-                  Summary
+                  <FileText className="size-5 text-lime-600" />
+                  Professional Summary
                 </Label>
                 <Textarea
                   id="summary"
-                  placeholder="Tell us about yourself, your experience, and your skills..."
+                  placeholder="Tell us about yourself, your experience, skills, and career goals..."
                   {...register("summary")}
-                  rows={4}
-                  className="border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-400 focus:ring-lime-400/20 transition-colors resize-none"
+                  rows={5}
+                  className="text-base border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all shadow-sm resize-none"
                 />
-                <p className="text-xs text-gray-500">
-                  Share your professional background and expertise
+                <p className="text-xs text-gray-600 mt-1">
+                  Share your professional background and key expertise
                 </p>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Label
                   htmlFor="resume_link"
-                  className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+                  className="text-sm font-semibold text-gray-900 flex items-center gap-2"
                 >
-                  <LinkIcon className="size-4 text-lime-600" />
+                  <LinkIcon className="size-5 text-lime-600" />
                   Resume Link
                 </Label>
                 <Input
@@ -381,24 +376,24 @@ const ProfilePage = () => {
                   placeholder="https://example.com/resume.pdf"
                   {...register("resume_link")}
                   aria-invalid={!!errors.resume_link}
-                  className="h-11 border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-400 focus:ring-lime-400/20 transition-colors"
+                  className="h-12 text-base border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all shadow-sm"
                 />
                 {errors.resume_link && (
-                  <p className="text-xs font-medium text-red-600 flex items-center gap-1">
+                  <p className="text-sm font-medium text-red-600">
                     {errors.resume_link.message}
                   </p>
                 )}
-                <p className="text-xs text-gray-500">
-                  Link to your resume document
+                <p className="text-xs text-gray-600 mt-1">
+                  URL to your resume PDF or document
                 </p>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Label
                   htmlFor="cover_letter_link"
-                  className="text-sm font-semibold text-gray-700 flex items-center gap-2"
+                  className="text-sm font-semibold text-gray-900 flex items-center gap-2"
                 >
-                  <LinkIcon className="size-4 text-lime-600" />
+                  <LinkIcon className="size-5 text-lime-600" />
                   Cover Letter Link
                 </Label>
                 <Input
@@ -407,30 +402,30 @@ const ProfilePage = () => {
                   placeholder="https://example.com/cover-letter.pdf"
                   {...register("cover_letter_link")}
                   aria-invalid={!!errors.cover_letter_link}
-                  className="h-11 border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-400 focus:ring-lime-400/20 transition-colors"
+                  className="h-12 text-base border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all shadow-sm"
                 />
                 {errors.cover_letter_link && (
-                  <p className="text-xs font-medium text-red-600 flex items-center gap-1">
+                  <p className="text-sm font-medium text-red-600">
                     {errors.cover_letter_link.message}
                   </p>
                 )}
-                <p className="text-xs text-gray-500">
-                  Link to your cover letter template
+                <p className="text-xs text-gray-600 mt-1">
+                  URL to your cover letter template
                 </p>
               </div>
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-3 pt-4">
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 h-11 bg-lime-400 hover:bg-lime-500 text-gray-950 font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                  className="flex-1 h-12 bg-lime-400 hover:bg-lime-500 text-gray-950 font-bold text-base rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   {isSubmitting ? (
-                    <Loader2 className="size-4 animate-spin" />
+                    <Loader2 className="size-5 animate-spin" />
                   ) : (
                     <>
                       {profile ? "Update Profile" : "Create Profile"}
-                      <ArrowRight className="size-4 ml-2" />
+                      <ArrowRight className="size-5 ml-2" />
                     </>
                   )}
                 </Button>
@@ -439,7 +434,7 @@ const ProfilePage = () => {
                     type="button"
                     onClick={() => setIsEditing(false)}
                     variant="outline"
-                    className="flex-1 h-11 border-gray-200 text-gray-950 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+                    className="flex-1 h-12 border-2 border-gray-300 text-gray-950 font-semibold text-base rounded-lg hover:bg-gray-100 transition-colors"
                   >
                     Cancel
                   </Button>
@@ -447,65 +442,6 @@ const ProfilePage = () => {
               </div>
             </form>
           )}
-        </div>
-      </div>
-
-      <div className="hidden lg:flex flex-1 bg-lime-400 items-center justify-center p-12 relative overflow-hidden">
-        <div className="pointer-events-none absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="pointer-events-none absolute bottom-0 left-0 w-80 h-80 bg-white/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-
-        <div className="max-w-md relative z-10">
-          <div className="mb-8">
-            <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-white/20 backdrop-blur-sm mb-4">
-              <CheckCircle2 className="size-6 text-white" />
-            </div>
-            <h2 className="text-4xl font-bold text-white tracking-tight mb-4">
-              Your Profile,
-              <br />
-              Your Way
-            </h2>
-            <p className="text-lg text-white/90 leading-relaxed">
-              Create a comprehensive profile that showcases your unique skills
-              and experience. Use it to tailor your resume for any job.
-            </p>
-          </div>
-
-          <div className="space-y-5 mt-10">
-            {[
-              {
-                title: "Professional Presence",
-                desc: "Build a complete professional profile",
-              },
-              {
-                title: "Easy Updates",
-                desc: "Update your information anytime",
-              },
-              {
-                title: "Smart Matching",
-                desc: "Your profile fuels our AI matching engine",
-              },
-            ].map((item, idx) => (
-              <div key={idx} className="flex gap-4 items-start">
-                <div className="shrink-0">
-                  <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-white/20 backdrop-blur-sm">
-                    <CheckCircle2 className="h-5 w-5 text-white" />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">{item.title}</h3>
-                  <p className="text-sm text-white/80">{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-12 p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
-            <p className="text-sm text-white/90">
-              <span className="font-semibold">Pro tip:</span> A complete profile
-              helps our AI generate better-tailored resumes that match job
-              requirements perfectly.
-            </p>
-          </div>
         </div>
       </div>
     </div>
