@@ -16,8 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, X, Loader2 } from "lucide-react";
+import { Plus, X, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { MonthYearPicker } from "@/components/global/MonthYearPickup";
 
 interface StepProps {
   onNext: () => void;
@@ -45,11 +46,6 @@ const months = Array.from({ length: 12 }, (_, i) => ({
   value: i + 1,
   label: new Date(2000, i).toLocaleString("default", { month: "long" }),
 }));
-
-const years = Array.from({ length: 50 }, (_, i) => {
-  const year = new Date().getFullYear() - i;
-  return { value: year, label: year.toString() };
-});
 
 const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
   const { token } = useAuth();
@@ -79,10 +75,7 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
     if (techStackInput.trim()) {
       const currentStack = form.getValues("techStack") || [];
       if (!currentStack.includes(techStackInput.trim())) {
-        form.setValue("techStack", [
-          ...currentStack,
-          techStackInput.trim(),
-        ]);
+        form.setValue("techStack", [...currentStack, techStackInput.trim()]);
         setTechStackInput("");
       }
     }
@@ -171,9 +164,7 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setExperiences(
-                        experiences.filter((_, i) => i !== idx)
-                      );
+                      setExperiences(experiences.filter((_, i) => i !== idx));
                       toast.success("Experience removed");
                     }}
                     className="text-red-500 hover:text-red-700 hover:bg-red-50"
@@ -189,122 +180,26 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
       )}
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-gray-700 font-semibold block mb-2">
-                  Company Name *
-                </label>
-                <Controller
-                  control={form.control}
-                  name="company_name"
-                  render={({ field, fieldState: { error } }) => (
-                    <div>
-                      <Input
-                        placeholder="e.g., Apple, Google"
-                        {...field}
-                        className="h-11 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all"
-                      />
-                      {error && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {error.message}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                />
-              </div>
-
-              <div>
-                <label className="text-gray-700 font-semibold block mb-2">
-                  Job Role *
-                </label>
-                <Controller
-                  control={form.control}
-                  name="role"
-                  render={({ field, fieldState: { error } }) => (
-                    <div>
-                      <Input
-                        placeholder="e.g., Senior Developer"
-                        {...field}
-                        className="h-11 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all"
-                      />
-                      {error && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {error.message}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-gray-700 font-semibold block mb-2">
-                  Employment Type
-                </label>
-                <Controller
-                  control={form.control}
-                  name="employment_type"
-                  render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value || ""}>
-                      <SelectTrigger className="h-11 border-gray-300 bg-white text-gray-900 focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30">
-                        <SelectValue placeholder="Select employment type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Full-time">Full-time</SelectItem>
-                        <SelectItem value="Part-time">Part-time</SelectItem>
-                        <SelectItem value="Contract">Contract</SelectItem>
-                        <SelectItem value="Freelance">Freelance</SelectItem>
-                        <SelectItem value="Intern">Intern</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
-
-              <div>
-                <label className="text-gray-700 font-semibold block mb-2">
-                  Location Type
-                </label>
-                <Controller
-                  control={form.control}
-                  name="location_type"
-                  render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value || ""}>
-                      <SelectTrigger className="h-11 border-gray-300 bg-white text-gray-900 focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30">
-                        <SelectValue placeholder="Select location type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="On-site">On-site</SelectItem>
-                        <SelectItem value="Remote">Remote</SelectItem>
-                        <SelectItem value="Hybrid">Hybrid</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Location Details */}
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-gray-700 font-semibold block mb-2">
-                Location Details
+                Company Name *
               </label>
               <Controller
                 control={form.control}
-                name="location_details"
+                name="company_name"
                 render={({ field, fieldState: { error } }) => (
                   <div>
                     <Input
-                      placeholder="e.g., San Francisco, CA"
+                      placeholder="e.g., Apple, Google"
                       {...field}
                       className="h-11 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all"
                     />
                     {error && (
-                      <p className="text-red-500 text-sm mt-1">{error.message}</p>
+                      <p className="text-red-500 text-sm mt-1">
+                        {error.message}
+                      </p>
                     )}
                   </div>
                 )}
@@ -313,220 +208,261 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
 
             <div>
               <label className="text-gray-700 font-semibold block mb-2">
-                Start Date
+                Job Role *
               </label>
-              <div className="grid grid-cols-2 gap-4">
-                <Controller
-                  control={form.control}
-                  name="start_month"
-                  render={({ field }) => (
-                    <Select
-                      onValueChange={(v) => field.onChange(parseInt(v))}
-                      value={field.value?.toString() || ""}
-                    >
-                      <SelectTrigger className="h-11 border-gray-300 bg-white text-gray-900 focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30">
-                        <SelectValue placeholder="Month" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {months.map((month) => (
-                          <SelectItem
-                            key={month.value}
-                            value={month.value.toString()}
-                          >
-                            {month.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-
-                <Controller
-                  control={form.control}
-                  name="start_year"
-                  render={({ field }) => (
-                    <Select
-                      onValueChange={(v) => field.onChange(parseInt(v))}
-                      value={field.value?.toString() || ""}
-                    >
-                      <SelectTrigger className="h-11 border-gray-300 bg-white text-gray-900 focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30">
-                        <SelectValue placeholder="Year" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {years.map((year) => (
-                          <SelectItem
-                            key={year.value}
-                            value={year.value.toString()}
-                          >
-                            {year.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-gray-700 font-semibold block mb-2">
-                End Date
-              </label>
-              <div className="grid grid-cols-2 gap-4">
-                <Controller
-                  control={form.control}
-                  name="end_month"
-                  render={({ field }) => (
-                    <Select
-                      onValueChange={(v) => field.onChange(parseInt(v))}
-                      value={field.value?.toString() || ""}
-                    >
-                      <SelectTrigger className="h-11 border-gray-300 bg-white text-gray-900 focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30">
-                        <SelectValue placeholder="Month" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {months.map((month) => (
-                          <SelectItem
-                            key={month.value}
-                            value={month.value.toString()}
-                          >
-                            {month.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-
-                <Controller
-                  control={form.control}
-                  name="end_year"
-                  render={({ field }) => (
-                    <Select
-                      onValueChange={(v) => field.onChange(parseInt(v))}
-                      value={field.value?.toString() || ""}
-                    >
-                      <SelectTrigger className="h-11 border-gray-300 bg-white text-gray-900 focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30">
-                        <SelectValue placeholder="Year" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {years.map((year) => (
-                          <SelectItem
-                            key={year.value}
-                            value={year.value.toString()}
-                          >
-                            {year.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-gray-700 font-semibold block mb-2">
-                Description *
-              </label>
-              <p className="text-xs text-gray-500 mb-2">
-                Describe your responsibilities and achievements
-              </p>
               <Controller
                 control={form.control}
-                name="description"
+                name="role"
                 render={({ field, fieldState: { error } }) => (
                   <div>
-                    <Textarea
-                      placeholder="Tell us about your role, responsibilities, and key achievements..."
+                    <Input
+                      placeholder="e.g., Senior Developer"
                       {...field}
-                      className="min-h-30 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all resize-none"
+                      className="h-11 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all"
                     />
                     {error && (
-                      <p className="text-red-500 text-sm mt-1">{error.message}</p>
+                      <p className="text-red-500 text-sm mt-1">
+                        {error.message}
+                      </p>
                     )}
                   </div>
                 )}
               />
-            </div>
-
-            <div>
-              <label className="text-gray-700 font-semibold block mb-2">
-                Technologies & Tools
-              </label>
-              <p className="text-xs text-gray-500 mb-3">
-                Add the technologies and tools you used in this role
-              </p>
-              <div className="space-y-3">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="e.g., React, Node.js, PostgreSQL"
-                    value={techStackInput}
-                    onChange={(e) => setTechStackInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addTechStack();
-                      }
-                    }}
-                    className="h-12 border-2 border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 hover:border-gray-300 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all flex-1 rounded-lg"
-                  />
-                  <Button
-                    type="button"
-                    onClick={addTechStack}
-                    size="sm"
-                    className="bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-lg h-12 px-4 transition-all shadow-sm hover:shadow-md"
-                  >
-                    <Plus className="size-4" />
-                  </Button>
-                </div>
-
-                <Controller
-                  control={form.control}
-                  name="techStack"
-                  render={({ field }) => (
-                    <>
-                      {field.value && field.value.length > 0 && (
-                        <div className="bg-white/50 border-2 border-lime-200 rounded-lg p-4">
-                          <div className="flex flex-wrap gap-2">
-                            {field.value.map((tech) => (
-                              <span
-                                key={tech}
-                                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lime-100 border-2 border-lime-300 text-lime-700 text-sm font-semibold shadow-sm hover:bg-lime-200 hover:border-lime-400 transition-all"
-                              >
-                                <span className="w-2 h-2 bg-lime-500 rounded-full"></span>
-                                {tech}
-                                <button
-                                  type="button"
-                                  onClick={() => removeTechStack(tech)}
-                                  className="ml-1 hover:opacity-70 transition-opacity hover:text-lime-600"
-                                >
-                                  <X className="size-4" />
-                                </button>
-                              </span>
-                            ))}
-                          </div>
-                          <p className="text-xs text-lime-600 mt-3 font-medium">
-                            {field.value.length} skill{field.value.length !== 1 ? "s" : ""} added
-                          </p>
-                        </div>
-                      )}
-                    </>
-                  )}
-                />
-              </div>
             </div>
           </div>
 
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="w-full h-11 bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
-          >
-            {isLoading && <Loader2 className="size-4 mr-2 animate-spin" />}
-            {isLoading ? "Adding Experience..." : "Add Experience"}
-          </Button>
-        </form>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-gray-700 font-semibold block mb-2">
+                Employment Type
+              </label>
+              <Controller
+                control={form.control}
+                name="employment_type"
+                render={({ field }) => (
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || ""}
+                  >
+                    <SelectTrigger className="h-11 border-gray-300 bg-white text-gray-900 focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30">
+                      <SelectValue placeholder="Select employment type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Full-time">Full-time</SelectItem>
+                      <SelectItem value="Part-time">Part-time</SelectItem>
+                      <SelectItem value="Contract">Contract</SelectItem>
+                      <SelectItem value="Freelance">Freelance</SelectItem>
+                      <SelectItem value="Intern">Intern</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+
+            <div>
+              <label className="text-gray-700 font-semibold block mb-2">
+                Location Type
+              </label>
+              <Controller
+                control={form.control}
+                name="location_type"
+                render={({ field }) => (
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || ""}
+                  >
+                    <SelectTrigger className="h-11 border-gray-300 bg-white text-gray-900 focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30">
+                      <SelectValue placeholder="Select location type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="On-site">On-site</SelectItem>
+                      <SelectItem value="Remote">Remote</SelectItem>
+                      <SelectItem value="Hybrid">Hybrid</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Location Details */}
+          <div>
+            <label className="text-gray-700 font-semibold block mb-2">
+              Location Details
+            </label>
+            <Controller
+              control={form.control}
+              name="location_details"
+              render={({ field, fieldState: { error } }) => (
+                <div>
+                  <Input
+                    placeholder="e.g., San Francisco, CA"
+                    {...field}
+                    className="h-11 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all"
+                  />
+                  {error && (
+                    <p className="text-red-500 text-sm mt-1">{error.message}</p>
+                  )}
+                </div>
+              )}
+            />
+          </div>
+
+          {/* ── NEW: Start Date MonthYearPicker ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Controller
+              control={form.control}
+              name="start_month"
+              render={({ field: monthField }) => (
+                <Controller
+                  control={form.control}
+                  name="start_year"
+                  render={({ field: yearField }) => (
+                    <MonthYearPicker
+                      label="Start Date"
+                      selectedMonth={monthField.value}
+                      selectedYear={yearField.value}
+                      onMonthChange={(m) => monthField.onChange(m)}
+                      onYearChange={(y) => yearField.onChange(y)}
+                      onClear={() => {
+                        monthField.onChange(undefined);
+                        yearField.onChange(undefined);
+                      }}
+                    />
+                  )}
+                />
+              )}
+            />
+
+            {/* ── NEW: End Date MonthYearPicker ── */}
+            <Controller
+              control={form.control}
+              name="end_month"
+              render={({ field: monthField }) => (
+                <Controller
+                  control={form.control}
+                  name="end_year"
+                  render={({ field: yearField }) => (
+                    <MonthYearPicker
+                      label="End Date"
+                      selectedMonth={monthField.value}
+                      selectedYear={yearField.value}
+                      onMonthChange={(m) => monthField.onChange(m)}
+                      onYearChange={(y) => yearField.onChange(y)}
+                      onClear={() => {
+                        monthField.onChange(undefined);
+                        yearField.onChange(undefined);
+                      }}
+                    />
+                  )}
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 font-semibold block mb-2">
+              Description *
+            </label>
+            <p className="text-xs text-gray-500 mb-2">
+              Describe your responsibilities and achievements
+            </p>
+            <Controller
+              control={form.control}
+              name="description"
+              render={({ field, fieldState: { error } }) => (
+                <div>
+                  <Textarea
+                    placeholder="Tell us about your role, responsibilities, and key achievements..."
+                    {...field}
+                    className="min-h-30 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all resize-none"
+                  />
+                  {error && (
+                    <p className="text-red-500 text-sm mt-1">{error.message}</p>
+                  )}
+                </div>
+              )}
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-700 font-semibold block mb-2">
+              Technologies & Tools
+            </label>
+            <p className="text-xs text-gray-500 mb-3">
+              Add the technologies and tools you used in this role
+            </p>
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="e.g., React, Node.js, PostgreSQL"
+                  value={techStackInput}
+                  onChange={(e) => setTechStackInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addTechStack();
+                    }
+                  }}
+                  className="h-12 border-2 border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 hover:border-gray-300 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all flex-1 rounded-lg"
+                />
+                <Button
+                  type="button"
+                  onClick={addTechStack}
+                  size="sm"
+                  className="bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-lg h-12 px-4 transition-all shadow-sm hover:shadow-md"
+                >
+                  <Plus className="size-4" />
+                </Button>
+              </div>
+
+              <Controller
+                control={form.control}
+                name="techStack"
+                render={({ field }) => (
+                  <>
+                    {field.value && field.value.length > 0 && (
+                      <div className="bg-white/50 border-2 border-lime-200 rounded-lg p-4">
+                        <div className="flex flex-wrap gap-2">
+                          {field.value.map((tech) => (
+                            <span
+                              key={tech}
+                              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lime-100 border-2 border-lime-300 text-lime-700 text-sm font-semibold shadow-sm hover:bg-lime-200 hover:border-lime-400 transition-all"
+                            >
+                              <span className="w-2 h-2 bg-lime-500 rounded-full"></span>
+                              {tech}
+                              <button
+                                type="button"
+                                onClick={() => removeTechStack(tech)}
+                                className="ml-1 hover:opacity-70 transition-opacity hover:text-lime-600"
+                              >
+                                <X className="size-4" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                        <p className="text-xs text-lime-600 mt-3 font-medium">
+                          {field.value.length} skill
+                          {field.value.length !== 1 ? "s" : ""} added
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
+              />
+            </div>
+          </div>
+        </div>
+
+        <Button
+          type="submit"
+          disabled={isLoading}
+          className="w-full h-11 bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
+        >
+          {isLoading && <Loader2 className="size-4 mr-2 animate-spin" />}
+          {isLoading ? "Adding Experience..." : "Add Experience"}
+        </Button>
+      </form>
 
       <p className="text-center text-sm text-gray-600">
         You can add multiple experiences. Add at least one to continue.
