@@ -312,7 +312,7 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
             </div>
 
             <div>
-              <label className="text-gray-700 font-semibold block mb-3">
+              <label className="text-gray-700 font-semibold block mb-2">
                 Start Date
               </label>
               <div className="grid grid-cols-2 gap-4">
@@ -369,7 +369,7 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
             </div>
 
             <div>
-              <label className="text-gray-700 font-semibold block mb-3">
+              <label className="text-gray-700 font-semibold block mb-2">
                 End Date
               </label>
               <div className="grid grid-cols-2 gap-4">
@@ -454,6 +454,9 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
               <label className="text-gray-700 font-semibold block mb-2">
                 Technologies & Tools
               </label>
+              <p className="text-xs text-gray-500 mb-3">
+                Add the technologies and tools you used in this role
+              </p>
               <div className="space-y-3">
                 <div className="flex gap-2">
                   <Input
@@ -466,13 +469,13 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
                         addTechStack();
                       }
                     }}
-                    className="h-11 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all flex-1"
+                    className="h-12 border-2 border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 hover:border-gray-300 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all flex-1 rounded-lg"
                   />
                   <Button
                     type="button"
                     onClick={addTechStack}
                     size="sm"
-                    className="bg-lime-500 hover:bg-lime-600 text-white"
+                    className="bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-lg h-12 px-4 transition-all shadow-sm hover:shadow-md"
                   >
                     <Plus className="size-4" />
                   </Button>
@@ -484,22 +487,28 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
                   render={({ field }) => (
                     <>
                       {field.value && field.value.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {field.value.map((tech) => (
-                            <span
-                              key={tech}
-                              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lime-100 text-lime-800 text-sm font-medium"
-                            >
-                              {tech}
-                              <button
-                                type="button"
-                                onClick={() => removeTechStack(tech)}
-                                className="hover:opacity-70 transition-opacity"
+                        <div className="bg-white/50 border-2 border-lime-200 rounded-lg p-4">
+                          <div className="flex flex-wrap gap-2">
+                            {field.value.map((tech) => (
+                              <span
+                                key={tech}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lime-100 border-2 border-lime-300 text-lime-700 text-sm font-semibold shadow-sm hover:bg-lime-200 hover:border-lime-400 transition-all"
                               >
-                                <X className="size-3" />
-                              </button>
-                            </span>
-                          ))}
+                                <span className="w-2 h-2 bg-lime-500 rounded-full"></span>
+                                {tech}
+                                <button
+                                  type="button"
+                                  onClick={() => removeTechStack(tech)}
+                                  className="ml-1 hover:opacity-70 transition-opacity hover:text-lime-600"
+                                >
+                                  <X className="size-4" />
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                          <p className="text-xs text-lime-600 mt-3 font-medium">
+                            {field.value.length} skill{field.value.length !== 1 ? "s" : ""} added
+                          </p>
                         </div>
                       )}
                     </>
