@@ -29,8 +29,16 @@ const experienceSchema = z.object({
   company_name: z.string().min(1, "Company name is required"),
   role: z.string().min(1, "Job role is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
-  employment_type: z.string().optional(),
-  location_type: z.string().optional(),
+  employment_type: z.enum([
+    "Full-time",
+    "Part-time",
+    "Contract",
+    "Temporary",
+    "Internship",
+    "Freelance",
+    "Self-employed",
+  ]),
+  location_type: z.enum(["Hybrid", "On-site", "Remote"]),
   location_details: z.string().optional(),
   start_month: z.number().int().min(1).max(12).optional(),
   start_year: z.number().int().min(1900).max(2100).optional(),
@@ -59,8 +67,8 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
       company_name: "",
       role: "",
       description: "",
-      employment_type: undefined,
-      location_type: undefined,
+      employment_type: "Full-time",
+      location_type: "On-site",
       location_details: undefined,
       start_month: undefined,
       start_year: undefined,
@@ -85,7 +93,7 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
     const currentStack = form.getValues("techStack") || [];
     form.setValue(
       "techStack",
-      currentStack.filter((t) => t !== tech)
+      currentStack.filter((t) => t !== tech),
     );
   };
 
@@ -252,7 +260,11 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
                       <SelectItem value="Part-time">Part-time</SelectItem>
                       <SelectItem value="Contract">Contract</SelectItem>
                       <SelectItem value="Freelance">Freelance</SelectItem>
-                      <SelectItem value="Intern">Intern</SelectItem>
+                      <SelectItem value="Internship">Internship</SelectItem>
+                      <SelectItem value="Temporary">Temporary</SelectItem>
+                      <SelectItem value="Self-employed">
+                        Self-employed
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -285,7 +297,6 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
             </div>
           </div>
 
-          {/* Location Details */}
           <div>
             <label className="text-gray-700 font-semibold block mb-2">
               Location Details
@@ -308,7 +319,6 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
             />
           </div>
 
-          {/* ── NEW: Start Date MonthYearPicker ── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Controller
               control={form.control}
