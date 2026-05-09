@@ -159,13 +159,22 @@ const ProfilePage = () => {
       }
 
       if (result.success) {
+        const isNewProfile = !profile;
         toast.success(
-          profile
-            ? "Profile updated successfully!"
-            : "Profile created successfully!",
+          isNewProfile
+            ? "Profile created successfully!"
+            : "Profile updated successfully!",
         );
-        setIsEditing(false);
-        await fetchProfile();
+        
+        // If it's a new profile creation, redirect to onboarding wizard
+        if (isNewProfile) {
+          setTimeout(() => {
+            router.push("/onboarding");
+          }, 1500);
+        } else {
+          setIsEditing(false);
+          await fetchProfile();
+        }
       } else {
         toast.error(result.message || "Failed to save profile");
       }
