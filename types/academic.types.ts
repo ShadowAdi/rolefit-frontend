@@ -227,6 +227,8 @@ export interface AcademicLinks {
 }
 
 export interface AcademicBase {
+  id:string;
+  profileId:string
   degree_name: string;
   college_name: string;
   description: string | null;
@@ -236,6 +238,7 @@ export interface AcademicBase {
   end_month: MonthRange | null;
   end_year: number | null;
   priority: number | null;
+  createdAt:string;
 }
 
 export interface AcademicCreatePayload {

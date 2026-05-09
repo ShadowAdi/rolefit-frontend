@@ -6,23 +6,18 @@ import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
 import { z } from "zod";
 import { useAuth } from "@/context/AuthContext";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  AcademicBase,
+  AcademicCreateRequest,
+  AcademicCreateRequestSchema,
+} from "@/types/academic.types";
+import { CreateAcademicAction } from "@/action/academic/academic.action";
 interface StepProps {
   onNext: () => void;
   onSkip?: () => void;
 }
-
-const academicSchema = z.object({
-  degree_name: z.string().min(1, "Degree Name is required"),
-  college_name: z.string().min(1, "College Name is required"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  start_month: z.number().int().min(1).max(12).optional(),
-  start_year: z.number().int().min(1900).max(2100).optional(),
-  end_month: z.number().int().min(1).max(12).optional(),
-  end_year: z.number().int().min(1900).max(2100).optional(),
-  priority: z.number().optional(),
-});
-
-type AcademicFormDara = z.infer<typeof academicSchema>;
 
 const months = Array.from({ length: 12 }, (_, i) => ({
   value: i + 1,
@@ -31,37 +26,60 @@ const months = Array.from({ length: 12 }, (_, i) => ({
 
 const EducationStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
   const { token } = useAuth();
-  const [isCompleted, setIsCompleted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [academics, setAcademics] = useState<AcademicBase[] | []>([]);
 
-  const handleAddEducation = () => {
-    setIsCompleted(true);
-    toast.success("Education added successfully!");
+  const form = useForm<AcademicCreateRequest>({
+    resolver: zodResolver(AcademicCreateRequestSchema),
+    defaultValues: {
+      college_name: "",
+      degree_name: "",
+      description: undefined,
+      end_month: undefined,
+      end_year: undefined,
+      links: undefined,
+      start_month: undefined,
+      priority: undefined,
+      start_year: undefined,
+    },
+  });
+
+  const onSubmit = async (data: AcademicCreateRequest) => {
+    if (!token) {
+      toast.error("Authentication token not found");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await CreateAcademicAction(data, token);
+
+      if (result.success) {
+        // setAcademics([...academics, data]);
+        toast.success("Academic added successfully!");
+        form.reset();
+      } else {
+        if (result.errors && result.errors.length > 0) {
+          const errorMessage = result.errors
+            .map((e) => `${e.field}: ${e.message}`)
+            .join(", ");
+          toast.error(errorMessage);
+        } else {
+          toast.error(result.message || "Failed to add academics");
+        }
+      }
+    } catch (error) {
+      console.error("Error adding academic:", error);
+      toast.error("An error occurred while adding academic");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="space-y-6">
-      <div className="bg-white/40 backdrop-blur-sm border border-white/60 rounded-lg p-8 text-center">
-        <div className="flex justify-center mb-4">
-          <CheckCircle2 className="size-16 text-lime-500" />
-        </div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          Coming Soon
-        </h3>
-        <p className="text-gray-600 mb-6">
-          Education form will be available shortly. Skip for now to continue
-          with other sections.
-        </p>
-
-        <Button
-          onClick={handleAddEducation}
-          className="bg-lime-500 hover:bg-lime-600 text-white font-semibold"
-        >
-          Mark as Completed
-        </Button>
-      </div>
-
       <p className="text-center text-sm text-gray-600">
-        You can always add your education details later from your profile.
+        You can add multiple experiences. Add at least one to continue.
       </p>
     </div>
   );
