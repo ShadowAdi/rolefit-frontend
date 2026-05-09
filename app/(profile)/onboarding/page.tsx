@@ -150,7 +150,7 @@ const OnboardingPage = () => {
                             />
                         </div>
 
-                        <div className="flex gap-2 mt-6 overflow-x-auto py-3 items-center justify-around">
+                        <div className="flex gap-2 mt-8 overflow-x-auto py-4 items-center justify-around">
                             <div className="flex items-start w-full">
                                 {STEPS.map((s, idx) => {
                                     const isDone = completedSteps.includes(idx);
@@ -169,31 +169,25 @@ const OnboardingPage = () => {
                                                     }}
                                                     disabled={!isClickable && !isActive}
                                                     className={`
-                                                            w-13 h-13 rounded-full font-medium text-sm
+                                                            w-12 h-12 rounded-full font-semibold text-sm
                                                             flex items-center justify-center
-                                                            transition-all duration-200 relative z-10
+                                                            transition-all duration-300 relative z-10 shadow-sm
                                                             ${isActive
-                                                            ? "bg-lime-400 text-white ring-4 ring-lime-200 cursor-default"
+                                                            ? "bg-lime-500 text-white ring-4 ring-lime-200 shadow-lg cursor-default scale-110"
                                                             : isDone
-                                                                ? "bg-lime-100 text-lime-700 border border-lime-400 hover:bg-lime-200 cursor-pointer"
-                                                                : "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
+                                                                ? "bg-lime-200 text-lime-700 border-2 border-lime-400 hover:bg-lime-300 hover:scale-105 cursor-pointer"
+                                                                : "bg-gray-200 text-gray-500 border-2 border-gray-300 cursor-not-allowed"
                                                         }
             `}
                                                 >
-                                                    {isDone ? <Check className="w-4 h-4" /> : idx + 1}
+                                                    {isDone ? <Check className="w-5 h-5 font-bold" /> : idx + 1}
                                                 </button>
-                                                <span className={`text-xs mt-1.5 text-center leading-tight pb-3 ${isActive ? "text-lime-600 font-semibold" : "text-gray-400 font-normal"
+                                                <span className={`text-xs mt-2.5 text-center leading-tight font-medium transition-all ${isActive ? "text-lime-600 font-bold" : isDone ? "text-lime-600" : "text-gray-400"
                                                     }`}>
                                                     {s.title}
                                                 </span>
                                             </div>
 
-                                            {idx < STEPS.length - 1 && (
-                                                <div className="flex-1 h-px mt-5 mx-1">
-                                                    <div className={`h-full transition-colors duration-300 ${isDone ? "bg-lime-400" : "bg-stone-800"
-                                                        }`} />
-                                                </div>
-                                            )}
                                         </div>
                                     );
                                 })}
