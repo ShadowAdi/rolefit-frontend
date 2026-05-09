@@ -139,7 +139,6 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
 
   return (
     <div className="space-y-6">
-      {/* Added Experiences List */}
       {experiences.length > 0 && (
         <div className="space-y-4">
           <div>
@@ -241,7 +240,6 @@ const ExperienceStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
               </div>
             </div>
 
-            {/* Employment Type and Location Type */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-gray-700 font-semibold block mb-2">
