@@ -65,16 +65,60 @@ export const GetAllAcademicAction = async (
   errors?: ValidationErrorField[];
 }> => {
   try {
-    const response = await axiosInstance.get<ApiResponse<AcademicListResponse[]>>(
-      "/academics/",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const response = await axiosInstance.get<
+      ApiResponse<AcademicListResponse[]>
+    >("/academics/", {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    );
+    });
 
     console.log("Raw response create academics: ", response.data);
+
+    const apiResponse = response.data;
+
+    if (apiResponse.success && apiResponse.data) {
+      return {
+        success: true,
+        data: apiResponse.data,
+      };
+    }
+
+    return {
+      success: false,
+      message: apiResponse.message || "Academic fetch failed",
+    };
+  } catch (error: any) {
+    const errorData = error.response?.data as ApiErrorResponse | undefined;
+
+    return {
+      success: false,
+      message:
+        errorData?.message || errorData?.detail || "Academic fetch failed",
+      errors: errorData?.errors,
+    };
+  }
+};
+
+export const GetAcademicAction = async (
+  academicId: string,
+  token: string,
+): Promise<{
+  success: boolean;
+  data?: AcademicGetResponse;
+  message?: string;
+  errors?: ValidationErrorField[];
+}> => {
+  try {
+    const response = await axiosInstance.get<
+      ApiResponse<AcademicGetResponse>
+    >(`/academics/${academicId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("Raw response get academics: ", response.data);
 
     const apiResponse = response.data;
 
