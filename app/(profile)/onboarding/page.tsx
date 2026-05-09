@@ -33,7 +33,7 @@ const STEPS: StepConfig[] = [
   },
   {
     id: 2,
-    title: "Education",
+    title: "Academics",
     subtitle: "Share your academic qualifications",
     component: EducationStep,
   },
@@ -119,16 +119,13 @@ const OnboardingPage = () => {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
-      {/* Decorative Background Elements */}
       <div className="pointer-events-none absolute -top-40 -right-40 h-80 w-80 rounded-full bg-lime-200/30 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-blue-200/30 blur-3xl" />
       <div className="pointer-events-none absolute top-1/2 left-1/2 w-96 h-96 rounded-full bg-lime-100/20 blur-3xl" />
 
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Header with Progress */}
         <div className="sticky top-0 z-20 bg-white/70 backdrop-blur-md border-b border-white/60">
           <div className="max-w-4xl mx-auto px-4 py-6">
-            {/* Step Indicator */}
             <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-sm text-gray-600 font-medium">
@@ -146,7 +143,6 @@ const OnboardingPage = () => {
               </div>
             </div>
 
-            {/* Progress Bar */}
             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-lime-400 to-lime-500 transition-all duration-500 ease-out"
@@ -154,7 +150,6 @@ const OnboardingPage = () => {
               />
             </div>
 
-            {/* Step Dots */}
             <div className="flex gap-2 mt-6 overflow-x-auto pb-2">
               {STEPS.map((s, idx) => (
                 <div
@@ -192,7 +187,6 @@ const OnboardingPage = () => {
           </div>
         </div>
 
-        {/* Main Content */}
         <div className="flex-1 flex items-center justify-center px-4 py-12">
           <div className="w-full max-w-2xl">
             <div className="mb-8">
@@ -203,7 +197,6 @@ const OnboardingPage = () => {
           </div>
         </div>
 
-        {/* Footer Navigation */}
         <div className="sticky bottom-0 z-20 bg-white/70 backdrop-blur-md border-t border-white/60">
           <div className="max-w-4xl mx-auto px-4 py-4 flex gap-3 justify-between">
             <Button
