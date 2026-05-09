@@ -4,6 +4,8 @@ import {
   AcademicCreateResponse,
   AcademicGetResponse,
   AcademicListResponse,
+  AcademicUpdatePayload,
+  AcademicUpdateResponse,
 } from "@/types/academic.types";
 import {
   ApiErrorResponse,
@@ -110,13 +112,14 @@ export const GetAcademicAction = async (
   errors?: ValidationErrorField[];
 }> => {
   try {
-    const response = await axiosInstance.get<
-      ApiResponse<AcademicGetResponse>
-    >(`/academics/${academicId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const response = await axiosInstance.get<ApiResponse<AcademicGetResponse>>(
+      `/academics/${academicId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
 
     console.log("Raw response get academics: ", response.data);
 
@@ -140,6 +143,52 @@ export const GetAcademicAction = async (
       success: false,
       message:
         errorData?.message || errorData?.detail || "Academic fetch failed",
+      errors: errorData?.errors,
+    };
+  }
+};
+
+export const UpdateAcademicAction = async (
+  academicId: string,
+  payload: AcademicUpdatePayload,
+  token: string,
+): Promise<{
+  success: boolean;
+  data?: AcademicUpdateResponse;
+  message?: string;
+  errors?: ValidationErrorField[];
+}> => {
+  try {
+    const response = await axiosInstance.patch<
+      ApiResponse<AcademicUpdateResponse>
+    >(`/academics/${academicId}`, payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("Raw response update academics: ", response.data);
+
+    const apiResponse = response.data;
+
+    if (apiResponse.success && apiResponse.data) {
+      return {
+        success: true,
+        data: apiResponse.data,
+      };
+    }
+
+    return {
+      success: false,
+      message: apiResponse.message || "Academic update failed",
+    };
+  } catch (error: any) {
+    const errorData = error.response?.data as ApiErrorResponse | undefined;
+
+    return {
+      success: false,
+      message:
+        errorData?.message || errorData?.detail || "Academic update failed",
       errors: errorData?.errors,
     };
   }
