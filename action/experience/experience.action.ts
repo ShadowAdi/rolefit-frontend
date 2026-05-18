@@ -5,26 +5,27 @@ import {
   ExperienceCreateRequest,
   ExperienceGetResponse,
   ExperienceUpdateResponse,
-  ExperienceListResponse,
   ExperienceDeleteResponse,
   ValidationErrorField,
 } from "@/types/experience.types";
 
-
 export const CreateExperienceAction = async (
   payload: ExperienceCreateRequest,
   token: string,
-): Promise<{ success: boolean; data?: ExperienceCreatedData; message?: string; errors?: ValidationErrorField[] }> => {
+): Promise<{
+  success: boolean;
+  data?: ExperienceCreatedData;
+  message?: string;
+  errors?: ValidationErrorField[];
+}> => {
   try {
-    const response = await axiosInstance.post<ApiResponse<ExperienceCreatedData>>(
-      "/experience/",
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const response = await axiosInstance.post<
+      ApiResponse<ExperienceCreatedData>
+    >("/experience/", payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    );
+    });
 
     console.log("Raw response create experience: ", response.data);
 
@@ -53,23 +54,26 @@ export const CreateExperienceAction = async (
   }
 };
 
-
 export const GetExperienceAction = async (
   experienceId: string,
   token: string,
-): Promise<{ success: boolean; data?: ExperienceGetResponse; message?: string }> => {
+): Promise<{
+  success: boolean;
+  data?: ExperienceGetResponse;
+  message?: string;
+}> => {
   try {
-    const response = await axiosInstance.get<ApiResponse<ExperienceGetResponse>>(
-      `/experience/${experienceId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const response = await axiosInstance.get<
+      ApiResponse<ExperienceGetResponse>
+    >(`/experience/${experienceId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    );
+    });
 
     const apiResponse = response.data;
 
+    console.log("api response ",apiResponse.data)
     if (apiResponse.success && apiResponse.data) {
       return {
         success: true,
@@ -86,13 +90,13 @@ export const GetExperienceAction = async (
 
     return {
       success: false,
-      message: errorData?.message || errorData?.detail || "Failed to fetch experience",
+      message:
+        errorData?.message || errorData?.detail || "Failed to fetch experience",
     };
   }
 };
 
 export const GetAllExperiencesAction = async (
-  profileId: string,
   token: string,
   params?: {
     page?: number;
@@ -105,14 +109,13 @@ export const GetAllExperiencesAction = async (
   },
 ): Promise<{
   success: boolean;
-  data?: ExperienceListResponse[];
-  pagination?: { total: number; page: number; limit: number; totalPages: number };
+  data?: ExperienceGetResponse[];
   message?: string;
 }> => {
   try {
     const response = await axiosInstance.get<
-      ApiResponse<{ data: ExperienceListResponse[]; total: number; page: number; limit: number }>
-    >(`/experience/${profileId}`, {
+      ApiResponse<ExperienceGetResponse[]>
+    >(`/experience/`, {
       params,
       headers: {
         Authorization: `Bearer ${token}`,
@@ -124,13 +127,7 @@ export const GetAllExperiencesAction = async (
     if (apiResponse.success && apiResponse.data) {
       return {
         success: true,
-        data: apiResponse.data.data,
-        pagination: {
-          total: apiResponse.data.total,
-          page: apiResponse.data.page,
-          limit: apiResponse.data.limit,
-          totalPages: Math.ceil(apiResponse.data.total / apiResponse.data.limit),
-        },
+        data: apiResponse.data,
       };
     }
 
@@ -143,7 +140,10 @@ export const GetAllExperiencesAction = async (
 
     return {
       success: false,
-      message: errorData?.message || errorData?.detail || "Failed to fetch experiences",
+      message:
+        errorData?.message ||
+        errorData?.detail ||
+        "Failed to fetch experiences",
     };
   }
 };
@@ -152,17 +152,20 @@ export const UpdateExperienceAction = async (
   experienceId: string,
   payload: Partial<ExperienceCreateRequest>,
   token: string,
-): Promise<{ success: boolean; data?: ExperienceUpdateResponse; message?: string; errors?: ValidationErrorField[] }> => {
+): Promise<{
+  success: boolean;
+  data?: ExperienceUpdateResponse;
+  message?: string;
+  errors?: ValidationErrorField[];
+}> => {
   try {
-    const response = await axiosInstance.patch<ApiResponse<ExperienceUpdateResponse>>(
-      `/experience/${experienceId}`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const response = await axiosInstance.patch<
+      ApiResponse<ExperienceUpdateResponse>
+    >(`/experience/${experienceId}`, payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    );
+    });
 
     const apiResponse = response.data;
 
@@ -182,7 +185,10 @@ export const UpdateExperienceAction = async (
 
     return {
       success: false,
-      message: errorData?.message || errorData?.detail || "Failed to update experience",
+      message:
+        errorData?.message ||
+        errorData?.detail ||
+        "Failed to update experience",
       errors: errorData?.errors,
     };
   }
@@ -193,14 +199,13 @@ export const DeleteExperienceAction = async (
   token: string,
 ): Promise<{ success: boolean; message?: string }> => {
   try {
-    const response = await axiosInstance.delete<ApiResponse<ExperienceDeleteResponse>>(
-      `/experience/${experienceId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const response = await axiosInstance.delete<
+      ApiResponse<ExperienceDeleteResponse>
+    >(`/experience/${experienceId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    );
+    });
 
     const apiResponse = response.data;
 
@@ -220,7 +225,10 @@ export const DeleteExperienceAction = async (
 
     return {
       success: false,
-      message: errorData?.message || errorData?.detail || "Failed to delete experience",
+      message:
+        errorData?.message ||
+        errorData?.detail ||
+        "Failed to delete experience",
     };
   }
 };
