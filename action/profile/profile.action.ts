@@ -10,12 +10,19 @@ import {
   ProfileUpdatePayload,
 } from "@/types/profile.types";
 
+interface ProfileResponseWrapper {
+  data: ProfileAuthenticatedResponse;
+  message: string;
+  status_code: number;
+  success: boolean;
+}
+
 export const createProfile = async (
   payload: ProfilePayload,
   token: string,
 ): Promise<ProfileResult> => {
   try {
-    const response = await axiosInstance.post<ProfileAuthenticatedResponse>(
+    const response = await axiosInstance.post<ProfileResponseWrapper>(
       "/profile/",
       payload,
       {
@@ -54,7 +61,7 @@ export const createProfile = async (
 
 export const getProfile = async (token: string): Promise<ProfileResult> => {
   try {
-    const response = await axiosInstance.get<ProfileAuthenticatedResponse>(
+    const response = await axiosInstance.get<ProfileResponseWrapper>(
       "/profile/",
       {
         headers: {
@@ -95,7 +102,7 @@ export const updateProfile = async (
   payload: ProfileUpdatePayload,
 ): Promise<ProfileResult> => {
   try {
-    const response = await axiosInstance.patch<ProfileAuthenticatedResponse>(
+    const response = await axiosInstance.patch<ProfileResponseWrapper>(
       "/profile/",
       payload,
       {
@@ -130,11 +137,18 @@ export const updateProfile = async (
   }
 };
 
+interface ProfileDeleteResponseWrapper {
+  data: ProfileDeleteResponse;
+  message: string;
+  status_code: number;
+  success: boolean;
+}
+
 export const deleteProfileAction = async (
   token: string,
 ): Promise<ProfileDeleteResult> => {
   try {
-    const response = await axiosInstance.delete<ProfileDeleteResponse>(
+    const response = await axiosInstance.delete<ProfileDeleteResponseWrapper>(
       "/profile/",
       {
         headers: {

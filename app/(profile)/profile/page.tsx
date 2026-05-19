@@ -109,13 +109,14 @@ const ProfilePage = () => {
 
       console.log("fetvhing result ", result);
 
-      if (result.success && result.data) {
-        setProfile(result.data);
-        setValue("full_name", result.data.full_name);
-        setValue("headline", result.data.headline || "");
-        setValue("summary", result.data.summary || "");
-        setValue("resume_link", result.data.resume_link || "");
-        setValue("cover_letter_link", result.data.cover_letter_link || "");
+      if (result.success && result.data && result.data.data) {
+        const profileData = result.data.data;
+        setProfile(profileData);
+        setValue("full_name", profileData.full_name);
+        setValue("headline", profileData.headline || "");
+        setValue("summary", profileData.summary || "");
+        setValue("resume_link", profileData.resume_link || "");
+        setValue("cover_letter_link", profileData.cover_letter_link || "");
         setIsEditing(false);
       } else {
         setProfile(null);

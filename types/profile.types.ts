@@ -35,14 +35,26 @@ export interface ProfileUpdatePayload {
   links?: string[];
 }
 
+interface ProfileSuccessData {
+  data: ProfileAuthenticatedResponse;
+  message: string;
+  status_code: number;
+}
+
 interface ProfileSuccess {
   success: true;
-  data: ProfileAuthenticatedResponse;
+  data: ProfileSuccessData;
+}
+
+interface ProfileDeleteResponseWrapper {
+  data: ProfileDeleteResponse;
+  message: string;
+  status_code: number;
 }
 
 export interface ProfileDeleteSuccess {
   success: true;
-  data: ProfileDeleteResponse;
+  data: ProfileDeleteResponseWrapper;
 }
 
 export interface ProfileError {
