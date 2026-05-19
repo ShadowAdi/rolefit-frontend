@@ -1,29 +1,32 @@
-// Login/Authentication Response from API
-export interface UserAuthenticatedResponse {
-  id: string;
+import { ISODateTime, UUID } from "./common";
+
+export interface LoginPayload {
   email: string;
-  created_at: string;
+  password: string;
+}
+
+export interface UserAuthenticatedResponse {
+  id: UUID;
+  email: string;
+  created_at: ISODateTime;
   access_token: string;
   token_type: "bearer";
-  expires_in: number; // in seconds
+  expires_in: number;
 }
 
-// Decoded JWT Payload
 export interface DecodedToken {
-  sub: string; // user_id
+  sub: string;
   email: string;
-  exp_at: string; // ISO format timestamp
-  exp: number; // Unix timestamp in seconds
+  exp_at: string;
+  exp: number;
 }
 
-// User object for context
 export interface User {
-  id: string;
+  id: UUID;
   email: string;
-  created_at?: string;
+  created_at?: ISODateTime;
 }
 
-// Auth Context type
 export interface AuthContextType {
   token: string | null;
   user: User | null;

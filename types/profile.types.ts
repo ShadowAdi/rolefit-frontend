@@ -1,60 +1,92 @@
-export interface ProfileAuthenticatedResponse {
-  id: string;
-  userId: string;
+import { ISODateTime, UUID } from "./common";
+
+export type ProfileLinks = Record<string, unknown>;
+
+export interface ProfileCreateRequest {
   full_name: string;
-  summary?: string;
-  headline?: string;
-  resume_link?: string;
-  cover_letter_link?: string;
-  links?: string[];
-  created_at: string;
-  updated_at: string;
+  headline?: string | null;
+  summary?: string | null;
+  resume_link?: string | null;
+  cover_letter_link?: string | null;
+  links?: ProfileLinks | null;
 }
 
-export interface ProfilePayload {
+export type ProfilePayload = ProfileCreateRequest;
+
+export interface ProfileUpdateRequest {
+  full_name?: string;
+  headline?: string | null;
+  summary?: string | null;
+  resume_link?: string | null;
+  cover_letter_link?: string | null;
+  links?: ProfileLinks | null;
+}
+
+export type ProfileUpdatePayload = ProfileUpdateRequest;
+
+export interface ProfileCreateResponse {
+  id: UUID;
+  userId: UUID;
   full_name: string;
-  summary?: string;
-  headline?: string;
-  resume_link?: string;
-  cover_letter_link?: string;
-  links?: string[];
+  headline: string | null;
+  summary: string | null;
+  resume_link: string | null;
+  cover_letter_link: string | null;
+  links: ProfileLinks | null;
+  created_at: ISODateTime;
+}
+
+export interface ProfileGetResponse {
+  id: UUID;
+  userId: UUID;
+  full_name: string;
+  headline: string | null;
+  summary: string | null;
+  resume_link: string | null;
+  cover_letter_link: string | null;
+  links: ProfileLinks | null;
+  created_at: ISODateTime;
+  updated_at: ISODateTime;
+}
+
+export type ProfileAuthenticatedResponse = ProfileGetResponse;
+
+export interface ProfileUpdateResponse {
+  id: UUID;
+  userId: UUID;
+  full_name: string;
+  headline: string | null;
+  summary: string | null;
+  resume_link: string | null;
+  cover_letter_link: string | null;
+  links: ProfileLinks | null;
+  updated_at: ISODateTime;
 }
 
 export interface ProfileDeleteResponse {
-  message:string;
-  id:string;
-  full_name:string
-}
-
-export interface ProfileUpdatePayload {
-  full_name?: string;
-  summary?: string;
-  headline?: string;
-  resume_link?: string;
-  cover_letter_link?: string;
-  links?: string[];
-}
-
-interface ProfileSuccessData {
-  data: ProfileAuthenticatedResponse;
   message: string;
-  status_code: number;
+  id: UUID;
+  full_name: string;
 }
 
-interface ProfileSuccess {
+export interface ProfileSuccess {
   success: true;
-  data: ProfileSuccessData;
-}
-
-interface ProfileDeleteResponseWrapper {
-  data: ProfileDeleteResponse;
-  message: string;
-  status_code: number;
+  data: {
+    success: boolean;
+    status_code: number;
+    message: string;
+    data: ProfileAuthenticatedResponse;
+  };
 }
 
 export interface ProfileDeleteSuccess {
   success: true;
-  data: ProfileDeleteResponseWrapper;
+  data: {
+    success: boolean;
+    status_code: number;
+    message: string;
+    data: ProfileDeleteResponse;
+  };
 }
 
 export interface ProfileError {

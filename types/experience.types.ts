@@ -1,214 +1,124 @@
-import { UUID } from './api';
+import { ISODateTime, UUID } from "./common";
 
+export type { ValidationErrorField } from "./api";
 
 export enum EmploymentType {
-  FULL_TIME = 'Full-time',
-  PART_TIME = 'Part-time',
-  CONTRACT = 'Contract',
-  TEMPORARY = 'Temporary',
-  INTERNSHIP = 'Internship',
-  FREELANCE = 'Freelance',
-  SELF_EMPLOYED = 'Self-employed',
+  FULL_TIME = "Full-time",
+  PART_TIME = "Part-time",
+  CONTRACT = "Contract",
+  TEMPORARY = "Temporary",
+  INTERNSHIP = "Internship",
+  FREELANCE = "Freelance",
+  SELF_EMPLOYED = "Self-employed",
 }
-
 
 export enum LocationType {
-  ON_SITE = 'On-site',
-  REMOTE = 'Remote',
-  HYBRID = 'Hybrid',
+  ON_SITE = "On-site",
+  REMOTE = "Remote",
+  HYBRID = "Hybrid",
 }
-
 
 export interface ExperienceCreateRequest {
   company_name: string;
   description: string;
   role: string;
-  techStack?: string[];
-  employment_type?: EmploymentType | string;
-  location_type?: LocationType | string;
-  location_details?: string;
-  start_month?: number;
-  start_year?: number;
-  end_month?: number;
-  end_year?: number;
-  priority?: number;
+  techStack?: string[] | null;
+  employment_type?: EmploymentType | string | null;
+  location_type?: LocationType | string | null;
+  location_details?: string | null;
+  start_month?: number | null;
+  start_year?: number | null;
+  end_month?: number | null;
+  end_year?: number | null;
+  priority?: number | null;
 }
-
 
 export interface ExperienceUpdateRequest {
   company_name?: string;
   description?: string;
   role?: string;
-  techStack?: string[];
-  employment_type?: EmploymentType | string;
-  location_type?: LocationType | string;
-  location_details?: string;
-  start_month?: number;
-  start_year?: number;
-  end_month?: number;
-  end_year?: number;
-  priority?: number;
+  techStack?: string[] | null;
+  employment_type?: EmploymentType | string | null;
+  location_type?: LocationType | string | null;
+  location_details?: string | null;
+  start_month?: number | null;
+  start_year?: number | null;
+  end_month?: number | null;
+  end_year?: number | null;
+  priority?: number | null;
 }
-
 
 export interface ExperienceCreatedData {
   id: UUID;
   company_name: string;
   role: string;
   profileId: UUID;
-  created_at: string;
+  created_at: ISODateTime;
 }
 
-export interface ExperienceCreatedResponse {
-  success:boolean;
-  data:ExperienceCreatedData
-}
-
+export type ExperienceCreateResponse = ExperienceCreatedData;
 
 export interface ExperienceGetResponse {
   id: UUID;
   company_name: string;
   description: string;
   role: string;
-  techStack?: string[];
-  employment_type?: EmploymentType | string;
-  location_type?: LocationType | string;
-  location_details?: string;
-  start_month?: number;
-  start_year?: number;
-  end_month?: number;
-  end_year?: number;
-  priority?: number;
+  techStack: string[] | null;
+  employment_type: EmploymentType | string | null;
+  location_type: LocationType | string | null;
+  location_details: string | null;
+  start_month: number | null;
+  start_year: number | null;
+  end_month: number | null;
+  end_year: number | null;
+  priority: number | null;
   profileId: UUID;
-  created_at: string;
-  updated_at: string;
+  created_at: ISODateTime;
+  updated_at: ISODateTime;
 }
-
 
 export interface ExperienceUpdateResponse {
   id: UUID;
   company_name: string;
   description: string;
   role: string;
-  techStack?: string[];
-  employment_type?: EmploymentType | string;
-  location_type?: LocationType | string;
-  location_details?: string;
-  start_month?: number;
-  start_year?: number;
-  end_month?: number;
-  end_year?: number;
-  priority?: number;
-  updated_at: string;
+  techStack: string[] | null;
+  employment_type: EmploymentType | string | null;
+  location_type: LocationType | string | null;
+  location_details: string | null;
+  start_month: number | null;
+  start_year: number | null;
+  end_month: number | null;
+  end_year: number | null;
+  priority: number | null;
+  updated_at: ISODateTime;
 }
-
 
 export interface ExperienceListResponse {
   id: UUID;
   company_name: string;
   role: string;
-  employment_type?: EmploymentType | string;
-  location_type?: LocationType | string;
-  start_year?: number;
-  end_year?: number;
-  priority?: number;
+  employment_type: EmploymentType | string | null;
+  location_type: LocationType | string | null;
+  start_year: number | null;
+  end_year: number | null;
+  priority: number | null;
   profileId: UUID;
-  created_at: string;
+  created_at: ISODateTime;
 }
-
-
-export interface ExperienceListAllResponse {
-  data: ExperienceListResponse[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
-
-export interface ExperienceFilterRequest {
-  page?: number;
-  limit?: number;
-  sortBy?: 'created_at' | 'updated_at' | 'priority' | 'start_year';
-  sortOrder?: 'asc' | 'desc';
-  company_name?: string;
-  employment_type?: EmploymentType | string;
-  location_type?: LocationType | string;
-}
-
 
 export interface ExperienceDeleteResponse {
-  success: boolean;
-  message: string;
-  id: UUID;
+  deletedExperienceId?: UUID;
+  company?: string;
+  role?: string;
 }
 
-export interface ValidationErrorField {
-  field: string;
-  code: string;
-  message: string;
-  constraint?: string;
-}
-
-
-export interface PayloadValidationError {
-  status: 'error';
-  code: string;
-  message: string;
-  errors: ValidationErrorField[];
-}
-
-
-export interface ApiResponse<T> {
-  status: 'success' | 'error';
-  data?: T;
-  error?: string;
-  message?: string;
-}
-
-export interface PaginatedApiResponse<T> {
-  status: 'success' | 'error';
-  data?: T[];
-  pagination?: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-  error?: string;
-  message?: string;
-}
-
-export interface ExperienceFormData extends ExperienceCreateRequest {
-  id?: UUID;
-  isEditing?: boolean;
-  isSaving?: boolean;
-  errors?: Partial<Record<keyof ExperienceCreateRequest, string>>;
-}
-
-export interface ExperienceState {
-  experiences: ExperienceListResponse[];
-  currentExperience: ExperienceGetResponse | null;
-  isLoading: boolean;
-  isCreating: boolean;
-  isUpdating: boolean;
-  isDeleting: boolean;
-  error: string | null;
-  validationErrors: ValidationErrorField[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-}
-
-export interface ExperienceQueryParams {
-  profileId?: UUID;
+export interface ExperienceListQueryParams {
   page?: number;
   limit?: number;
-  sortBy?: 'created_at' | 'updated_at' | 'priority' | 'start_year';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "created_at" | "updated_at" | "priority" | "start_year";
+  sortOrder?: "asc" | "desc";
   company_name?: string;
-  employment_type?: string;
-  location_type?: string;
+  employment_type?: EmploymentType | string;
+  location_type?: LocationType | string;
 }
