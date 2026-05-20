@@ -65,7 +65,6 @@ const SkillsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
     fetchSkills();
   }, [token]);
 
-  // Filter suggestions as user types
   useEffect(() => {
     if (skillInput.trim() === "") {
       setFilteredSuggestions([]);
