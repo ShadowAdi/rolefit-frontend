@@ -76,7 +76,6 @@ export const GetAllAcademicAction = async (
       },
     });
 
-    console.log("Raw response create academics: ", response.data);
 
     const apiResponse = response.data;
 
