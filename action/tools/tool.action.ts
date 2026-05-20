@@ -1,18 +1,9 @@
 import axiosInstance from "@/api/axios-instance";
 import {
-  AddSkillToUserRequest,
-  AddSkillToUserResponse,
   AddToolToUserRequest,
   AddToolToUserResponse,
   ApiErrorResponse,
   ApiResponse,
-  ExperienceCreatedData,
-  SkillCreateResponse,
-  SkillDeleteResponse,
-  SkillGetResponse,
-  SkillListResponse,
-  SkillUpdateRequest,
-  SkillUpdateResponse,
   ToolDeleteResponse,
   ToolGetResponse,
   ToolListResponse,
