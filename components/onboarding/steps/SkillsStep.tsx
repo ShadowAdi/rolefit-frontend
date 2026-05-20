@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, Plus, X } from "lucide-react";
+import { Loader2, Plus, Sparkles, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import {
   GetSkillsAction,
+  GetUserSkillsAction,
   CreateSkillAction,
   DeleteSkillAction,
 } from "@/action/skills/skill.action";
@@ -25,39 +26,43 @@ interface StepProps {
   onSkip?: () => void;
 }
 
-const SkillsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
+const SkillsStep: React.FC<StepProps> = () => {
   const { token } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [userSkills, setUserSkills] = useState<SkillListResponse[]>([]);
-  const [availableSkills, setAvailableSkills] = useState<SkillListResponse[]>([]);
+  const [availableSkills, setAvailableSkills] = useState<SkillListResponse[]>(
+    [],
+  );
   const [skillInput, setSkillInput] = useState("");
-  const [filteredSuggestions, setFilteredSuggestions] = useState<
-    SkillListResponse[]
-  >([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [addingSkillId, setAddingSkillId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
 
-  // Fetch user's skills and all available skills
   const fetchSkills = async () => {
     if (!token) {
       toast.error("User not authenticated");
+      setIsInitialLoading(false);
       return;
     }
 
     try {
-      setIsLoading(true);
-      const { success, data } = await GetSkillsAction(token);
-      if (success && data) {
-        setAvailableSkills(data);
-        // TODO: Fetch user's skills from API when endpoint is available
-        setUserSkills([]);
+      setIsInitialLoading(true);
+      const [allRes, userRes] = await Promise.all([
+        GetSkillsAction(token),
+        GetUserSkillsAction(token),
+      ]);
+
+      if (allRes.success && allRes.data) {
+        setAvailableSkills(allRes.data);
+      }
+      if (userRes.success && userRes.data) {
+        setUserSkills(userRes.data);
       }
     } catch (error) {
       console.error("Error fetching skills:", error);
       toast.error("Failed to fetch skills");
     } finally {
-      setIsLoading(false);
+      setIsInitialLoading(false);
     }
   };
 
@@ -65,62 +70,84 @@ const SkillsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
     fetchSkills();
   }, [token]);
 
-  useEffect(() => {
-    if (skillInput.trim() === "") {
-      setFilteredSuggestions([]);
-      return;
+  const trimmedInput = skillInput.trim();
+  const lowerInput = trimmedInput.toLowerCase();
+  const userSkillIds = useMemo(
+    () => new Set(userSkills.map((s) => s.id)),
+    [userSkills],
+  );
+
+  const filteredSuggestions = useMemo(() => {
+    if (trimmedInput === "") {
+      return availableSkills
+        .filter((skill) => !userSkillIds.has(skill.id))
+        .slice(0, 8);
     }
+    return availableSkills
+      .filter(
+        (skill) =>
+          skill.name.toLowerCase().includes(lowerInput) &&
+          !userSkillIds.has(skill.id),
+      )
+      .slice(0, 8);
+  }, [trimmedInput, lowerInput, availableSkills, userSkillIds]);
 
-    const filtered = availableSkills.filter(
-      (skill) =>
-        skill.name.toLowerCase().includes(skillInput.toLowerCase()) &&
-        !userSkills.some((us) => us.id === skill.id)
-    );
+  const exactMatch = useMemo(
+    () =>
+      availableSkills.find((s) => s.name.toLowerCase() === lowerInput) || null,
+    [availableSkills, lowerInput],
+  );
 
-    setFilteredSuggestions(filtered.slice(0, 8));
-  }, [skillInput, availableSkills, userSkills]);
+  const alreadyAdded = useMemo(
+    () =>
+      userSkills.find((s) => s.name.toLowerCase() === lowerInput) || null,
+    [userSkills, lowerInput],
+  );
 
-  // Add skill - either existing or new
-  const handleAddSkill = async (skillId?: string) => {
+  const canCreateNew = trimmedInput !== "" && !exactMatch;
+
+  const handleAddSkill = async (
+    args: { skillId?: string; skillName?: string } = {},
+  ) => {
     if (!token) {
       toast.error("Authentication token not found");
       return;
     }
 
-    if (!skillId && skillInput.trim() === "") {
+    const payload = {
+      skillId: args.skillId,
+      skillName: args.skillId ? undefined : args.skillName ?? trimmedInput,
+    };
+
+    if (!payload.skillId && !payload.skillName) {
       toast.error("Please enter or select a skill");
       return;
     }
 
-    setAddingSkillId(skillId || "new");
+    if (!payload.skillId && alreadyAdded) {
+      toast.info(`"${alreadyAdded.name}" is already in your skills`);
+      return;
+    }
+
+    setAddingSkillId(payload.skillId || "new");
 
     try {
-      const result = await CreateSkillAction(
-        {
-          skillId: skillId,
-          skillName: skillInput.trim(),
-        },
-        token
-      );
+      const result = await CreateSkillAction(payload, token);
 
       if (result.success && result.data) {
-        setUserSkills((prev) => [
-          ...prev,
-          {
-            id: result.data!.skillId,
-            name: result.data!.skillName,
-          } as SkillListResponse,
-        ]);
+        const added: SkillListResponse = {
+          id: result.data.skillId,
+          name: result.data.skillName,
+        } as SkillListResponse;
 
-        // Update available skills if new skill was created
+        setUserSkills((prev) =>
+          prev.some((s) => s.id === added.id) ? prev : [...prev, added],
+        );
+
         if (result.data.skillCreated) {
-          setAvailableSkills((prev) => [
-            ...prev,
-            {
-              id: result.data!.skillId,
-              name: result.data!.skillName,
-            } as SkillListResponse,
-          ]);
+          setAvailableSkills((prev) =>
+            prev.some((s) => s.id === added.id) ? prev : [...prev, added],
+          );
         }
 
         toast.success("Skill added successfully!");
@@ -137,7 +164,6 @@ const SkillsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
     }
   };
 
-  // Remove skill
   const handleRemoveSkill = async (skillId: string) => {
     if (!token) {
       toast.error("Authentication token not found");
@@ -165,134 +191,179 @@ const SkillsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
 
   return (
     <div className="space-y-6">
-      {userSkills.length > 0 && (
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Your Skills ({userSkills.length})
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {userSkills.map((skill) => (
-                <div
-                  key={skill.id}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lime-100 border-2 border-lime-300 text-lime-700 text-sm font-semibold shadow-sm hover:bg-lime-200 hover:border-lime-400 transition-all"
-                >
-                  <span className="w-2 h-2 bg-lime-500 rounded-full"></span>
-                  {skill.name}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveSkill(skill.id)}
-                    disabled={deletingId === skill.id}
-                    className="ml-1 hover:opacity-70 transition-opacity hover:text-lime-600"
-                  >
-                    {deletingId === skill.id ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                      <X className="size-4" />
-                    )}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="border-t border-gray-200 pt-6" />
-        </div>
-      )}
-
-      <div className="space-y-4">
-        <div>
-          <label className="text-gray-700 font-semibold block mb-2">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <label
+            htmlFor="skill-input"
+            className="text-gray-800 font-semibold text-sm sm:text-base"
+          >
             Add Skills
           </label>
-          <p className="text-xs text-gray-500 mb-3">
-            Search existing skills or type to create a new one
-          </p>
-
-          <Combobox
-            open={open}
-            onOpenChange={setOpen}
-            value={skillInput}
-            onValueChange={(value) => {
-              if (value !== null) {
-                setSkillInput(value);
-              }
-            }}
-          >
-            <div className="flex gap-2">
-              <ComboboxInput
-                placeholder="e.g., React, Python, Project Management..."
-                showTrigger
-                showClear
-                className="flex-1 h-11 border-gray-300"
-              />
-              <Button
-                type="button"
-                onClick={() => handleAddSkill()}
-                disabled={
-                  isLoading ||
-                  addingSkillId !== null ||
-                  skillInput.trim() === ""
-                }
-                className="bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-lg h-11 px-4 transition-all shadow-sm hover:shadow-md"
-              >
-                {addingSkillId === "new" ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Plus className="size-4" />
-                )}
-              </Button>
-            </div>
-
-            <ComboboxContent>
-              <ComboboxList>
-                {/* Existing skills suggestions */}
-                {filteredSuggestions.map((skill) => (
-                  <ComboboxItem
-                    key={skill.id}
-                    value={skill.id}
-                    onSelect={() => {
-                      handleAddSkill(skill.id);
-                    }}
-                    disabled={addingSkillId === skill.id}
-                  >
-                    <span className="flex-1">{skill.name}</span>
-                    {addingSkillId === skill.id && (
-                      <Loader2 className="size-4 animate-spin text-lime-500" />
-                    )}
-                  </ComboboxItem>
-                ))}
-
-                {/* Create new skill option */}
-                {skillInput.trim() !== "" &&
-                  filteredSuggestions.length === 0 && (
-                    <ComboboxItem
-                      value={`create-${skillInput}`}
-                      onSelect={() => {
-                        handleAddSkill();
-                      }}
-                      disabled={addingSkillId !== null}
-                    >
-                      <span className="flex-1">
-                        Create "{skillInput.trim()}" as new skill
-                      </span>
-                      {addingSkillId === "new" && (
-                        <Loader2 className="size-4 animate-spin text-lime-500" />
-                      )}
-                    </ComboboxItem>
-                  )}
-
-                <ComboboxEmpty>
-                  {skillInput.trim() === ""
-                    ? "Start typing to search skills"
-                    : "No skills found"}
-                </ComboboxEmpty>
-              </ComboboxList>
-            </ComboboxContent>
-          </Combobox>
+          {userSkills.length > 0 && (
+            <span className="text-xs font-medium text-lime-700 bg-lime-50 border border-lime-200 px-2.5 py-1 rounded-full">
+              {userSkills.length} added
+            </span>
+          )}
         </div>
+        <p className="text-xs text-gray-500">
+          Search existing skills or type a new one to create it
+        </p>
+
+        <Combobox
+          open={open}
+          onOpenChange={setOpen}
+          inputValue={skillInput}
+          onInputValueChange={(value) => {
+            setSkillInput(value);
+            if (!open) setOpen(true);
+          }}
+        >
+          <div className="flex flex-col sm:flex-row gap-2">
+            <ComboboxInput
+              id="skill-input"
+              placeholder="e.g., React, Python, Project Management..."
+              showTrigger
+              showClear
+              disabled={isInitialLoading}
+              className="flex-1 h-11 border-gray-300 focus-within:border-lime-500 focus-within:ring-lime-200"
+              onFocus={() => setOpen(true)}
+            />
+            <Button
+              type="button"
+              onClick={() => handleAddSkill()}
+              disabled={
+                isInitialLoading ||
+                addingSkillId !== null ||
+                trimmedInput === ""
+              }
+              className="bg-lime-500 hover:bg-lime-600 active:bg-lime-700 text-white font-semibold rounded-lg h-11 px-4 sm:px-5 transition-all shadow-sm hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {addingSkillId === "new" ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  <span className="sm:hidden">Adding...</span>
+                </>
+              ) : (
+                <>
+                  <Plus className="size-4" />
+                  <span className="sm:hidden">Add Skill</span>
+                </>
+              )}
+            </Button>
+          </div>
+
+          <ComboboxContent>
+            <ComboboxList>
+              {filteredSuggestions.map((skill) => (
+                <ComboboxItem
+                  key={skill.id}
+                  value={skill.id}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleAddSkill({ skillId: skill.id });
+                  }}
+                  disabled={addingSkillId !== null}
+                  className="cursor-pointer hover:bg-lime-50 data-highlighted:bg-lime-50 data-highlighted:text-lime-800"
+                >
+                  <span className="flex-1 truncate">{skill.name}</span>
+                  {addingSkillId === skill.id ? (
+                    <Loader2 className="size-4 animate-spin text-lime-600" />
+                  ) : (
+                    <Plus className="size-4 text-lime-600 opacity-70" />
+                  )}
+                </ComboboxItem>
+              ))}
+
+              {canCreateNew && (
+                <ComboboxItem
+                  value={`create-${trimmedInput}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleAddSkill({ skillName: trimmedInput });
+                  }}
+                  disabled={addingSkillId !== null}
+                  className="cursor-pointer border-t border-gray-100 mt-1 pt-2 hover:bg-lime-50 data-highlighted:bg-lime-50"
+                >
+                  <Sparkles className="size-4 text-lime-600" />
+                  <span className="flex-1 truncate text-gray-700">
+                    Create{" "}
+                    <span className="font-semibold text-lime-700">
+                      &ldquo;{trimmedInput}&rdquo;
+                    </span>{" "}
+                    as new skill
+                  </span>
+                  {addingSkillId === "new" && (
+                    <Loader2 className="size-4 animate-spin text-lime-600" />
+                  )}
+                </ComboboxItem>
+              )}
+
+              <ComboboxEmpty>
+                {trimmedInput === ""
+                  ? "Start typing to search skills"
+                  : "No matching skills"}
+              </ComboboxEmpty>
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
       </div>
 
-      <p className="text-center text-sm text-gray-600">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm sm:text-base font-semibold text-gray-800">
+            Your Skills
+          </h3>
+        </div>
+
+        {isInitialLoading ? (
+          <div className="flex flex-wrap gap-2">
+            {[...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                className="h-9 w-24 rounded-full bg-gray-100 animate-pulse"
+                style={{ animationDelay: `${i * 80}ms` }}
+              />
+            ))}
+          </div>
+        ) : userSkills.length === 0 ? (
+          <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-6 sm:p-8 text-center">
+            <Sparkles className="size-6 text-lime-500 mx-auto mb-2" />
+            <p className="text-sm font-medium text-gray-700">
+              No skills added yet
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Use the search above to add your first skill
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {userSkills.map((skill) => (
+              <div
+                key={skill.id}
+                className="group inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-lime-100 border border-lime-300 text-lime-800 text-sm font-medium shadow-sm hover:bg-lime-200 hover:border-lime-400 transition-all"
+              >
+                <span className="w-1.5 h-1.5 bg-lime-500 rounded-full" />
+                <span className="max-w-56 truncate">{skill.name}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveSkill(skill.id)}
+                  disabled={deletingId === skill.id}
+                  aria-label={`Remove ${skill.name}`}
+                  className="ml-0.5 rounded-full p-0.5 hover:bg-lime-300/60 transition-colors disabled:opacity-50"
+                >
+                  {deletingId === skill.id ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <X className="size-3.5" />
+                  )}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <p className="text-center text-xs sm:text-sm text-gray-500">
         Add at least one skill to continue. You can add more skills later.
       </p>
     </div>

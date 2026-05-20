@@ -97,6 +97,50 @@ export const GetSkillsAction = async (
   }
 };
 
+export const GetUserSkillsAction = async (
+  token: string,
+): Promise<{
+  success: boolean;
+  data?: SkillListResponse[];
+  message?: string;
+  errors?: ValidationErrorField[];
+}> => {
+  try {
+    const response = await axiosInstance.get<ApiResponse<SkillListResponse[]>>(
+      `/skills/user/me`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    const data = response.data;
+    if (data.success) {
+      return {
+        success: true,
+        data: data.data,
+        message: data.message,
+      };
+    }
+    return {
+      success: false,
+      message: data.message || "Failed to fetch user skills",
+    };
+  } catch (error: any) {
+    const errorData = error.response?.data as ApiErrorResponse | undefined;
+
+    return {
+      success: false,
+      message:
+        errorData?.message ||
+        errorData?.detail ||
+        "Failed to fetch user skills",
+      errors: errorData?.errors,
+    };
+  }
+};
+
 export const GetSkillAction = async (
   token: string,
   skillId: string,
