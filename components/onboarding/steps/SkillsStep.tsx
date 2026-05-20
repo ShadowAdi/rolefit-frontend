@@ -276,9 +276,10 @@ const SkillsStep: React.FC<StepProps> = () => {
 
               {canCreateNew && (
                 <ComboboxItem
-                  value={`create-${trimmedInput}`}
+                  value={trimmedInput}
                   onClick={(e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     handleAddSkill({ skillName: trimmedInput });
                   }}
                   disabled={addingSkillId !== null}
