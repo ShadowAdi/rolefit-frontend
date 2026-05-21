@@ -5,10 +5,50 @@ import {
   ProjectCreateRequest,
   ProjectCreateResponse,
   ProjectGetResponse,
+  ProjectListResponse,
   ProjectUpdateRequest,
   ProjectUpdateResponse,
   ValidationErrorField,
 } from "@/types";
+
+type BackendErrorDetail = {
+  field?: string;
+  type?: string;
+  code?: string;
+  message?: string;
+};
+
+type BackendErrorPayload = ApiErrorResponse & {
+  details?: BackendErrorDetail[];
+  error_code?: string;
+};
+
+const extractErrors = (
+  errorData: BackendErrorPayload | undefined,
+): ValidationErrorField[] | undefined => {
+  if (!errorData) return undefined;
+  if (errorData.errors && errorData.errors.length > 0) return errorData.errors;
+  if (errorData.details && errorData.details.length > 0) {
+    return errorData.details.map((d) => ({
+      field: d.field ?? "",
+      code: d.code ?? d.type ?? "",
+      message: d.message ?? "",
+    }));
+  }
+  return undefined;
+};
+
+const extractMessage = (
+  errorData: BackendErrorPayload | undefined,
+  fallback: string,
+): string => {
+  return (
+    errorData?.message ||
+    errorData?.detail ||
+    errorData?.error ||
+    fallback
+  );
+};
 
 export const CreateProjectAction = async (
   payload: ProjectCreateRequest,
@@ -44,13 +84,12 @@ export const CreateProjectAction = async (
       message: apiResponse.message || "Project creation failed",
     };
   } catch (error: any) {
-    const errorData = error.response?.data as ApiErrorResponse | undefined;
+    const errorData = error.response?.data as BackendErrorPayload | undefined;
 
     return {
       success: false,
-      message:
-        errorData?.message || errorData?.detail || "Project creation failed",
-      errors: errorData?.errors,
+      message: extractMessage(errorData, "Project creation failed"),
+      errors: extractErrors(errorData),
     };
   }
 };
@@ -98,15 +137,15 @@ export const GetProjectAction = async (
   }
 };
 
-export const GetProjectsAction = async (
+export const GetAllProjectsAction = async (
   token: string,
 ): Promise<{
   success: boolean;
-  data?: ProjectGetResponse;
+  data?: ProjectListResponse[];
   message?: string;
 }> => {
   try {
-    const response = await axiosInstance.get<ApiResponse<ProjectGetResponse>>(
+    const response = await axiosInstance.get<ApiResponse<ProjectListResponse[]>>(
       `/project`,
       {
         headers: {
@@ -148,6 +187,7 @@ export const UpdateProjectsAction = async (
   success: boolean;
   data?: ProjectUpdateResponse;
   message?: string;
+  errors?: ValidationErrorField[];
 }> => {
   try {
     const response = await axiosInstance.patch<
@@ -173,12 +213,12 @@ export const UpdateProjectsAction = async (
       message: apiResponse.message || "Failed to update project",
     };
   } catch (error: any) {
-    const errorData = error.response?.data as ApiErrorResponse | undefined;
+    const errorData = error.response?.data as BackendErrorPayload | undefined;
 
     return {
       success: false,
-      message:
-        errorData?.message || errorData?.detail || "Failed to update projects",
+      message: extractMessage(errorData, "Failed to update project"),
+      errors: extractErrors(errorData),
     };
   }
 };
