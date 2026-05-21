@@ -4,19 +4,58 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
-
+import { z } from "zod";
+import { ProjectGetResponse } from "@/types";
+import { useAuth } from "@/context/AuthContext";
 interface StepProps {
   onNext: () => void;
   onSkip?: () => void;
 }
 
-const ProjectsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
-  const [isCompleted, setIsCompleted] = useState(false);
+const projectSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  techStack: z.array(z.string()).nullable().optional(),
+  links: z.record(z.string(), z.string()).nullable().optional(),
+  startDate: z.string().datetime().nullable().optional(),
+  endDate: z.string().datetime().nullable().optional(),
+  priority: z.number().nullable().optional(),
+});
 
-  const handleAddProjects = () => {
-    setIsCompleted(true);
-    toast.success("Projects added successfully!");
-  };
+type ProjectFormDara = z.infer<typeof projectSchema>;
+
+const months = Array.from({ length: 12 }, (_, i) => ({
+  value: i + 1,
+  label: new Date(2000, i).toLocaleString("default", { month: "long" }),
+}));
+
+const ProjectsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
+  const { token } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [alreadyAddedProject, setAlreadyAddedProject] = useState<
+    ProjectGetResponse[]
+  >([]);
+
+   const callGetProject = async () => {
+      if (!token) {
+        toast.error(`User Not Authenticated`);
+        console.error(`User token not found: ${token}`);
+        return;
+      }
+      const { success, data } = await GetAllExperiencesAction(token, {
+        sortOrder: "desc",
+      });
+      if (success && data) {
+        setAlreadyAddedExperience(data);
+      }
+    };
+  
+    useEffect(() => {
+      callGetExperience();
+    }, [token]);
+  
 
   return (
     <div className="space-y-6">
