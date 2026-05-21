@@ -56,11 +56,15 @@ const ToolsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
         GetUserToolsAction(token),
       ]);
 
+      console.log("user tresponse ",userRes)
+            console.log("available tresponse ",allRes)
+
+
       if (allRes.success && allRes.data) {
         setAvailableTools(allRes.data);
       }
       if (userRes.success && userRes.data) {
-        setAvailableTools(userRes.data);
+        setUserTools(userRes.data);
       }
     } catch (error) {
       console.error("Error fetching tools:", error);
@@ -133,6 +137,8 @@ const ToolsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
     }
 
     setAddingToolId(payload.toolId || "new");
+    setToolInput("");
+    setOpen(false);
 
     try {
       const result = await CreateToolAction(payload, token);
@@ -154,8 +160,6 @@ const ToolsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
         }
 
         toast.success("Tool added successfully!");
-        setToolInput("");
-        setOpen(false);
       } else {
         toast.error(result.message || "Failed to add Tool");
       }
@@ -225,7 +229,7 @@ const ToolsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
           <div className="flex flex-col sm:flex-row gap-2">
             <ComboboxInput
               id="tool-input"
-              placeholder="e.g., React, Python, Project Management..."
+              placeholder="e.g., Web Development, Blockchain Developer, Project Management..."
               showTrigger
               showClear
               disabled={isInitialLoading}

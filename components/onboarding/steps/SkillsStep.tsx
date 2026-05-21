@@ -130,6 +130,8 @@ const SkillsStep: React.FC<StepProps> = () => {
     }
 
     setAddingSkillId(payload.skillId || "new");
+    setSkillInput("");
+    setOpen(false);
 
     try {
       const result = await CreateSkillAction(payload, token);
@@ -151,8 +153,6 @@ const SkillsStep: React.FC<StepProps> = () => {
         }
 
         toast.success("Skill added successfully!");
-        setSkillInput("");
-        setOpen(false);
       } else {
         toast.error(result.message || "Failed to add skill");
       }
