@@ -12,6 +12,8 @@ import ToolsStep from "@/components/onboarding/steps/ToolsStep";
 import ProjectsStep from "@/components/onboarding/steps/ProjectsStep";
 import PublicationsStep from "@/components/onboarding/steps/PublicationsStep";
 import { markOnboardingCompleted } from "@/lib/postLoginRedirect";
+import { completeOnboardingAction } from "@/action/profile/profile.action";
+import { toast } from "sonner";
 
 interface StepConfig {
     id: number;
@@ -112,7 +114,16 @@ const OnboardingPage = () => {
         handleNext();
     };
 
-    const handleComplete = () => {
+    const handleComplete = async () => {
+        if (token) {
+            const result = await completeOnboardingAction(token);
+            if (!result.success) {
+                toast.error(
+                    result.message || "Failed to mark onboarding complete",
+                );
+                return;
+            }
+        }
         markOnboardingCompleted();
         router.push("/profile");
     };

@@ -1,31 +1,19 @@
 "use client";
 
-import { useSyncExternalStore, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Sparkles, X } from "lucide-react";
-import {
-  isOnboardingCompleted,
-  ONBOARDING_COMPLETED_KEY,
-} from "@/lib/postLoginRedirect";
 
-const subscribe = (callback: () => void) => {
-  if (typeof window === "undefined") return () => {};
-  const handler = (e: StorageEvent) => {
-    if (e.key === ONBOARDING_COMPLETED_KEY) callback();
-  };
-  window.addEventListener("storage", handler);
-  return () => window.removeEventListener("storage", handler);
-};
+interface OnboardingBannerProps {
+  isOnboarded: boolean;
+}
 
-export const OnboardingBanner: React.FC = () => {
-  const completed = useSyncExternalStore(
-    subscribe,
-    isOnboardingCompleted,
-    () => false,
-  );
+export const OnboardingBanner: React.FC<OnboardingBannerProps> = ({
+  isOnboarded,
+}) => {
   const [dismissed, setDismissed] = useState(false);
 
-  if (completed || dismissed) return null;
+  if (isOnboarded || dismissed) return null;
 
   return (
     <div className="bg-lime-50 border border-lime-200 rounded-lg p-4 flex items-start gap-3">

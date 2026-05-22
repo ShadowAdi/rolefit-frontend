@@ -4,11 +4,12 @@ import {
   ProfileAuthenticatedResponse,
   ProfileDeleteResult,
   ProfileDeleteResponse,
-  ProfileDeleteSuccess,
+  ProfileOnboardingResponse,
   ProfilePayload,
   ProfileResult,
   ProfileUpdatePayload,
 } from "@/types/profile.types";
+import { apiRequest } from "../_apiRequest";
 
 interface ProfileResponseWrapper {
   data: ProfileAuthenticatedResponse;
@@ -47,8 +48,9 @@ export const createProfile = async (
       success: false,
       message: "Profile Creation failed",
     };
-  } catch (error: any) {
-    const errorData = error.response?.data as ApiErrorResponse | undefined;
+  } catch (error: unknown) {
+    const errorData = (error as { response?: { data?: ApiErrorResponse } })
+      ?.response?.data;
 
     return {
       success: false,
@@ -85,8 +87,9 @@ export const getProfile = async (token: string): Promise<ProfileResult> => {
       success: false,
       message: "Profile Fetch failed",
     };
-  } catch (error: any) {
-    const errorData = error.response?.data as ApiErrorResponse | undefined;
+  } catch (error: unknown) {
+    const errorData = (error as { response?: { data?: ApiErrorResponse } })
+      ?.response?.data;
 
     return {
       success: false,
@@ -125,8 +128,9 @@ export const updateProfile = async (
       success: false,
       message: "Profile Update failed",
     };
-  } catch (error: any) {
-    const errorData = error.response?.data as ApiErrorResponse | undefined;
+  } catch (error: unknown) {
+    const errorData = (error as { response?: { data?: ApiErrorResponse } })
+      ?.response?.data;
 
     return {
       success: false,
@@ -172,8 +176,9 @@ export const deleteProfileAction = async (
       success: false,
       message: "Profile Deletion failed",
     };
-  } catch (error: any) {
-    const errorData = error.response?.data as ApiErrorResponse | undefined;
+  } catch (error: unknown) {
+    const errorData = (error as { response?: { data?: ApiErrorResponse } })
+      ?.response?.data;
 
     return {
       success: false,
@@ -183,3 +188,11 @@ export const deleteProfileAction = async (
     };
   }
 };
+
+export const completeOnboardingAction = (token: string) =>
+  apiRequest<ProfileOnboardingResponse>({
+    method: "post",
+    url: "/profile/complete-onboarding",
+    token,
+    errorMessage: "Failed to mark onboarding complete",
+  });

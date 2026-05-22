@@ -251,7 +251,7 @@ const ProfilePage = () => {
 
           {profile && !isEditing ? (
             <div className="space-y-6 mb-8">
-              <OnboardingBanner />
+              <OnboardingBanner isOnboarded={!!profile.isOnboarded} />
 
               <div className="bg-white/40 backdrop-blur-sm border border-white/60 rounded-lg p-5 space-y-4">
                 <div>

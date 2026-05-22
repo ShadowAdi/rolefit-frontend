@@ -33,6 +33,7 @@ export interface ProfileCreateResponse {
   resume_link: string | null;
   cover_letter_link: string | null;
   links: ProfileLinks | null;
+  isOnboarded: boolean;
   created_at: ISODateTime;
 }
 
@@ -45,6 +46,7 @@ export interface ProfileGetResponse {
   resume_link: string | null;
   cover_letter_link: string | null;
   links: ProfileLinks | null;
+  isOnboarded: boolean;
   created_at: ISODateTime;
   updated_at: ISODateTime;
 }
@@ -60,6 +62,7 @@ export interface ProfileUpdateResponse {
   resume_link: string | null;
   cover_letter_link: string | null;
   links: ProfileLinks | null;
+  isOnboarded: boolean;
   updated_at: ISODateTime;
 }
 
@@ -67,6 +70,13 @@ export interface ProfileDeleteResponse {
   message: string;
   id: UUID;
   full_name: string;
+}
+
+export interface ProfileOnboardingResponse {
+  id: UUID;
+  userId: UUID;
+  isOnboarded: boolean;
+  updated_at: ISODateTime;
 }
 
 export interface ProfileSuccess {
