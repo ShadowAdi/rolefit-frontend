@@ -4,6 +4,7 @@ import {
   ApiResponse,
   PublicationCreateRequest,
   PublicationCreateResponse,
+  PublicationGetResponse,
   PublicationListResponse,
   ValidationErrorField,
 } from "@/types";
@@ -129,6 +130,53 @@ export const GetAllPublications = async (
     return {
       success: false,
       data: {} as PublicationListResponse[],
+      message: extractMessage(errorData, "An error occurred while fetching the publication"),
+      errors: extractErrors(errorData) || [],
+    };
+  }
+};
+
+
+export const GetPublication = async (
+pubId:string,
+  token: string,
+): Promise<{
+  success: boolean;
+  data?: PublicationGetResponse;
+  message?: string;
+  errors?: ValidationErrorField[];
+}> => {
+  try {
+    const response = await axiosInstance.post<
+          ApiResponse<PublicationGetResponse>
+        >("/publications/"+pubId, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+    const apiResponse = response.data;
+
+    if (apiResponse.success && apiResponse.data) {
+      return {
+        success: true,
+        data: apiResponse.data,
+        message: apiResponse.message || "Publication fetched successfully",
+        errors: [],
+      };
+    }
+
+    return {
+      success: false,
+      data: {} as PublicationGetResponse,
+      message: apiResponse.message || "Publication fetched failed",
+      errors: [],
+    };
+
+  } catch (error) {
+    const errorData = (error as any)?.response?.data as BackendErrorPayload | undefined;
+    return {
+      success: false,
+      data: {} as PublicationGetResponse,
       message: extractMessage(errorData, "An error occurred while fetching the publication"),
       errors: extractErrors(errorData) || [],
     };
