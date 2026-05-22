@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, Plus, Sparkles, X } from "lucide-react";
+import { Loader2, Plus, Sparkles } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import {
   GetSkillsAction,
@@ -12,6 +12,7 @@ import {
   DeleteSkillAction,
 } from "@/action/skills/skill.action";
 import { SkillListResponse } from "@/types";
+import { SimpleListManager } from "@/components/onboarding/shared";
 import {
   Combobox,
   ComboboxInput,
@@ -307,62 +308,7 @@ const SkillsStep: React.FC<StepProps> = () => {
             </ComboboxList>
           </ComboboxContent>
         </Combobox>
-      </div>
-
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm sm:text-base font-semibold text-gray-800">
-            Your Skills
-          </h3>
-        </div>
-
-        {isInitialLoading ? (
-          <div className="flex flex-wrap gap-2">
-            {[...Array(5)].map((_, i) => (
-              <div
-                key={i}
-                className="h-9 w-24 rounded-full bg-gray-100 animate-pulse"
-                style={{ animationDelay: `${i * 80}ms` }}
-              />
-            ))}
-          </div>
-        ) : userSkills.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-6 sm:p-8 text-center">
-            <Sparkles className="size-6 text-lime-500 mx-auto mb-2" />
-            <p className="text-sm font-medium text-gray-700">
-              No skills added yet
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Use the search above to add your first skill
-            </p>
-          </div>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {userSkills.map((skill) => (
-              <div
-                key={skill.id}
-                className="group inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-lime-100 border border-lime-300 text-lime-800 text-sm font-medium shadow-sm hover:bg-lime-200 hover:border-lime-400 transition-all"
-              >
-                <span className="w-1.5 h-1.5 bg-lime-500 rounded-full" />
-                <span className="max-w-56 truncate">{skill.name}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveSkill(skill.id)}
-                  disabled={deletingId === skill.id}
-                  aria-label={`Remove ${skill.name}`}
-                  className="ml-0.5 rounded-full p-0.5 hover:bg-lime-300/60 transition-colors disabled:opacity-50"
-                >
-                  {deletingId === skill.id ? (
-                    <Loader2 className="size-3.5 animate-spin" />
-                  ) : (
-                    <X className="size-3.5" />
-                  )}
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      </SimpleListManager>
 
       <p className="text-center text-xs sm:text-sm text-gray-500">
         Add at least one skill to continue. You can add more skills later.

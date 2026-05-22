@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, Plus, X, Pencil } from "lucide-react";
+import { Loader2, Plus, X } from "lucide-react";
 import { z } from "zod";
 import { ProjectListResponse } from "@/types";
 import { useAuth } from "@/context/AuthContext";
@@ -19,6 +19,7 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DatePicker } from "@/components/global/DatePicker";
+import { ComplexListManager } from "@/components/onboarding/shared";
 
 interface StepProps {
   onNext: () => void;
@@ -264,336 +265,306 @@ const ProjectsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
   };
 
   return (
-    <div className="space-y-6">
-      {alreadyAddedProject.length > 0 && (
-        <div className="space-y-4">
+    <div className="space-y-8">
+      <ComplexListManager
+        items={alreadyAddedProject}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        deletingId={deletingId}
+        editingId={editingId}
+        title="Added Projects"
+        emptyMessage="No projects added yet"
+        renderItemContent={(project) => (
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Added Projects ({alreadyAddedProject.length})
-            </h3>
-            <div className="space-y-3">
-              {alreadyAddedProject.map((project) => (
-                <div
-                  key={project.id}
-                  className="bg-white/40 backdrop-blur-sm border border-white/60 rounded-lg p-4 flex items-start justify-between hover:bg-white/50 transition-all"
-                >
-                  <div>
-                    <p className="font-semibold text-gray-900">{project.title}</p>
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      {project.description.slice(0,60)+"..."}
-                    </p>
-                    {project.techStack && project.techStack.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {project.techStack.slice(0, 3).map((tech) => (
-                          <span
-                            key={tech}
-                            className="text-xs bg-lime-100 text-lime-700 px-2 py-1 rounded"
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                        {project.techStack.length > 3 && (
-                          <span className="text-xs text-gray-500">
-                            +{project.techStack.length - 3} more
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      disabled={
-                        editingId === project.id ||
-                        loadingEditId === project.id
-                      }
-                      onClick={() => handleEdit(project)}
-                      className="text-gray-600 hover:text-lime-700 hover:bg-lime-50"
-                    >
-                      {loadingEditId === project.id ? (
-                        <Loader2 className="size-4 animate-spin" />
-                      ) : (
-                        <Pencil className="size-4" />
-                      )}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      disabled={deletingId === project.id}
-                      onClick={() => handleDelete(project.id)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      {deletingId === project.id ? (
-                        <Loader2 className="size-4 animate-spin" />
-                      ) : (
-                        <X className="size-4" />
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="border-t border-gray-200 pt-6" />
-        </div>
-      )}
-
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="space-y-4">
-          <div>
-            <label className="text-gray-700 font-semibold block mb-2">
-              Project Title *
-            </label>
-            <Controller
-              control={form.control}
-              name="title"
-              render={({ field, fieldState: { error } }) => (
-                <div>
-                  <Input
-                    placeholder="e.g., E-commerce Platform"
-                    {...field}
-                    className="h-11 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all"
-                  />
-                  {error && (
-                    <p className="text-red-500 text-sm mt-1">{error.message}</p>
-                  )}
-                </div>
-              )}
-            />
-          </div>
-
-          <div>
-            <label className="text-gray-700 font-semibold block mb-2">
-              Description *
-            </label>
-            <Controller
-              control={form.control}
-              name="description"
-              render={({ field, fieldState: { error } }) => (
-                <div>
-                  <Textarea
-                    placeholder="Describe your project..."
-                    {...field}
-                    className="border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all min-h-24"
-                  />
-                  {error && (
-                    <p className="text-red-500 text-sm mt-1">{error.message}</p>
-                  )}
-                </div>
-              )}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Controller
-              control={form.control}
-              name="startDate"
-              render={({ field }) => (
-                <DatePicker
-                  label="Start Date"
-                  value={field.value ?? undefined}
-                  onChange={field.onChange}
-                  placeholder="Select start date"
-                  maxDate={form.watch("endDate") ?? undefined}
-                />
-              )}
-            />
-
-            <Controller
-              control={form.control}
-              name="endDate"
-              render={({ field, fieldState: { error } }) => (
-                <div>
-                  <DatePicker
-                    label="End Date"
-                    value={field.value ?? undefined}
-                    onChange={field.onChange}
-                    placeholder="Select end date"
-                    minDate={form.watch("startDate") ?? undefined}
-                  />
-                  {error && (
-                    <p className="text-red-500 text-sm mt-1">{error.message}</p>
-                  )}
-                </div>
-              )}
-            />
-          </div>
-
-          <div>
-            <label className="text-gray-700 font-semibold block mb-2">
-              Tech Stack
-            </label>
-            <p className="text-xs text-gray-500 mb-3">
-              Add the technologies and tools used in this project
+            <p className="font-semibold text-gray-900">{project.title}</p>
+            <p className="text-sm text-gray-600 line-clamp-2">
+              {(project.description ?? "").slice(0, 60) + "..."}
             </p>
-            <div className="space-y-3">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="e.g., React, Node.js, PostgreSQL"
-                  value={techStackInput}
-                  onChange={(e) => setTechStackInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addTechStack();
-                    }
-                  }}
-                  className="h-11 border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 hover:border-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all flex-1 rounded-lg"
-                />
-                <Button
-                  type="button"
-                  onClick={addTechStack}
-                  size="sm"
-                  className="bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-lg h-11 px-4 transition-all shadow-sm hover:shadow-md shrink-0"
-                >
-                  <Plus className="size-4" />
-                </Button>
+            {project.techStack && project.techStack.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {project.techStack.slice(0, 3).map((tech: string) => (
+                  <span
+                    key={tech}
+                    className="text-xs bg-lime-100 text-lime-700 px-2 py-1 rounded"
+                  >
+                    {tech}
+                  </span>
+                ))}
+                {project.techStack.length > 3 && (
+                  <span className="text-xs text-gray-500">
+                    +{project.techStack.length - 3} more
+                  </span>
+                )}
               </div>
-
+            )}
+          </div>
+        )}
+      >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="space-y-4">
+            <div>
+              <label className="text-gray-700 font-semibold block mb-2">
+                Project Title *
+              </label>
               <Controller
                 control={form.control}
-                name="techStack"
-                render={({ field }) => (
-                  <>
-                    {field.value && field.value.length > 0 && (
-                      <div className="bg-white/50 border border-lime-200 rounded-lg p-3">
-                        <div className="flex flex-wrap gap-1.5">
-                          {field.value.map((tech) => (
-                            <span
-                              key={tech}
-                              className="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-full bg-lime-50 border border-lime-200 text-lime-700 text-xs font-medium hover:bg-lime-100 transition-colors"
-                            >
-                              <span className="w-1.5 h-1.5 bg-lime-500 rounded-full" />
-                              <span>{tech}</span>
-                              <button
-                                type="button"
-                                onClick={() => removeTechStack(tech)}
-                                className="text-lime-500 hover:text-red-500 transition-colors p-0.5 rounded-full hover:bg-white/60"
-                                aria-label={`Remove ${tech}`}
-                              >
-                                <X className="size-3" />
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                        <p className="text-[11px] text-lime-600 mt-2 font-medium">
-                          {field.value.length} technolog
-                          {field.value.length !== 1 ? "ies" : "y"} added
-                        </p>
-                      </div>
+                name="title"
+                render={({ field, fieldState: { error } }) => (
+                  <div>
+                    <Input
+                      placeholder="e.g., E-commerce Platform"
+                      {...field}
+                      className="h-11 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all"
+                    />
+                    {error && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {error.message}
+                      </p>
                     )}
-                  </>
+                  </div>
                 )}
               />
             </div>
-          </div>
 
-          <div>
-            <label className="text-gray-700 font-semibold block mb-2">
-              Project Links
-            </label>
-            <p className="text-xs text-gray-500 mb-3">
-              Add links to your project (GitHub, live demo, docs, etc.)
-            </p>
-            <div className="space-y-3">
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Input
-                  value={linkKey}
-                  onChange={(e) => setLinkKey(e.target.value)}
-                  placeholder="Label (e.g., GitHub)"
-                  className="h-11 border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 hover:border-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all sm:flex-1 sm:max-w-[180px] rounded-lg"
-                />
-                <div className="flex gap-2 flex-1">
+            <div>
+              <label className="text-gray-700 font-semibold block mb-2">
+                Description *
+              </label>
+              <Controller
+                control={form.control}
+                name="description"
+                render={({ field, fieldState: { error } }) => (
+                  <div>
+                    <Textarea
+                      placeholder="Describe your project..."
+                      {...field}
+                      className="border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all min-h-24"
+                    />
+                    {error && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {error.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Controller
+                control={form.control}
+                name="startDate"
+                render={({ field }) => (
+                  <DatePicker
+                    label="Start Date"
+                    value={field.value ?? undefined}
+                    onChange={field.onChange}
+                    placeholder="Select start date"
+                    maxDate={form.watch("endDate") ?? undefined}
+                  />
+                )}
+              />
+
+              <Controller
+                control={form.control}
+                name="endDate"
+                render={({ field, fieldState: { error } }) => (
+                  <div>
+                    <DatePicker
+                      label="End Date"
+                      value={field.value ?? undefined}
+                      onChange={field.onChange}
+                      placeholder="Select end date"
+                      minDate={form.watch("startDate") ?? undefined}
+                    />
+                    {error && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {error.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
+
+            <div>
+              <label className="text-gray-700 font-semibold block mb-2">
+                Tech Stack
+              </label>
+              <p className="text-xs text-gray-500 mb-3">
+                Add the technologies and tools used in this project
+              </p>
+              <div className="space-y-3">
+                <div className="flex gap-2">
                   <Input
-                    value={linkValue}
-                    onChange={(e) => setLinkValue(e.target.value)}
+                    placeholder="e.g., React, Node.js, PostgreSQL"
+                    value={techStackInput}
+                    onChange={(e) => setTechStackInput(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
-                        addLink();
+                        addTechStack();
                       }
                     }}
-                    placeholder="https://..."
                     className="h-11 border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 hover:border-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all flex-1 rounded-lg"
                   />
                   <Button
                     type="button"
-                    onClick={addLink}
+                    onClick={addTechStack}
                     size="sm"
                     className="bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-lg h-11 px-4 transition-all shadow-sm hover:shadow-md shrink-0"
                   >
                     <Plus className="size-4" />
                   </Button>
                 </div>
-              </div>
 
-              {form.watch("links") &&
-                Object.keys(form.watch("links")!).length > 0 && (
-                  <div className="bg-white/50 border border-lime-200 rounded-lg p-3 space-y-1.5">
-                    {Object.entries(form.watch("links")!).map(([key, value]) => (
-                      <div
-                        key={key}
-                        className="flex items-center justify-between bg-lime-50 border border-lime-200 px-3 py-2 rounded-lg gap-2"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 truncate">
-                            {key}
-                          </p>
-                          <p className="text-xs text-gray-600 truncate">
-                            {value}
+                <Controller
+                  control={form.control}
+                  name="techStack"
+                  render={({ field }) => (
+                    <>
+                      {field.value && field.value.length > 0 && (
+                        <div className="bg-white/50 border border-lime-200 rounded-lg p-3">
+                          <div className="flex flex-wrap gap-1.5">
+                            {field.value.map((tech) => (
+                              <span
+                                key={tech}
+                                className="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-full bg-lime-50 border border-lime-200 text-lime-700 text-xs font-medium hover:bg-lime-100 transition-colors"
+                              >
+                                <span className="w-1.5 h-1.5 bg-lime-500 rounded-full" />
+                                <span>{tech}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => removeTechStack(tech)}
+                                  className="text-lime-500 hover:text-red-500 transition-colors p-0.5 rounded-full hover:bg-white/60"
+                                  aria-label={`Remove ${tech}`}
+                                >
+                                  <X className="size-3" />
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                          <p className="text-[11px] text-lime-600 mt-2 font-medium">
+                            {field.value.length} technolog
+                            {field.value.length !== 1 ? "ies" : "y"} added
                           </p>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => removeLink(key)}
-                          className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-white/60 shrink-0"
-                          aria-label={`Remove ${key}`}
-                        >
-                          <X className="size-4" />
-                        </button>
-                      </div>
-                    ))}
-                    <p className="text-[11px] text-lime-600 mt-2 font-medium">
-                      {Object.keys(form.watch("links")!).length} link
-                      {Object.keys(form.watch("links")!).length !== 1 ? "s" : ""} added
-                    </p>
+                      )}
+                    </>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-gray-700 font-semibold block mb-2">
+                Project Links
+              </label>
+              <p className="text-xs text-gray-500 mb-3">
+                Add links to your project (GitHub, live demo, docs, etc.)
+              </p>
+              <div className="space-y-3">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Input
+                    value={linkKey}
+                    onChange={(e) => setLinkKey(e.target.value)}
+                    placeholder="Label (e.g., GitHub)"
+                    className="h-11 border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 hover:border-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all sm:flex-1 sm:max-w-45 rounded-lg"
+                  />
+                  <div className="flex gap-2 flex-1">
+                    <Input
+                      value={linkValue}
+                      onChange={(e) => setLinkValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addLink();
+                        }
+                      }}
+                      placeholder="https://..."
+                      className="h-11 border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 hover:border-gray-400 focus:bg-white focus:border-lime-500 focus:ring-2 focus:ring-lime-400/30 transition-all flex-1 rounded-lg"
+                    />
+                    <Button
+                      type="button"
+                      onClick={addLink}
+                      size="sm"
+                      className="bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-lg h-11 px-4 transition-all shadow-sm hover:shadow-md shrink-0"
+                    >
+                      <Plus className="size-4" />
+                    </Button>
                   </div>
-                )}
+                </div>
+
+                {form.watch("links") &&
+                  Object.keys(form.watch("links")!).length > 0 && (
+                    <div className="bg-white/50 border border-lime-200 rounded-lg p-3 space-y-1.5">
+                      {Object.entries(form.watch("links")!).map(
+                        ([key, value]) => (
+                          <div
+                            key={key}
+                            className="flex items-center justify-between bg-lime-50 border border-lime-200 px-3 py-2 rounded-lg gap-2"
+                          >
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-gray-900 truncate">
+                                {key}
+                              </p>
+                              <p className="text-xs text-gray-600 truncate">
+                                {value}
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeLink(key)}
+                              className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-white/60 shrink-0"
+                              aria-label={`Remove ${key}`}
+                            >
+                              <X className="size-4" />
+                            </button>
+                          </div>
+                        ),
+                      )}
+                      <p className="text-[11px] text-lime-600 mt-2 font-medium">
+                        {Object.keys(form.watch("links")!).length} link
+                        {Object.keys(form.watch("links")!).length !== 1
+                          ? "s"
+                          : ""}{" "}
+                        added
+                      </p>
+                    </div>
+                  )}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex gap-2">
-          {editingId && (
+          <div className="flex gap-2">
+            {editingId && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetForm}
+                disabled={isLoading}
+                className="h-11 px-4"
+              >
+                Cancel
+              </Button>
+            )}
             <Button
-              type="button"
-              variant="outline"
-              onClick={resetForm}
+              type="submit"
               disabled={isLoading}
-              className="h-11 px-4"
+              className="flex-1 h-11 bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
             >
-              Cancel
+              {isLoading && <Loader2 className="size-4 mr-2 animate-spin" />}
+              {isLoading
+                ? editingId
+                  ? "Updating Project..."
+                  : "Adding Project..."
+                : editingId
+                  ? "Update Project"
+                  : "Add Project"}
             </Button>
-          )}
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="flex-1 h-11 bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
-          >
-            {isLoading && <Loader2 className="size-4 mr-2 animate-spin" />}
-            {isLoading
-              ? editingId
-                ? "Updating Project..."
-                : "Adding Project..."
-              : editingId
-                ? "Update Project"
-                : "Add Project"}
-          </Button>
-        </div>
-      </form>
+          </div>
+        </form>
+      </ComplexListManager>
 
       <p className="text-center text-sm text-gray-600">
         You can add multiple projects. Add at least one to continue.
