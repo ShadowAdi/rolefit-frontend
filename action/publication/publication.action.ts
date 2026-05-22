@@ -1,0 +1,136 @@
+import axiosInstance from "@/api/axios-instance";
+import {
+  ApiErrorResponse,
+  ApiResponse,
+  PublicationCreateRequest,
+  PublicationCreateResponse,
+  PublicationListResponse,
+  ValidationErrorField,
+} from "@/types";
+
+type BackendErrorDetail = {
+  field?: string;
+  type?: string;
+  code?: string;
+  message?: string;
+};
+
+type BackendErrorPayload = ApiErrorResponse & {
+  details?: BackendErrorDetail[];
+  error_code?: string;
+};
+
+const extractErrors = (
+  errorData: BackendErrorPayload | undefined,
+): ValidationErrorField[] | undefined => {
+  if (!errorData) return undefined;
+  if (errorData.errors && errorData.errors.length > 0) return errorData.errors;
+  if (errorData.details && errorData.details.length > 0) {
+    return errorData.details.map((d) => ({
+      field: d.field ?? "",
+      code: d.code ?? d.type ?? "",
+      message: d.message ?? "",
+    }));
+  }
+  return undefined;
+};
+
+const extractMessage = (
+  errorData: BackendErrorPayload | undefined,
+  fallback: string,
+): string => {
+  return (
+    errorData?.message || errorData?.detail || errorData?.error || fallback
+  );
+};
+
+export const CreatePublication = async (
+  payload: PublicationCreateRequest,
+  token: string,
+): Promise<{
+  success: boolean;
+  data?: PublicationCreateResponse;
+  message?: string;
+  errors?: ValidationErrorField[];
+}> => {
+  try {
+    const response = await axiosInstance.post<
+          ApiResponse<PublicationCreateResponse>
+        >("/publications/", payload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+    const apiResponse = response.data;
+
+    if (apiResponse.success && apiResponse.data) {
+      return {
+        success: true,
+        data: apiResponse.data,
+        message: apiResponse.message || "Publication created successfully",
+        errors: [],
+      };
+    }
+
+    return {
+      success: false,
+      data: {} as PublicationCreateResponse,
+      message: apiResponse.message || "Publication creation failed",
+      errors: [],
+    };
+
+  } catch (error) {
+    const errorData = (error as any)?.response?.data as BackendErrorPayload | undefined;
+    return {
+      success: false,
+      data: {} as PublicationCreateResponse,
+      message: extractMessage(errorData, "An error occurred while creating the publication"),
+      errors: extractErrors(errorData) || [],
+    };
+  }
+};
+
+export const GetAllPublications = async (
+  token: string,
+): Promise<{
+  success: boolean;
+  data?: PublicationListResponse[];
+  message?: string;
+  errors?: ValidationErrorField[];
+}> => {
+  try {
+    const response = await axiosInstance.post<
+          ApiResponse<PublicationListResponse[]>
+        >("/publications/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+    const apiResponse = response.data;
+
+    if (apiResponse.success && apiResponse.data) {
+      return {
+        success: true,
+        data: apiResponse.data,
+        message: apiResponse.message || "Publication fetched successfully",
+        errors: [],
+      };
+    }
+
+    return {
+      success: false,
+      data: {} as PublicationListResponse[],
+      message: apiResponse.message || "Publication fetched failed",
+      errors: [],
+    };
+
+  } catch (error) {
+    const errorData = (error as any)?.response?.data as BackendErrorPayload | undefined;
+    return {
+      success: false,
+      data: {} as PublicationListResponse[],
+      message: extractMessage(errorData, "An error occurred while fetching the publication"),
+      errors: extractErrors(errorData) || [],
+    };
+  }
+};
