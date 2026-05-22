@@ -34,7 +34,6 @@ const PublicationsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
   const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [loadingEditId, setLoadingEditId] = useState<string | null>(null);
   const [authorsInput, setAuthorsInput] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [alreadyAddedPublication, setAlreadyAddedPublication] = useState<
@@ -160,36 +159,24 @@ const PublicationsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
     }
   };
 
-  const handleEdit = async (publication: PublicationListResponse) => {
+  const handleEdit = (publication: PublicationListResponse) => {
     if (!token) {
       toast.error("Authentication token not found");
       return;
     }
 
-    setLoadingEditId(publication.id);
-    const { success, data, message } = await GetPublication(
-      publication.id,
-      token,
-    );
-    setLoadingEditId(null);
-
-    if (!success || !data) {
-      toast.error(message || "Failed to load publication details");
-      return;
-    }
-
-    setEditingId(data.id);
-    const pubDateStr = data.publication_date
-      ? new Date(data.publication_date).toISOString().split("T")[0]
+    setEditingId(publication.id);
+    const pubDateStr = publication.publication_date
+      ? new Date(publication.publication_date).toISOString().split("T")[0]
       : undefined;
 
     form.reset({
-      title: data.title ?? "",
-      publisher: data.publisher ?? "",
-      description: data.description ?? "",
-      authors: data.authors ?? [],
+      title: publication.title ?? "",
+      publisher: publication.publisher ?? "",
+      description: publication.description ?? "",
+      authors: publication.authors ?? [],
       publication_date: pubDateStr,
-      url: data.url ?? "",
+      url: publication.url ?? "",
     });
     setAuthorsInput("");
     if (typeof window !== "undefined") {
@@ -274,18 +261,11 @@ const PublicationsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      disabled={
-                        editingId === publication.id ||
-                        loadingEditId === publication.id
-                      }
+                      disabled={editingId === publication.id}
                       onClick={() => handleEdit(publication)}
                       className="text-gray-600 hover:text-lime-700 hover:bg-lime-50"
                     >
-                      {loadingEditId === publication.id ? (
-                        <Loader2 className="size-4 animate-spin" />
-                      ) : (
-                        <Pencil className="size-4" />
-                      )}
+                      <Pencil className="size-4" />
                     </Button>
                     <Button
                       type="button"
