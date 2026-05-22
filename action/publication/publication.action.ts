@@ -208,7 +208,7 @@ export const UpdatePublication = async (
   errors?: ValidationErrorField[];
 }> => {
   try {
-    const response = await axiosInstance.post<
+    const response = await axiosInstance.patch<
       ApiResponse<PublicationUpdateResponse>
     >("/publications/" + pubId, pubPayload, {
       headers: {
