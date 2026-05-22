@@ -55,7 +55,7 @@ export default function RegisterPage() {
       
       if (result.success) {
         toast.success("Registration successful! Redirecting to login...");
-        window.location.href = "/login";
+        router.push("/login");
       } else {
         toast.error(result.message);
       }

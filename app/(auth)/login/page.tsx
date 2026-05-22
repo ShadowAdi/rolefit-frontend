@@ -19,7 +19,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { loginUser } from "@/action/login/login.action";
-import { useEffect, useState } from "react";
+import { resolvePostLoginRedirect } from "@/lib/postLoginRedirect";
+import { useEffect } from "react";
 
 const loginSchema = z.object({
   email: z.email("Please enter a valid email address"),
@@ -29,7 +30,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const { login, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { login, token, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
   const {
@@ -41,10 +42,16 @@ export default function LoginPage() {
   });
 
   useEffect(() => {
-    if (!isAuthLoading && isAuthenticated) {
-      router.push("/dashboard");
-    }
-  }, [isAuthLoading, isAuthenticated, router]);
+    if (isAuthLoading || !isAuthenticated || !token) return;
+    let cancelled = false;
+    (async () => {
+      const target = await resolvePostLoginRedirect(token);
+      if (!cancelled) router.push(target);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthLoading, isAuthenticated, token, router]);
 
   const onSubmit = async (loginUserData: LoginFormData) => {
     try {
@@ -56,7 +63,8 @@ export default function LoginPage() {
       if (result.success) {
         login(result.data);
         toast.success("Login successful!");
-        window.location.href = "/dashboard";
+        const target = await resolvePostLoginRedirect(result.data.access_token);
+        router.push(target);
       } else {
         toast.error(result.message);
       }

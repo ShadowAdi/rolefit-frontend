@@ -11,6 +11,7 @@ import SkillsStep from "@/components/onboarding/steps/SkillsStep";
 import ToolsStep from "@/components/onboarding/steps/ToolsStep";
 import ProjectsStep from "@/components/onboarding/steps/ProjectsStep";
 import PublicationsStep from "@/components/onboarding/steps/PublicationsStep";
+import { markOnboardingCompleted } from "@/lib/postLoginRedirect";
 
 interface StepConfig {
     id: number;
@@ -112,6 +113,7 @@ const OnboardingPage = () => {
     };
 
     const handleComplete = () => {
+        markOnboardingCompleted();
         router.push("/profile");
     };
 

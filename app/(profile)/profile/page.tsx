@@ -23,6 +23,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ProfileSectionGrid } from "@/components/profile/ProfileSectionGrid";
+import { OnboardingBanner } from "@/components/profile/OnboardingBanner";
+import { clearOnboardingCompleted } from "@/lib/postLoginRedirect";
 import {
   User,
   Briefcase,
@@ -192,7 +194,9 @@ const ProfilePage = () => {
         const response = await deleteProfileAction(token);
         if (response.success) {
           toast.success("Delete Profile Successfull");
+          clearOnboardingCompleted();
           setProfile(null);
+          setIsEditing(true);
         }
       } else {
         toast.error(`Profile do not exist`);
@@ -247,6 +251,8 @@ const ProfilePage = () => {
 
           {profile && !isEditing ? (
             <div className="space-y-6 mb-8">
+              <OnboardingBanner />
+
               <div className="bg-white/40 backdrop-blur-sm border border-white/60 rounded-lg p-5 space-y-4">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
