@@ -112,7 +112,7 @@ const OnboardingPage = () => {
     };
 
     const handleComplete = () => {
-        router.push("/dashboard");
+        router.push("/profile");
     };
 
     const isStepCompleted = completedSteps.includes(currentStep);

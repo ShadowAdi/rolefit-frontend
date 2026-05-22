@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
-import Link from "next/link";
 import {
   createProfile,
   deleteProfileAction,
@@ -23,15 +22,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { ProfileSectionGrid } from "@/components/profile/ProfileSectionGrid";
 import {
-  Zap,
   User,
   Briefcase,
   FileText,
   Link as LinkIcon,
   ArrowRight,
   Loader2,
-  CheckCircle2,
   Edit2,
   Trash,
 } from "lucide-react";
@@ -76,7 +74,6 @@ const ProfilePage = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset,
     setValue,
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -89,25 +86,12 @@ const ProfilePage = () => {
     },
   });
 
-  useEffect(() => {
-    if (!authLoading && !token) {
-      router.push("/login");
-      return;
-    }
-
-    if (token) {
-      fetchProfile();
-    }
-  }, [token, authLoading, router]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!token) return;
 
     setIsLoading(true);
     try {
       const result = await getProfile(token);
-
-      console.log("fetvhing result ", result);
 
       if (result.success && result.data && result.data.data) {
         const profileData = result.data.data;
@@ -128,7 +112,19 @@ const ProfilePage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [token, setValue]);
+
+  useEffect(() => {
+    if (!authLoading && !token) {
+      router.push("/login");
+      return;
+    }
+
+    if (token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- standard data fetch on mount
+      fetchProfile();
+    }
+  }, [token, authLoading, router, fetchProfile]);
 
   const onSubmit = async (data: ProfileFormData) => {
     if (!token) {
@@ -232,15 +228,19 @@ const ProfilePage = () => {
       <div className="pointer-events-none absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-blue-200/30 blur-3xl" />
       <div className="pointer-events-none absolute top-1/2 left-1/2 w-96 h-96 rounded-full bg-lime-100/20 blur-3xl" />
 
-      <div className="flex items-center justify-center min-h-screen px-4 py-12 relative z-10">
-        <div className="w-full max-w-2xl">
+      <div className="flex items-start justify-center min-h-screen px-4 py-12 relative z-10">
+        <div
+          className={`w-full ${
+            profile && !isEditing ? "max-w-3xl" : "max-w-2xl"
+          }`}
+        >
           <div className="mb-8">
             <h1 className="text-3xl font-bold tracking-tight text-gray-950 mb-2">
               {profile && !isEditing ? "Your Profile" : "Create Your Profile"}
             </h1>
             <p className="text-base text-gray-600">
               {profile && !isEditing
-                ? "Manage your professional information"
+                ? "Manage your professional information and background"
                 : "Set up your professional profile"}
             </p>
           </div>
@@ -316,20 +316,27 @@ const ProfilePage = () => {
                 )}
               </div>
 
-              <Button
-                onClick={() => setIsEditing(true)}
-                className="w-full h-11 bg-lime-400 hover:bg-lime-500 text-gray-950 font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
-              >
-                <Edit2 className="size-4 mr-2" />
-                Edit Profile
-              </Button>
-              <Button
-                onClick={() => deleteProfile()}
-                className="w-full h-11 bg-stone-900 text-white  font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
-              >
-                <Trash className="size-4 mr-2" />
-                Delete Profile
-              </Button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Button
+                  onClick={() => setIsEditing(true)}
+                  className="h-11 bg-lime-400 hover:bg-lime-500 text-gray-950 font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                >
+                  <Edit2 className="size-4 mr-2" />
+                  Edit Profile
+                </Button>
+                <Button
+                  onClick={() => deleteProfile()}
+                  variant="outline"
+                  className="h-11 border-gray-300 text-gray-700 hover:bg-red-50 hover:text-red-700 hover:border-red-200 font-semibold rounded-lg transition-all duration-200"
+                >
+                  <Trash className="size-4 mr-2" />
+                  Delete Profile
+                </Button>
+              </div>
+
+              <div className="pt-2">
+                <ProfileSectionGrid />
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
