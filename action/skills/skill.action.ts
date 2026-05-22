@@ -1,275 +1,67 @@
-import axiosInstance from "@/api/axios-instance";
 import {
   AddSkillToUserRequest,
   AddSkillToUserResponse,
-  ApiErrorResponse,
-  ApiResponse,
-  ExperienceCreatedData,
-  SkillCreateResponse,
   SkillDeleteResponse,
   SkillGetResponse,
   SkillListResponse,
   SkillUpdateRequest,
   SkillUpdateResponse,
-  ValidationErrorField,
 } from "@/types";
+import { apiRequest } from "../_apiRequest";
 
-export const CreateSkillAction = async (
+export const CreateSkillAction = (
   payload: AddSkillToUserRequest,
   token: string,
-): Promise<{
-  success: boolean;
-  data?: AddSkillToUserResponse;
-  message?: string;
-  errors?: ValidationErrorField[];
-}> => {
-  try {
-    const response = await axiosInstance.post<
-      ApiResponse<AddSkillToUserResponse>
-    >(`/skills/user/add`, payload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+) =>
+  apiRequest<AddSkillToUserResponse>({
+    method: "post",
+    url: "/skills/user/add",
+    token,
+    body: payload,
+    errorMessage: "Skill creation failed",
+  });
 
-    const data = response.data;
-    if (data.success) {
-      return {
-        success: true,
-        data: data.data,
-        message: data.message,
-      };
-    }
-    return {
-      success: false,
-      message: data.message || "Result creation failed",
-    };
-  } catch (error: any) {
-    const errorData = error.response?.data as ApiErrorResponse | undefined;
+export const GetSkillsAction = (token: string) =>
+  apiRequest<SkillListResponse[]>({
+    method: "get",
+    url: "/skills/",
+    token,
+    errorMessage: "Skill fetch failed",
+  });
 
-    return {
-      success: false,
-      message:
-        errorData?.message || errorData?.detail || "Skill creation failed",
-      errors: errorData?.errors,
-    };
-  }
-};
+export const GetUserSkillsAction = (token: string) =>
+  apiRequest<SkillListResponse[]>({
+    method: "get",
+    url: "/skills/user/me",
+    token,
+    errorMessage: "Failed to fetch user skills",
+  });
 
-export const GetSkillsAction = async (
-  token: string,
-): Promise<{
-  success: boolean;
-  data?: SkillListResponse[];
-  message?: string;
-  errors?: ValidationErrorField[];
-}> => {
-  try {
-    const response = await axiosInstance.get<ApiResponse<SkillListResponse[]>>(
-      `/skills/`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
+export const GetSkillAction = (token: string, skillId: string) =>
+  apiRequest<SkillGetResponse>({
+    method: "get",
+    url: `/skills/${skillId}`,
+    token,
+    errorMessage: "Skill fetch failed",
+  });
 
-    const data = response.data;
-    if (data.success) {
-      return {
-        success: true,
-        data: data.data,
-        message: data.message,
-      };
-    }
-    return {
-      success: false,
-      message: data.message || "Result fetch failed",
-    };
-  } catch (error: any) {
-    const errorData = error.response?.data as ApiErrorResponse | undefined;
+export const DeleteSkillAction = (token: string, skillId: string) =>
+  apiRequest<SkillDeleteResponse>({
+    method: "delete",
+    url: `/skills/user/remove/${skillId}`,
+    token,
+    errorMessage: "Failed to delete skill",
+  });
 
-    return {
-      success: false,
-      message: errorData?.message || errorData?.detail || "Skill fetch failed",
-      errors: errorData?.errors,
-    };
-  }
-};
-
-export const GetUserSkillsAction = async (
-  token: string,
-): Promise<{
-  success: boolean;
-  data?: SkillListResponse[];
-  message?: string;
-  errors?: ValidationErrorField[];
-}> => {
-  try {
-    const response = await axiosInstance.get<ApiResponse<SkillListResponse[]>>(
-      `/skills/user/me`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-
-    const data = response.data;
-    if (data.success) {
-      return {
-        success: true,
-        data: data.data,
-        message: data.message,
-      };
-    }
-    return {
-      success: false,
-      message: data.message || "Failed to fetch user skills",
-    };
-  } catch (error: any) {
-    const errorData = error.response?.data as ApiErrorResponse | undefined;
-
-    return {
-      success: false,
-      message:
-        errorData?.message ||
-        errorData?.detail ||
-        "Failed to fetch user skills",
-      errors: errorData?.errors,
-    };
-  }
-};
-
-export const GetSkillAction = async (
+export const UpdateSkillAction = (
   token: string,
   skillId: string,
-): Promise<{
-  success: boolean;
-  data?: SkillGetResponse;
-  message?: string;
-  errors?: ValidationErrorField[];
-}> => {
-  try {
-    const response = await axiosInstance.get<ApiResponse<SkillGetResponse>>(
-      `/skills/${skillId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-
-    const data = response.data;
-    if (data.success) {
-      return {
-        success: true,
-        data: data.data,
-        message: data.message,
-      };
-    }
-    return {
-      success: false,
-      message: data.message || "Result fetch failed",
-    };
-  } catch (error: any) {
-    const errorData = error.response?.data as ApiErrorResponse | undefined;
-
-    return {
-      success: false,
-      message: errorData?.message || errorData?.detail || "Skill fetch failed",
-      errors: errorData?.errors,
-    };
-  }
-};
-
-export const DeleteSkillAction = async (
-  token: string,
-  skillId: string,
-): Promise<{
-  success: boolean;
-  data?: SkillDeleteResponse;
-  message?: string;
-  errors?: ValidationErrorField[];
-}> => {
-  try {
-    const response = await axiosInstance.delete<
-      ApiResponse<SkillDeleteResponse>
-    >(`/skills/user/remove/${skillId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = response.data;
-    if (data.success) {
-      return {
-        success: true,
-        data: data.data,
-        message: data.message,
-      };
-    }
-    return {
-      success: false,
-      message: data.message || "Failed to delete skill",
-    };
-  } catch (error: any) {
-    const errorData = error.response?.data as ApiErrorResponse | undefined;
-
-    return {
-      success: false,
-      message:
-        errorData?.message || errorData?.detail || "Failed to delete skill",
-      errors: errorData?.errors,
-    };
-  }
-};
-
-export const UpdateSkillAction = async (
-  token: string,
-  skillId: string,
-  updatedSkillName: SkillUpdateRequest,
-): Promise<{
-  success: boolean;
-  data?: SkillUpdateResponse;
-  message?: string;
-  errors?: ValidationErrorField[];
-}> => {
-  try {
-    const response = await axiosInstance.patch<
-      ApiResponse<SkillUpdateResponse>
-    >(
-      `/skills/${skillId}`,
-      {
-        name: updatedSkillName.name,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-
-    const data = response.data;
-    if (data.success) {
-      return {
-        success: true,
-        data: data.data,
-        message: data.message,
-      };
-    }
-    return {
-      success: false,
-      message: data.message || "Failed to update skill",
-    };
-  } catch (error: any) {
-    const errorData = error.response?.data as ApiErrorResponse | undefined;
-
-    return {
-      success: false,
-      message:
-        errorData?.message || errorData?.detail || "Failed to update skill",
-      errors: errorData?.errors,
-    };
-  }
-};
+  payload: SkillUpdateRequest,
+) =>
+  apiRequest<SkillUpdateResponse>({
+    method: "patch",
+    url: `/skills/${skillId}`,
+    token,
+    body: { name: payload.name },
+    errorMessage: "Failed to update skill",
+  });

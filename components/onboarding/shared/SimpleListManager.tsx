@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useMemo, ReactNode } from "react";
-import { Button } from "@/components/ui/button";
-import { Loader2, Plus, X } from "lucide-react";
-import { toast } from "sonner";
+import { useState, ReactNode } from "react";
+import { Loader2, X } from "lucide-react";
 
 interface Item {
   id: string;
@@ -12,23 +10,20 @@ interface Item {
 
 interface SimpleListManagerProps {
   items: Item[];
-  onAdd: (item: Item) => Promise<void>;
-  onRemove: (itemId: string) => Promise<void>;
+  onRemove: (itemId: string) => Promise<void> | void;
   isLoading: boolean;
   label: string;
-  placeholder: string;
+  placeholder?: string;
   emptyMessage: string;
   renderItem?: (item: Item) => ReactNode;
-  children?: ReactNode; // For custom input/combobox
+  children?: ReactNode;
 }
 
 export const SimpleListManager: React.FC<SimpleListManagerProps> = ({
   items,
-  onAdd,
   onRemove,
   isLoading,
   label,
-  placeholder,
   emptyMessage,
   renderItem,
   children,
@@ -89,7 +84,9 @@ export const SimpleListManager: React.FC<SimpleListManagerProps> = ({
                 className="group inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-lime-100 border border-lime-300 text-lime-800 text-sm font-medium shadow-sm hover:bg-lime-200 hover:border-lime-400 transition-all"
               >
                 <span className="w-1.5 h-1.5 bg-lime-500 rounded-full" />
-                <span className="max-w-56 truncate">{renderItem ? renderItem(item) : item.name}</span>
+                <span className="max-w-56 truncate">
+                  {renderItem ? renderItem(item) : item.name}
+                </span>
                 <button
                   type="button"
                   onClick={() => handleRemove(item.id)}
