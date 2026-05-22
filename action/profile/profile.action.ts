@@ -37,7 +37,7 @@ export const createProfile = async (
 
     const data = response.data;
 
-    if (response.status === 200 && data) {
+    if (response.status === 201 && data) {
       return {
         success: true,
         data,
