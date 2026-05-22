@@ -43,18 +43,23 @@ const PublicationsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
 
   const callGetPublication = async () => {
     if (!token) {
-      toast.error("User Not Authenticated");
-      console.error("User token not found");
+      console.log("Token not available yet, skipping publication fetch");
       return;
     }
-    const { success, data } = await GetAllPublications(token);
-    if (success && data) {
-      setAlreadyAddedPublication(data);
+    try {
+      const { success, data } = await GetAllPublications(token);
+      if (success && data) {
+        setAlreadyAddedPublication(data);
+      }
+    } catch (error) {
+      console.error("Error fetching publications:", error);
     }
   };
 
   useEffect(() => {
-    callGetPublication();
+    if (token) {
+      callGetPublication();
+    }
   }, [token]);
 
   const form = useForm<PublicationFormData>({
@@ -198,6 +203,11 @@ const PublicationsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
       return;
     }
     onNext();
+  };
+
+  const handleSkipStep = () => {
+    // Allow skipping without requiring publications
+    onSkip?.();
   };
 
   const handleDelete = async (pubId: string) => {
@@ -514,7 +524,7 @@ const PublicationsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
         </Button>
         {onSkip && (
           <Button
-            onClick={onSkip}
+            onClick={handleSkipStep}
             variant="ghost"
             className="text-gray-600 hover:text-gray-900 h-11 px-4"
           >

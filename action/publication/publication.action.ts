@@ -107,7 +107,7 @@ export const GetAllPublications = async (
   errors?: ValidationErrorField[];
 }> => {
   try {
-    const response = await axiosInstance.post<
+    const response = await axiosInstance.get<
       ApiResponse<PublicationListResponse[]>
     >("/publications/", {
       headers: {
