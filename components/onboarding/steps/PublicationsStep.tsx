@@ -9,7 +9,7 @@ import { Loader2, Plus, X, Pencil } from "lucide-react";
 import { z } from "zod";
 import { useAuth } from "@/context/AuthContext";
 import { PublicationListResponse } from "@/types";
-import { DeletePublication, GetAllPublications, CreatePublication, UpdatePublication, GetPublication } from "@/action/publication/publication.action";
+import { DeletePublication, GetAllPublications, CreatePublication, UpdatePublication } from "@/action/publication/publication.action";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DatePicker } from "@/components/global/DatePicker";
@@ -192,11 +192,6 @@ const PublicationsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
     onNext();
   };
 
-  const handleSkipStep = () => {
-    // Allow skipping without requiring publications
-    onSkip?.();
-  };
-
   const handleDelete = async (pubId: string) => {
     if (!token) {
       toast.error("Authentication token not found");
@@ -204,7 +199,7 @@ const PublicationsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
     }
     setDeletingId(pubId);
     try {
-      const result = await DeletePublication(token, pubId);
+      const result = await DeletePublication(pubId, token);
       if (result.success) {
         setAlreadyAddedPublication((prev) =>
           prev.filter((p) => p.id !== pubId),
@@ -498,19 +493,22 @@ const PublicationsStep: React.FC<StepProps> = ({ onNext, onSkip }) => {
       <div className="border-t border-gray-200 pt-6 flex gap-3">
         <Button
           onClick={handleNext}
-          className="flex-1 h-11 bg-lime-500 hover:bg-lime-600 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
+          disabled={alreadyAddedPublication.length === 0}
+          className={`flex-1 h-11 font-semibold rounded-lg shadow-md hover:shadow-lg transition-all ${
+            alreadyAddedPublication.length === 0
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-lime-500 hover:bg-lime-600 text-white"
+          }`}
+          title={
+            alreadyAddedPublication.length === 0
+              ? "Add at least one publication to continue"
+              : "Complete onboarding"
+          }
         >
-          Next
+          {alreadyAddedPublication.length === 0
+            ? "Add at least 1 publication to continue"
+            : "Complete"}
         </Button>
-        {onSkip && (
-          <Button
-            onClick={handleSkipStep}
-            variant="ghost"
-            className="text-gray-600 hover:text-gray-900 h-11 px-4"
-          >
-            Skip
-          </Button>
-        )}
       </div>
     </div>
   );
