@@ -3,7 +3,7 @@ import { ISODateTime, UUID } from "./common";
 export interface PublicationCreateRequest {
   title: string;
   publisher: string;
-  publication_date: ISODateTime;
+  publication_date?: ISODateTime;
   authors: string[];
   description?: string | null;
   url?: string | null;
@@ -59,6 +59,9 @@ export interface PublicationListResponse {
   title: string;
   publisher: string;
   publication_date: ISODateTime;
+  authors: string[];
+  description: string | null;
+  url: string | null;
   priority: number | null;
   profileId: UUID;
   created_at: ISODateTime;
