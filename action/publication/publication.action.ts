@@ -4,6 +4,7 @@ import {
   ApiResponse,
   PublicationCreateRequest,
   PublicationCreateResponse,
+  PublicationDeleteResponse,
   PublicationGetResponse,
   PublicationListResponse,
   PublicationUpdateRequest,
@@ -241,6 +242,56 @@ export const UpdatePublication = async (
       message: extractMessage(
         errorData,
         "An error occurred while updating the publication",
+      ),
+      errors: extractErrors(errorData) || [],
+    };
+  }
+};
+
+export const DeletePublication = async (
+  pubId: string,
+  token: string,
+): Promise<{
+  success: boolean;
+  data?: PublicationDeleteResponse;
+  message?: string;
+  errors?: ValidationErrorField[];
+}> => {
+  try {
+    const response = await axiosInstance.delete<
+      ApiResponse<PublicationDeleteResponse>
+    >("/publications/" + pubId,{
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const apiResponse = response.data;
+
+    if (apiResponse.success && apiResponse.data) {
+      return {
+        success: true,
+        data: apiResponse.data,
+        message: apiResponse.message || "Publication deleted successfully",
+        errors: [],
+      };
+    }
+
+    return {
+      success: false,
+      data: {} as PublicationGetResponse,
+      message: apiResponse.message || "Publication deleted failed",
+      errors: [],
+    };
+  } catch (error) {
+    const errorData = (error as any)?.response?.data as
+      | BackendErrorPayload
+      | undefined;
+    return {
+      success: false,
+      data: {} as PublicationGetResponse,
+      message: extractMessage(
+        errorData,
+        "An error occurred while deleting the publication",
       ),
       errors: extractErrors(errorData) || [],
     };
