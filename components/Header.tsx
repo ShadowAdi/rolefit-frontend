@@ -2,9 +2,19 @@
 
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { Button } from "./ui/button";
 
 export default function Header() {
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading, user } = useAuth();
 
   return (
     <header className="w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/80 sticky top-0 z-50">
@@ -30,12 +40,26 @@ export default function Header() {
                 Loading...
               </div>
             ) : isAuthenticated ? (
-              <Link
-                href="/dashboard"
-                className="ml-1 sm:ml-2 px-4 py-2 text-sm font-semibold text-gray-950 bg-lime-400 hover:bg-lime-300 rounded-md transition-colors shadow-sm"
-              >
-                Dashboard
-              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">Hi, {user?.email}</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>My Profile</DropdownMenuLabel>
+                    <Link href={`/profile`}>
+                      <DropdownMenuItem>Profile</DropdownMenuItem>
+                    </Link>
+                    <Link href={`/dashboard`}>
+                      <DropdownMenuItem>Dashboard</DropdownMenuItem>
+                    </Link>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem>Logout</DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <>
                 <Link
