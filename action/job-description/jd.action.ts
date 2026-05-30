@@ -25,7 +25,7 @@ export const GetJDAction = (jdId: string, token: string) =>
     errorMessage: "Job Description fetch failed",
   });
 
-export const GetJDsAction = (jdId: string, token: string) =>
+export const GetJDsAction = (token: string) =>
   apiRequest<JobDescriptionResponse[]>({
     method: "get",
     url: "/job-descriptions/",

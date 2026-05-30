@@ -56,6 +56,11 @@ export default function Header() {
                         Dashboard
                       </DropdownMenuItem>
                     </Link>
+                    <Link href={`/jd`}>
+                      <DropdownMenuItem className="cursor-pointer">
+                        Job Descriptions
+                      </DropdownMenuItem>
+                    </Link>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
