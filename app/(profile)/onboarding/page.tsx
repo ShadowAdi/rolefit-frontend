@@ -14,7 +14,7 @@ import ToolsStep from "@/components/onboarding/steps/ToolsStep";
 import ProjectsStep from "@/components/onboarding/steps/ProjectsStep";
 import PublicationsStep from "@/components/onboarding/steps/PublicationsStep";
 import { markOnboardingCompleted } from "@/lib/postLoginRedirect";
-import { completeOnboardingAction } from "@/action/profile/profile.action";
+import { completeOnboardingAction, getProfile } from "@/action/profile/profile.action";
 import { toast } from "sonner";
 
 interface StepConfig {
@@ -81,6 +81,26 @@ const OnboardingPage = () => {
     if (!authLoading && !token) {
       router.push("/login");
     }
+  }, [token, authLoading, router]);
+
+  // Check if profile already exists - if so, skip method selection
+  useEffect(() => {
+    const checkProfile = async () => {
+      if (!token || authLoading) return;
+
+      try {
+        const result = await getProfile(token);
+        if (result.success && result.data?.data) {
+          // Profile exists, redirect to profile page to view/complete it
+          router.push("/profile");
+        }
+      } catch (err) {
+        // No profile exists, allow method selection
+        console.log("No profile found, showing method selection");
+      }
+    };
+
+    checkProfile();
   }, [token, authLoading, router]);
 
   if (authLoading) {
