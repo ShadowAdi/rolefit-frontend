@@ -14,7 +14,7 @@ import {
 import { Button } from "./ui/button";
 
 export default function Header() {
-  const { isAuthenticated, isLoading: isAuthLoading, user } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading, user, logout } = useAuth();
 
   return (
     <header className="w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/80 sticky top-0 z-50">
@@ -42,21 +42,31 @@ export default function Header() {
             ) : isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline">Hi, {user?.email}</Button>
+                  <Button variant="ghost">Hi, {user?.email}</Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuGroup>
-                    <DropdownMenuLabel>My Profile</DropdownMenuLabel>
                     <Link href={`/profile`}>
-                      <DropdownMenuItem>Profile</DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer">
+                        Profile
+                      </DropdownMenuItem>
                     </Link>
                     <Link href={`/dashboard`}>
-                      <DropdownMenuItem>Dashboard</DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer">
+                        Dashboard
+                      </DropdownMenuItem>
                     </Link>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
-                    <DropdownMenuItem>Logout</DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => {
+                        logout();
+                      }}
+                    >
+                      Logout
+                    </DropdownMenuItem>
                   </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
