@@ -257,8 +257,8 @@ export const ProfileSectionGrid: React.FC = () => {
                       </div>
                     ) : (
                       <ul className="space-y-1.5">
-                        {s.preview.map((p) => (
-                          <li key={p.primary} className="text-xs">
+                        {s.preview.map((p, idx) => (
+                          <li key={`${idx}`} className="text-xs">
                             <p className="font-medium text-gray-800 truncate">
                               {p.primary}
                             </p>
