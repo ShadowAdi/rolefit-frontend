@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertCircle, Loader2, CheckCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { ResumeExtractAction } from "@/action/resume-extractor/resumeExtractor.action";
 import { ResumeExtractorCounts } from "@/types";
+import { getProfile } from "@/action/profile/profile.action";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -15,7 +16,7 @@ interface ResumeExtractorStepProps {
   onSkip?: () => void;
 }
 
-type ExtractorStatus = "idle" | "loading" | "success" | "error";
+type ExtractorStatus = "idle" | "loading" | "success" | "error" | "profile-exists";
 
 const ResumeExtractorStep = ({ onNext, onSkip }: ResumeExtractorStepProps) => {
   const [resumeUrl, setResumeUrl] = useState("");
@@ -24,6 +25,26 @@ const ResumeExtractorStep = ({ onNext, onSkip }: ResumeExtractorStepProps) => {
   const [extractedCounts, setExtractedCounts] = useState<ResumeExtractorCounts | null>(null);
   const { token } = useAuth();
   const router = useRouter();
+
+  // Check if profile already exists
+  useEffect(() => {
+    const checkProfile = async () => {
+      if (!token) return;
+
+      try {
+        const result = await getProfile(token);
+        if (result.success && result.data?.data) {
+          setStatus("profile-exists");
+          setErrorMessage("A profile already exists for your account. You can only use resume extraction once.");
+        }
+      } catch (err) {
+        // Profile doesn't exist, which is expected
+        console.log("No existing profile found, resume extraction available");
+      }
+    };
+
+    checkProfile();
+  }, [token]);
 
   const handleExtract = async () => {
     try {
@@ -65,8 +86,10 @@ const ResumeExtractorStep = ({ onNext, onSkip }: ResumeExtractorStepProps) => {
         setExtractedCounts(data.counts);
         setStatus("success");
         toast.success("Resume extracted successfully!");
-        // Automatically proceed after 2 seconds
-        setTimeout(() => onNext(), 2000);
+        // Redirect to profile after 2 seconds to show the extracted data
+        setTimeout(() => {
+          router.push("/profile");
+        }, 2000);
       }
     } catch (error) {
       console.error("Error extracting resume:", error);
@@ -89,6 +112,30 @@ const ResumeExtractorStep = ({ onNext, onSkip }: ResumeExtractorStepProps) => {
   const isLoading = status === "loading";
   const isSuccess = status === "success";
   const isError = status === "error";
+  const profileExists = status === "profile-exists";
+
+  if (profileExists) {
+    return (
+      <div className="space-y-6 max-w-2xl mx-auto">
+        <div className="flex items-start gap-3 p-6 rounded-lg bg-orange-50 border border-orange-200">
+          <AlertCircle className="w-6 h-6 text-orange-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold text-orange-900 text-lg">Profile Already Exists</p>
+            <p className="text-sm text-orange-800 mt-2">{errorMessage}</p>
+            <p className="text-sm text-orange-700 mt-3">
+              The resume extraction feature can only be used once when creating a new profile. Since you already have a profile, you can edit it directly.
+            </p>
+            <Button
+              onClick={() => router.push("/profile")}
+              className="mt-4 bg-orange-600 hover:bg-orange-700 text-white"
+            >
+              Go to Profile
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
@@ -166,7 +213,7 @@ const ResumeExtractorStep = ({ onNext, onSkip }: ResumeExtractorStepProps) => {
                   Extracting...
                 </>
               ) : isSuccess ? (
-                "Continuing..."
+                "Redirecting to Profile..."
               ) : (
                 "Extract Resume"
               )}

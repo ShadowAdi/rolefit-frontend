@@ -95,6 +95,16 @@ const OnboardingPage = () => {
   }
 
   if (!onboardingMethod) {
+    const handleMethodSelect = (method: "resume" | "manual") => {
+      if (method === "manual") {
+        // For manual path: go to profile page to create profile first
+        router.push("/profile");
+      } else {
+        // For resume extractor path: stay here and extract resume
+        setOnboardingMethod(method);
+      }
+    };
+
     return (
       <div className="min-h-screen w-full bg-linear-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
         <div className="pointer-events-none absolute -top-40 -right-40 h-80 w-80 rounded-full bg-lime-200/30 blur-3xl" />
@@ -112,7 +122,7 @@ const OnboardingPage = () => {
               </p>
             </div>
 
-            <OnboardingMethodStep onSelectMethod={setOnboardingMethod} />
+            <OnboardingMethodStep onSelectMethod={handleMethodSelect} />
           </div>
         </div>
       </div>
