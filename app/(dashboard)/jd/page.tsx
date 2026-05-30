@@ -190,12 +190,12 @@ const JDPage = () => {
                     {/* Type and Location badges */}
                     <div className="flex items-center gap-2 flex-wrap">
                       {jd.role_type && (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-700">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
                           {jd.role_type}
                         </span>
                       )}
                       {jd.location && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold bg-purple-100 text-purple-700">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
                           <MapPin className="w-3 h-3" />
                           {jd.location}
                         </span>
@@ -231,7 +231,7 @@ const JDPage = () => {
                           {jd.tech_stack.slice(0, 4).map((tech, idx) => (
                             <span
                               key={idx}
-                              className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-lime-100 text-lime-800"
+                              className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700"
                             >
                               {tech}
                             </span>
