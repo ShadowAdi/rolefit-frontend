@@ -71,7 +71,6 @@ const jdSchema = z
   })
   .refine(
     (data) => {
-      // For internships, require either salary or duration
       if (data.role_type === "Internship") {
         return (
           (data.salary_min && data.salary_min.trim()) ||
