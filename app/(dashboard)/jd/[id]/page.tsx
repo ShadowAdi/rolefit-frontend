@@ -7,7 +7,6 @@ import { GetJDAction } from "@/action/job-description/jd.action";
 import { JobDescriptionResponse } from "@/types/jobDescription.types";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, MapPin, DollarSign, Calendar, ChevronDown } from "lucide-react";
-import { toast } from "sonner";
 
 const JDDetailPage = () => {
   const router = useRouter();
@@ -259,18 +258,17 @@ const JDDetailPage = () => {
             )}
           </div>
 
-          {/* Footer */}
           <div className="px-8 py-6 border-t border-gray-100 bg-gray-50 flex gap-3">
             <Button
               onClick={() => router.push("/jd")}
               variant="outline"
-              className="flex-1"
+              className="flex-1 rounded-none"
             >
               Back to Jobs
             </Button>
             <Button
               onClick={() => router.push(`/jd/${jdId}/edit`)}
-              className="flex-1 bg-lime-500 hover:bg-lime-600 text-white"
+              className="flex-1 bg-lime-500 hover:bg-lime-600 text-white rounded-none"
             >
               Edit
             </Button>
