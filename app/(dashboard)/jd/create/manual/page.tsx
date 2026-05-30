@@ -21,25 +21,71 @@ import {
 import { Loader2, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 
-const jdSchema = z.object({
-  role_name: z.string().min(2, "Role name is required"),
-  company: z.string().min(2, "Company name is required"),
-  role_type: z.enum(["Full-time", "Internship", "Contract"]),
-  location: z.enum(["Remote", "Hybrid", "On-site"]),
-  location_city: z.string().optional(),
-  salary_min: z.string().optional(),
-  salary_max: z.string().optional(),
-  salary_currency: z.string().optional(),
-  duration: z.string().optional(),
-  tech_stack: z.string().optional(),
-  required_skills: z.string().optional(),
-  experience_required: z.string().optional(),
-  summary: z.string().min(20, "Summary must be at least 20 characters"),
-  raw_jd: z.string().min(50, "Raw JD must be at least 50 characters"),
-  company_name: z.string().optional(),
-  company_information: z.string().max(1000, "Maximum 1000 characters").optional(),
-  company_website_url: z.string().url().optional().or(z.literal("")),
-});
+const salaryRegex = /^[\d\s\-/.]*$/;
+
+const jdSchema = z
+  .object({
+    role_name: z.string().min(2, "Role name must be at least 2 characters"),
+    company: z.string().min(2, "Company name must be at least 2 characters"),
+    role_type: z.enum(["Full-time", "Internship", "Contract"]),
+    location: z.enum(["Remote", "Hybrid", "On-site"]),
+    location_city: z.string().optional().nullable(),
+    salary_min: z
+      .string()
+      .optional()
+      .refine(
+        (val) => !val || salaryRegex.test(val.replace(/[$€£¥]/g, "")),
+        "Invalid salary format. Use numbers, dashes, or slashes"
+      ),
+    salary_max: z
+      .string()
+      .optional()
+      .refine(
+        (val) => !val || salaryRegex.test(val.replace(/[$€£¥]/g, "")),
+        "Invalid salary format. Use numbers, dashes, or slashes"
+      ),
+    salary_currency: z.string().optional().nullable(),
+    duration: z.string().optional().nullable(),
+    tech_stack: z.string().optional().nullable(),
+    required_skills: z.string().optional().nullable(),
+    experience_required: z.string().optional().nullable(),
+    summary: z.string().min(20, "Summary must be at least 20 characters"),
+    raw_jd: z.string().min(50, "Raw JD must be at least 50 characters"),
+    company_name: z.string().optional().nullable(),
+    company_information: z
+      .string()
+      .max(1000, "Company information cannot exceed 1000 characters")
+      .optional()
+      .nullable(),
+    company_website_url: z
+      .string()
+      .optional()
+      .nullable()
+      .refine(
+        (val) =>
+          !val ||
+          val === "" ||
+          /^https?:\/\/.+\..+/.test(val),
+        "Invalid URL. Must start with http:// or https://"
+      ),
+  })
+  .refine(
+    (data) => {
+      // For internships, require either salary or duration
+      if (data.role_type === "Internship") {
+        return (
+          (data.salary_min && data.salary_min.trim()) ||
+          (data.duration && data.duration.trim())
+        );
+      }
+      return true;
+    },
+    {
+      message:
+        "Internships require either a salary range or duration to be specified",
+      path: ["duration"],
+    }
+  );
 
 type JDFormData = z.infer<typeof jdSchema>;
 
@@ -226,6 +272,9 @@ const ManualJDPage = () => {
                     placeholder="100000"
                     {...register("salary_min")}
                   />
+                  {errors.salary_min && (
+                    <p className="text-red-600 text-sm mt-1">{errors.salary_min.message}</p>
+                  )}
                 </div>
 
                 <div>
@@ -234,6 +283,9 @@ const ManualJDPage = () => {
                     placeholder="150000"
                     {...register("salary_max")}
                   />
+                  {errors.salary_max && (
+                    <p className="text-red-600 text-sm mt-1">{errors.salary_max.message}</p>
+                  )}
                 </div>
 
                 <div>
@@ -246,11 +298,24 @@ const ManualJDPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Duration</label>
+                <label className="block text-sm font-medium mb-1">
+                  Duration
+                  {watch("role_type") === "Internship" && (
+                    <span className="text-red-600 ml-1">*</span>
+                  )}
+                </label>
                 <Input
                   placeholder="6 months, 1 year, Permanent"
                   {...register("duration")}
                 />
+                {errors.duration && (
+                  <p className="text-red-600 text-sm mt-1">{errors.duration.message}</p>
+                )}
+                {watch("role_type") === "Internship" && !watch("duration") && (
+                  <p className="text-xs text-orange-600 mt-1">
+                    Required for internships: provide either duration or salary range
+                  </p>
+                )}
               </div>
             </div>
           </section>
@@ -264,11 +329,12 @@ const ManualJDPage = () => {
                   placeholder="5+ years experience"
                   {...register("experience_required")}
                 />
+                <p className="text-xs text-gray-600 mt-1">e.g., "5+ years", "3 years", "Senior (5+ years)"</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">Tech Stack</label>
-                <p className="text-xs text-gray-600 mb-2">Comma-separated</p>
+                <p className="text-xs text-gray-600 mb-2">Comma-separated (e.g., React, Node.js, PostgreSQL)</p>
                 <Textarea
                   placeholder="React, Node.js, PostgreSQL"
                   {...register("tech_stack")}
@@ -278,7 +344,7 @@ const ManualJDPage = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-1">Required Skills</label>
-                <p className="text-xs text-gray-600 mb-2">Comma-separated</p>
+                <p className="text-xs text-gray-600 mb-2">Comma-separated (e.g., Problem solving, System design)</p>
                 <Textarea
                   placeholder="Problem solving, System design"
                   {...register("required_skills")}
@@ -289,7 +355,7 @@ const ManualJDPage = () => {
           </section>
 
           <section className="border-t pt-8">
-            <h2 className="text-lg font-semibold mb-4">Description</h2>
+            <h2 className="text-lg font-semibold mb-4">Description & Details</h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Company Name</label>
@@ -313,16 +379,16 @@ const ManualJDPage = () => {
               <div>
                 <label className="block text-sm font-medium mb-1">Company Information</label>
                 <Textarea
-                  placeholder="About the company"
+                  placeholder="About the company, mission, values..."
                   {...register("company_information")}
-                  className="min-h-20"
+                  className="min-h-24"
                 />
-                <div className="flex justify-between items-center mt-1">
+                <div className="flex justify-between items-center mt-2">
                   <p className="text-xs text-gray-600">
                     {(companyInfo?.length || 0)} / 1000 characters
                   </p>
                   {(companyInfo?.length || 0) > 900 && (
-                    <p className="text-xs text-orange-600">Approaching limit</p>
+                    <p className="text-xs text-orange-600 font-medium">⚠️ Approaching limit</p>
                   )}
                 </div>
                 {errors.company_information && (
@@ -331,24 +397,34 @@ const ManualJDPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Summary *</label>
+                <label className="block text-sm font-medium mb-1">
+                  Job Summary *
+                </label>
                 <Textarea
-                  placeholder="Brief summary"
+                  placeholder="Brief summary of the job role"
                   {...register("summary")}
                   className="min-h-20"
                 />
+                <p className="text-xs text-gray-600 mt-1">
+                  {watch("summary")?.length || 0} / 20+ characters (minimum 20)
+                </p>
                 {errors.summary && (
                   <p className="text-red-600 text-sm mt-1">{errors.summary.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Full Job Description *</label>
+                <label className="block text-sm font-medium mb-1">
+                  Full Job Description *
+                </label>
                 <Textarea
-                  placeholder="Complete job description"
+                  placeholder="Complete job description with responsibilities, qualifications, benefits, etc."
                   {...register("raw_jd")}
                   className="min-h-40"
                 />
+                <p className="text-xs text-gray-600 mt-1">
+                  {watch("raw_jd")?.length || 0} / 50+ characters (minimum 50)
+                </p>
                 {errors.raw_jd && (
                   <p className="text-red-600 text-sm mt-1">{errors.raw_jd.message}</p>
                 )}
