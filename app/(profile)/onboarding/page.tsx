@@ -129,7 +129,7 @@ const OnboardingPage = () => {
   const isStepCompleted = completedSteps.includes(currentStep);
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
+    <div className="min-h-screen w-full bg-linear-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
       <div className="pointer-events-none absolute -top-40 -right-40 h-80 w-80 rounded-full bg-lime-200/30 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-blue-200/30 blur-3xl" />
       <div className="pointer-events-none absolute top-1/2 left-1/2 w-96 h-96 rounded-full bg-lime-100/20 blur-3xl" />
@@ -156,7 +156,7 @@ const OnboardingPage = () => {
 
             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-lime-400 to-lime-500 transition-all duration-500 ease-out"
+                className="h-full bg-linear-to-r from-lime-400 to-lime-500 transition-all duration-500 ease-out"
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
