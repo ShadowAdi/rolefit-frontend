@@ -524,7 +524,7 @@ const EditJDPage = () => {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1"
+              className="flex-1 rounded-lg"
             >
               {isSubmitting ? (
                 <>
@@ -540,7 +540,7 @@ const EditJDPage = () => {
               variant="outline"
               onClick={() => router.push(`/jd/${jdId}`)}
               disabled={isSubmitting}
-              className="flex-1"
+              className="flex-1 rounded-lg"
             >
               Cancel
             </Button>

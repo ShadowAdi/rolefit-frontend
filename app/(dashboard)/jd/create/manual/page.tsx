@@ -435,7 +435,7 @@ const ManualJDPage = () => {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1"
+              className="flex-1 rounded-lg"
             >
               {isSubmitting ? (
                 <>
@@ -451,7 +451,7 @@ const ManualJDPage = () => {
               variant="outline"
               onClick={() => router.push("/jd/create")}
               disabled={isSubmitting}
-              className="flex-1"
+              className="flex-1 rounded-lg"
             >
               Cancel
             </Button>

@@ -154,7 +154,7 @@ const GenerateJDPage = () => {
                 <Button
                   onClick={handleGenerate}
                   disabled={isLoading || !rawJD.trim()}
-                  className="flex-1 bg-lime-500 hover:bg-lime-600 text-white font-semibold h-12"
+                  className="flex-1 rounded-lg bg-lime-500 hover:bg-lime-600 text-white font-semibold h-12"
                 >
                   {isLoading ? (
                     <>
@@ -169,7 +169,7 @@ const GenerateJDPage = () => {
                   variant="outline"
                   onClick={() => router.push("/jd/create")}
                   disabled={isLoading}
-                  className="flex-1"
+                  className="flex-1 rounded-lg"
                 >
                   Cancel
                 </Button>
