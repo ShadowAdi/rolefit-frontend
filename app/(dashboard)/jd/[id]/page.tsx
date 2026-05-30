@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { GetJDAction } from "@/action/job-description/jd.action";
 import { JobDescriptionResponse } from "@/types/jobDescription.types";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, MapPin, DollarSign, Calendar } from "lucide-react";
+import { ChevronLeft, MapPin, DollarSign, Calendar, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
 const JDDetailPage = () => {
@@ -18,6 +18,7 @@ const JDDetailPage = () => {
   const [jd, setJd] = useState<JobDescriptionResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRawJDOpen, setIsRawJDOpen] = useState(false);
 
   useEffect(() => {
     const fetchJD = async () => {
@@ -234,13 +235,26 @@ const JDDetailPage = () => {
               </section>
             )}
 
-            {/* Full Job Description */}
+            {/* Full Job Description - Collapsible */}
             {jd.raw_jd && (
               <section>
-                <h2 className="text-lg font-semibold text-gray-900 mb-3">Full Job Description</h2>
-                <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                  <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{jd.raw_jd}</p>
-                </div>
+                <button
+                  onClick={() => setIsRawJDOpen(!isRawJDOpen)}
+                  className="w-full flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <h2 className="text-lg font-semibold text-gray-900">Full Job Description</h2>
+                  <ChevronDown
+                    className={`w-5 h-5 text-gray-600 transition-transform ${
+                      isRawJDOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                
+                {isRawJDOpen && (
+                  <div className="mt-3 bg-gray-50 rounded-lg p-6 border border-gray-200">
+                    <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{jd.raw_jd}</p>
+                  </div>
+                )}
               </section>
             )}
           </div>
@@ -253,14 +267,6 @@ const JDDetailPage = () => {
               className="flex-1"
             >
               Back to Jobs
-            </Button>
-            <Button
-              className="flex-1 bg-lime-500 hover:bg-lime-600 text-white"
-              onClick={() => {
-                toast.info("Edit feature coming soon");
-              }}
-            >
-              Edit
             </Button>
           </div>
         </div>
