@@ -16,8 +16,8 @@ export interface JobDescriptionCreateRequest {
   user_id?: string;
   role_name?: string | null;
   company?: string | null;
-  role_type?: JDRoleType | null;
-  location?: JDLocationType | null;
+  role_type?: "Full-time" | "Internship" | "Contract" | null;
+  location?: "Remote" | "Hybrid" | "On-site" | null;
   location_city?: string | null;
   salary_min?: string | null;
   salary_max?: string | null;
@@ -36,8 +36,8 @@ export interface JobDescriptionCreateRequest {
 export interface JobDescriptionUpdateRequest {
   role_name?: string | null;
   company?: string | null;
-  role_type?: JDRoleType | null;
-  location?: JDLocationType | null;
+  role_type?: "Full-time" | "Internship" | "Contract" | null;
+  location?: "Remote" | "Hybrid" | "On-site" | null;
   location_city?: string | null;
   salary_min?: string | null;
   salary_max?: string | null;
