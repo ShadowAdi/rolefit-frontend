@@ -157,110 +157,130 @@ const JDPage = () => {
             )}
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredJds.map((jd) => (
-              <div
-                key={jd.id}
-                className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md hover:border-gray-300 transition-all duration-200 cursor-pointer flex flex-col h-full"
-                onClick={() => router.push(`/jd/${jd.id}`)}
-              >
-                <div className="p-5 border-b border-gray-100 bg-gradient-to-r from-lime-50 to-transparent">
-                  <h3 className="text-base font-semibold text-gray-900 truncate mb-1">
-                    {jd.role_name || "Untitled Role"}
-                  </h3>
-                  <p className="text-xs text-gray-600 truncate">
-                    {jd.company || "Company not specified"}
-                  </p>
-                </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredJds.map((jd) => {
+              const capitalizedRole = (jd.role_name || "Untitled Role")
+                .split(" ")
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(" ");
 
-                <div className="p-5 space-y-3 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {jd.role_type && (
-                      <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-700">
-                        {jd.role_type}
-                      </span>
+              const capitalizedCompany = (jd.company || "Company not specified")
+                .split(" ")
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(" ");
+
+              return (
+                <div
+                  key={jd.id}
+                  className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg hover:border-gray-300 transition-all duration-200 cursor-pointer flex flex-col h-full"
+                  onClick={() => router.push(`/jd/${jd.id}`)}
+                >
+                  {/* Header */}
+                  <div className="p-5 border-b border-gray-100 bg-white">
+                    <h3 className="text-lg font-bold text-gray-900 truncate mb-1">
+                      {capitalizedRole}
+                    </h3>
+                    <p className="text-sm text-gray-600 truncate">
+                      {capitalizedCompany}
+                    </p>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-5 space-y-4 flex-1">
+                    {/* Type and Location badges */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {jd.role_type && (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-700">
+                          {jd.role_type}
+                        </span>
+                      )}
+                      {jd.location && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-semibold bg-purple-100 text-purple-700">
+                          <MapPin className="w-3 h-3" />
+                          {jd.location}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Location City */}
+                    {jd.location_city && (
+                      <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                        <span className="truncate">{jd.location_city}</span>
+                      </div>
                     )}
-                    {jd.location && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700">
-                        <MapPin className="w-3 h-3" />
-                        {jd.location}
-                      </span>
+
+                    {/* Salary */}
+                    {(jd.salary_min || jd.salary_max) && (
+                      <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
+                        <DollarSign className="w-3.5 h-3.5 text-gray-400" />
+                        <span>
+                          {jd.salary_min && `${jd.salary_min}`}
+                          {jd.salary_min && jd.salary_max && " - "}
+                          {jd.salary_max && `${jd.salary_max}`}
+                          {jd.salary_currency && ` ${jd.salary_currency}`}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Tech Stack */}
+                    {jd.tech_stack && jd.tech_stack.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold text-gray-700 uppercase">Tech Stack</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {jd.tech_stack.slice(0, 4).map((tech, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-lime-100 text-lime-800"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                          {jd.tech_stack.length > 4 && (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                              +{jd.tech_stack.length - 4}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Summary */}
+                    {jd.summary && (
+                      <p className="text-sm text-gray-600 line-clamp-2">
+                        {jd.summary}
+                      </p>
                     )}
                   </div>
 
-                  {jd.location_city && (
-                    <div className="flex items-center gap-2 text-xs text-gray-600">
-                      <MapPin className="w-3 h-3 text-gray-400" />
-                      <span className="truncate">{jd.location_city}</span>
-                    </div>
-                  )}
-
-                  {(jd.salary_min || jd.salary_max) && (
-                    <div className="flex items-center gap-2 text-xs text-gray-700 font-medium">
-                      <DollarSign className="w-3 h-3 text-gray-400" />
-                      <span>
-                        {jd.salary_min && `${jd.salary_min}`}
-                        {jd.salary_min && jd.salary_max && " - "}
-                        {jd.salary_max && `${jd.salary_max}`}
-                        {jd.salary_currency && ` ${jd.salary_currency}`}
-                      </span>
-                    </div>
-                  )}
-
-                  {jd.tech_stack && jd.tech_stack.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Stack</p>
-                      <div className="flex flex-wrap gap-1">
-                        {jd.tech_stack.slice(0, 3).map((tech, idx) => (
-                          <span
-                            key={idx}
-                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-lime-100 text-lime-700"
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                        {jd.tech_stack.length > 3 && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
-                            +{jd.tech_stack.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {jd.summary && (
-                    <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
-                      {jd.summary}
-                    </p>
-                  )}
+                  {/* Footer */}
+                  <div className="px-5 py-3.5 border-t border-gray-100 flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 text-sm h-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/jd/${jd.id}`);
+                      }}
+                    >
+                      View Details
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toast.info("Delete feature coming soon");
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-
-                <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 text-xs h-8"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/jd/${jd.id}`);
-                    }}
-                  >
-                    View
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toast.info("Delete feature coming soon");
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
