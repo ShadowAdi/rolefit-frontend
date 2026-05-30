@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { AlertCircle, Loader2, CheckCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { ResumeExtractAction } from "@/action/resume-extractor/resumeExtractor.action";
+import { ResumeExtractorCounts } from "@/types";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -20,40 +21,60 @@ const ResumeExtractorStep = ({ onNext, onSkip }: ResumeExtractorStepProps) => {
   const [resumeUrl, setResumeUrl] = useState("");
   const [status, setStatus] = useState<ExtractorStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const [extractedCounts, setExtractedCounts] = useState<Record<
-    string,
-    number
-  > | null>(null);
+  const [extractedCounts, setExtractedCounts] = useState<ResumeExtractorCounts | null>(null);
   const { token } = useAuth();
   const router = useRouter();
 
   const handleExtract = async () => {
     try {
       if (!token) {
-        toast.error(`User is Unauthorized`);
+        toast.error("User is Unauthorized");
         router.push("/login");
         return;
       }
 
-      if (!resumeUrl || resumeUrl.trim() !== "") {
-        toast.error(`Resume Url Not Given`);
+      if (!resumeUrl || resumeUrl.trim() === "") {
+        toast.error("Resume URL is required");
         return;
       }
 
+      setStatus("loading");
+      setErrorMessage("");
+
       const { success, data, errors, message } = await ResumeExtractAction(
         { resume_url: resumeUrl.trim() },
-        token,
+        token
       );
 
       if (!success) {
-        toast.error(
-          `${errors?.[0] || message || "Failed to extract resume url"}`,
-        );
+        setStatus("error");
+        const errorMsg = 
+          typeof errors?.[0] === "string"
+            ? errors[0]
+            : typeof errors?.[0] === "object" && errors[0]?.message
+              ? errors[0].message
+              : typeof message === "string"
+                ? message
+                : "Failed to extract resume";
+        setErrorMessage(errorMsg);
+        toast.error(errorMsg);
+        return;
       }
-      
+
+      if (data?.counts) {
+        setExtractedCounts(data.counts);
+        setStatus("success");
+        toast.success("Resume extracted successfully!");
+        // Automatically proceed after 2 seconds
+        setTimeout(() => onNext(), 2000);
+      }
     } catch (error) {
-      console.error(`Error extracting resume url: `, error);
-      toast.error(`An error occurred while extracting resume url`);
+      console.error("Error extracting resume:", error);
+      setStatus("error");
+      const errorMsg =
+        error instanceof Error ? error.message : "An unexpected error occurred";
+      setErrorMessage(errorMsg);
+      toast.error(errorMsg);
     }
   };
 
