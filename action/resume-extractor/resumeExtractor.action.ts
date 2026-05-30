@@ -7,8 +7,7 @@ export const ResumeExtractAction = (
 ) =>
   apiRequest<ResumeExtractorResponse>({
     method: "post",
-    url: "/resume-extractor",
+    url: `/resume-extractor/?resume_url=${encodeURIComponent(payload.resume_url)}`,
     token,
-    body: payload.resume_url,
     errorMessage: "Resume Extraction failed",
   });
