@@ -268,6 +268,12 @@ const JDDetailPage = () => {
             >
               Back to Jobs
             </Button>
+            <Button
+              onClick={() => router.push(`/jd/${jdId}/edit`)}
+              className="flex-1 bg-lime-500 hover:bg-lime-600 text-white"
+            >
+              Edit
+            </Button>
           </div>
         </div>
       </div>
