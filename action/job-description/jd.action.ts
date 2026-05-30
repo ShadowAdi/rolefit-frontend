@@ -53,7 +53,7 @@ export const UpdateJDAction = (
 ) =>
   apiRequest<JobDescriptionResponse>({
     method: "post",
-    body: jobDescription,
+    body: { payload: jobDescription },
     url: "/job-descriptions/generate",
     token,
     errorMessage: "Job Descriptions generation failed",
