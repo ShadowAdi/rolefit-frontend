@@ -175,7 +175,6 @@ const JDPage = () => {
                   className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg hover:border-gray-300 transition-all duration-200 cursor-pointer flex flex-col h-full"
                   onClick={() => router.push(`/jd/${jd.id}`)}
                 >
-                  {/* Header */}
                   <div className="p-5 border-b border-gray-100 bg-white">
                     <h3 className="text-lg font-bold text-gray-900 truncate mb-1">
                       {capitalizedRole}
@@ -185,9 +184,7 @@ const JDPage = () => {
                     </p>
                   </div>
 
-                  {/* Content */}
                   <div className="p-5 space-y-4 flex-1">
-                    {/* Type and Location badges */}
                     <div className="flex items-center gap-2 flex-wrap">
                       {jd.role_type && (
                         <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
@@ -202,7 +199,6 @@ const JDPage = () => {
                       )}
                     </div>
 
-                    {/* Location City */}
                     {jd.location_city && (
                       <div className="flex items-center gap-2 text-sm text-gray-700">
                         <MapPin className="w-3.5 h-3.5 text-gray-400" />
@@ -210,7 +206,6 @@ const JDPage = () => {
                       </div>
                     )}
 
-                    {/* Salary */}
                     {(jd.salary_min || jd.salary_max) && (
                       <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
                         <DollarSign className="w-3.5 h-3.5 text-gray-400" />
@@ -223,29 +218,27 @@ const JDPage = () => {
                       </div>
                     )}
 
-                    {/* Tech Stack */}
                     {jd.tech_stack && jd.tech_stack.length > 0 && (
                       <div className="space-y-2">
                         <p className="text-xs font-semibold text-gray-700 uppercase">Tech Stack</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {jd.tech_stack.slice(0, 4).map((tech, idx) => (
+                        <div className="flex gap-1.5 overflow-x-auto pb-1">
+                          {jd.tech_stack.slice(0, 3).map((tech, idx) => (
                             <span
                               key={idx}
-                              className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700"
+                              className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700 whitespace-nowrap shrink-0"
                             >
                               {tech}
                             </span>
                           ))}
-                          {jd.tech_stack.length > 4 && (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
-                              +{jd.tech_stack.length - 4}
+                          {jd.tech_stack.length > 3 && (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700 shrink-0">
+                              +{jd.tech_stack.length - 3}
                             </span>
                           )}
                         </div>
                       </div>
                     )}
 
-                    {/* Summary */}
                     {jd.summary && (
                       <p className="text-sm text-gray-600 line-clamp-2">
                         {jd.summary}
@@ -253,7 +246,6 @@ const JDPage = () => {
                     )}
                   </div>
 
-                  {/* Footer */}
                   <div className="px-5 py-3.5 border-t border-gray-100 flex gap-2">
                     <Button
                       variant="outline"

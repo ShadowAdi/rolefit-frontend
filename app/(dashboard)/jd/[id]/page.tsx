@@ -1,0 +1,272 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { GetJDAction } from "@/action/job-description/jd.action";
+import { JobDescriptionResponse } from "@/types/jobDescription.types";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, MapPin, DollarSign, Calendar } from "lucide-react";
+import { toast } from "sonner";
+
+const JDDetailPage = () => {
+  const router = useRouter();
+  const params = useParams();
+  const { token, isLoading: authLoading } = useAuth();
+  const jdId = params.id as string;
+
+  const [jd, setJd] = useState<JobDescriptionResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchJD = async () => {
+      if (!token || authLoading || !jdId) return;
+
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const result = await GetJDAction(jdId, token);
+
+        if (result.success && result.data) {
+          setJd(result.data);
+        } else {
+          setError(result.message || "Failed to fetch job description");
+        }
+      } catch (err) {
+        console.error("Error fetching JD:", err);
+        setError("Failed to load job description");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchJD();
+  }, [token, authLoading, jdId]);
+
+  if (authLoading || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-foreground mx-auto"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !jd) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="max-w-4xl mx-auto px-4">
+          <Button
+            variant="outline"
+            className="mb-6 gap-2"
+            onClick={() => router.push("/jd")}
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Back
+          </Button>
+          <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+            <p className="text-red-600 font-medium">{error || "Job description not found"}</p>
+            <Button
+              className="mt-4"
+              onClick={() => router.push("/jd")}
+            >
+              Return to Job Descriptions
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const capitalizedRole = (jd.role_name || "Untitled Role")
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+
+  const capitalizedCompany = (jd.company || "Company not specified")
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-4xl mx-auto px-4">
+        <Button
+          variant="outline"
+          className="mb-8 gap-2"
+          onClick={() => router.push("/jd")}
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back to Jobs
+        </Button>
+
+        {/* Main Card */}
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          {/* Header */}
+          <div className="p-8 border-b border-gray-100">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              {capitalizedRole}
+            </h1>
+            <p className="text-xl text-gray-600 mb-6">{capitalizedCompany}</p>
+
+            {/* Key Info Row */}
+            <div className="flex flex-wrap gap-6">
+              {jd.role_type && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-700">Type:</span>
+                  <span className="inline-flex items-center px-2.5 py-1 rounded text-sm font-medium bg-gray-100 text-gray-700">
+                    {jd.role_type}
+                  </span>
+                </div>
+              )}
+
+              {jd.location && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm font-medium text-gray-700">{jd.location}</span>
+                </div>
+              )}
+
+              {jd.location_city && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm font-medium text-gray-700">{jd.location_city}</span>
+                </div>
+              )}
+
+              {(jd.salary_min || jd.salary_max) && (
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm font-medium text-gray-900">
+                    {jd.salary_min && `${jd.salary_min}`}
+                    {jd.salary_min && jd.salary_max && " - "}
+                    {jd.salary_max && `${jd.salary_max}`}
+                    {jd.salary_currency && ` ${jd.salary_currency}`}
+                  </span>
+                </div>
+              )}
+
+              {jd.duration && (
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm font-medium text-gray-700">{jd.duration}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="p-8 space-y-8">
+            {/* Summary */}
+            {jd.summary && (
+              <section>
+                <h2 className="text-lg font-semibold text-gray-900 mb-3">Overview</h2>
+                <p className="text-gray-700 leading-relaxed">{jd.summary}</p>
+              </section>
+            )}
+
+            {/* Experience Required */}
+            {jd.experience_required && (
+              <section>
+                <h2 className="text-lg font-semibold text-gray-900 mb-3">Experience Required</h2>
+                <p className="text-gray-700">{jd.experience_required}</p>
+              </section>
+            )}
+
+            {/* Tech Stack */}
+            {jd.tech_stack && jd.tech_stack.length > 0 && (
+              <section>
+                <h2 className="text-lg font-semibold text-gray-900 mb-3">Tech Stack</h2>
+                <div className="flex flex-wrap gap-2">
+                  {jd.tech_stack.map((tech, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center px-3 py-1.5 rounded text-sm font-medium bg-gray-100 text-gray-700"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Required Skills */}
+            {jd.required_skills && jd.required_skills.length > 0 && (
+              <section>
+                <h2 className="text-lg font-semibold text-gray-900 mb-3">Required Skills</h2>
+                <div className="flex flex-wrap gap-2">
+                  {jd.required_skills.map((skill, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center px-3 py-1.5 rounded text-sm font-medium bg-gray-100 text-gray-700"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Company Information */}
+            {jd.company_information && (
+              <section>
+                <h2 className="text-lg font-semibold text-gray-900 mb-3">About the Company</h2>
+                <p className="text-gray-700 leading-relaxed">{jd.company_information}</p>
+              </section>
+            )}
+
+            {/* Company Website */}
+            {jd.company_website_url && (
+              <section>
+                <h2 className="text-lg font-semibold text-gray-900 mb-3">Company Website</h2>
+                <a
+                  href={jd.company_website_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-700 font-medium underline break-all"
+                >
+                  {jd.company_website_url}
+                </a>
+              </section>
+            )}
+
+            {/* Full Job Description */}
+            {jd.raw_jd && (
+              <section>
+                <h2 className="text-lg font-semibold text-gray-900 mb-3">Full Job Description</h2>
+                <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                  <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{jd.raw_jd}</p>
+                </div>
+              </section>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="px-8 py-6 border-t border-gray-100 bg-gray-50 flex gap-3">
+            <Button
+              onClick={() => router.push("/jd")}
+              variant="outline"
+              className="flex-1"
+            >
+              Back to Jobs
+            </Button>
+            <Button
+              className="flex-1 bg-lime-500 hover:bg-lime-600 text-white"
+              onClick={() => {
+                toast.info("Edit feature coming soon");
+              }}
+            >
+              Edit
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default JDDetailPage;
