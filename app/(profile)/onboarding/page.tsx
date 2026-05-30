@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { ChevronRight, ChevronLeft, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import OnboardingMethodStep from "@/components/onboarding/steps/OnboardingMethodStep";
+import ResumeExtractorStep from "@/components/onboarding/steps/ResumeExtractorStep";
 import ExperienceStep from "@/components/onboarding/steps/ExperienceStep";
 import EducationStep from "@/components/onboarding/steps/EducationStep";
 import SkillsStep from "@/components/onboarding/steps/SkillsStep";
@@ -27,7 +29,7 @@ interface StepProps {
   onSkip?: () => void;
 }
 
-const STEPS: StepConfig[] = [
+const MANUAL_STEPS: StepConfig[] = [
   {
     id: 1,
     title: "Work Experience",
@@ -66,9 +68,12 @@ const STEPS: StepConfig[] = [
   },
 ];
 
+type OnboardingMethod = "resume" | "manual" | null;
+
 const OnboardingPage = () => {
   const router = useRouter();
   const { token, isLoading: authLoading } = useAuth();
+  const [onboardingMethod, setOnboardingMethod] = useState<OnboardingMethod>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
@@ -89,13 +94,94 @@ const OnboardingPage = () => {
     );
   }
 
-  const step = STEPS[currentStep];
+  if (!onboardingMethod) {
+    return (
+      <div className="min-h-screen w-full bg-linear-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
+        <div className="pointer-events-none absolute -top-40 -right-40 h-80 w-80 rounded-full bg-lime-200/30 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-blue-200/30 blur-3xl" />
+        <div className="pointer-events-none absolute top-1/2 left-1/2 w-96 h-96 rounded-full bg-lime-100/20 blur-3xl" />
+
+        <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12">
+          <div className="w-full max-w-4xl">
+            <div className="mb-12 text-center">
+              <h1 className="text-4xl font-bold text-gray-950 mb-2">
+                Let's Build Your Profile
+              </h1>
+              <p className="text-lg text-gray-600">
+                Choose the fastest way to get started
+              </p>
+            </div>
+
+            <OnboardingMethodStep onSelectMethod={setOnboardingMethod} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (onboardingMethod === "resume") {
+    return (
+      <div className="min-h-screen w-full bg-linear-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
+        <div className="pointer-events-none absolute -top-40 -right-40 h-80 w-80 rounded-full bg-lime-200/30 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-blue-200/30 blur-3xl" />
+        <div className="pointer-events-none absolute top-1/2 left-1/2 w-96 h-96 rounded-full bg-lime-100/20 blur-3xl" />
+
+        <div className="relative z-10 min-h-screen flex flex-col">
+          <div className="sticky top-0 z-20 bg-white/70 backdrop-blur-md border-b border-white/60">
+            <div className="max-w-4xl mx-auto px-4 py-6">
+              <h2 className="text-2xl font-bold text-gray-950">
+                Upload Your Resume
+              </h2>
+              <p className="text-gray-600 mt-1">Step 1 of 1</p>
+            </div>
+          </div>
+
+          <div className="flex-1 flex items-center justify-center px-4 py-12">
+            <div className="w-full max-w-3xl">
+              <ResumeExtractorStep
+                onNext={async () => {
+                  const result = await completeOnboardingAction(token || "");
+                  if (!result.success) {
+                    toast.error(
+                      result.message || "Failed to mark onboarding complete"
+                    );
+                    return;
+                  }
+                  markOnboardingCompleted();
+                  router.push("/profile");
+                }}
+                onSkip={() => setOnboardingMethod("manual")}
+              />
+            </div>
+          </div>
+
+          <div className="sticky bottom-0 z-20 bg-white/70 backdrop-blur-md border-t border-white/60">
+            <div className="max-w-4xl mx-auto px-4 py-4 flex gap-3 justify-between">
+              <Button
+                onClick={() => setOnboardingMethod(null)}
+                variant="outline"
+                size="lg"
+                className="min-w-30 border-gray-300"
+              >
+                <ChevronLeft className="size-4 mr-2" />
+                Back
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Manual entry flow
+  const steps = MANUAL_STEPS;
+  const step = steps[currentStep];
   const StepComponent = step.component;
-  const progressPercentage = ((currentStep + 1) / STEPS.length) * 100;
+  const progressPercentage = ((currentStep + 1) / steps.length) * 100;
 
   const handleNext = () => {
     setCompletedSteps([...completedSteps, currentStep]);
-    if (currentStep < STEPS.length - 1) {
+    if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
@@ -126,8 +212,6 @@ const OnboardingPage = () => {
     router.push("/profile");
   };
 
-  const isStepCompleted = completedSteps.includes(currentStep);
-
   return (
     <div className="min-h-screen w-full bg-linear-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
       <div className="pointer-events-none absolute -top-40 -right-40 h-80 w-80 rounded-full bg-lime-200/30 blur-3xl" />
@@ -140,7 +224,7 @@ const OnboardingPage = () => {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-sm text-gray-600 font-medium">
-                  Step {currentStep + 1} of {STEPS.length}
+                  Step {currentStep + 1} of {steps.length}
                 </p>
                 <h2 className="text-2xl font-bold text-gray-950 mt-1">
                   {step.title}
@@ -163,7 +247,7 @@ const OnboardingPage = () => {
 
             <div className="flex gap-2 mt-8 overflow-x-auto py-4 items-center justify-around">
               <div className="flex items-start w-full">
-                {STEPS.map((s, idx) => {
+                {steps.map((s, idx) => {
                   const isDone = completedSteps.includes(idx);
                   const isActive = idx === currentStep;
                   const isClickable = idx < currentStep || isDone;
@@ -180,17 +264,17 @@ const OnboardingPage = () => {
                           }}
                           disabled={!isClickable && !isActive}
                           className={`
-                                                            w-12 h-12 rounded-full font-semibold text-sm
-                                                            flex items-center justify-center
-                                                            transition-all duration-300 relative z-10 shadow-sm
-                                                            ${
-                                                              isActive
-                                                                ? "bg-lime-500 text-white ring-4 ring-lime-200 shadow-lg cursor-default scale-110"
-                                                                : isDone
-                                                                  ? "bg-lime-200 text-lime-700 border-2 border-lime-400 hover:bg-lime-300 hover:scale-105 cursor-pointer"
-                                                                  : "bg-gray-200 text-gray-500 border-2 border-gray-300 cursor-not-allowed"
-                                                            }
-            `}
+                            w-12 h-12 rounded-full font-semibold text-sm
+                            flex items-center justify-center
+                            transition-all duration-300 relative z-10 shadow-sm
+                            ${
+                              isActive
+                                ? "bg-lime-500 text-white ring-4 ring-lime-200 shadow-lg cursor-default scale-110"
+                                : isDone
+                                  ? "bg-lime-200 text-lime-700 border-2 border-lime-400 hover:bg-lime-300 hover:scale-105 cursor-pointer"
+                                  : "bg-gray-200 text-gray-500 border-2 border-gray-300 cursor-not-allowed"
+                            }
+                          `}
                         >
                           {isDone ? (
                             <Check className="w-5 h-5 font-bold" />
@@ -231,8 +315,7 @@ const OnboardingPage = () => {
         <div className="sticky bottom-0 z-20 bg-white/70 backdrop-blur-md border-t border-white/60">
           <div className="max-w-4xl mx-auto px-4 py-4 flex gap-3 justify-between">
             <Button
-              onClick={handleBack}
-              disabled={currentStep === 0}
+              onClick={currentStep === 0 ? () => setOnboardingMethod(null) : handleBack}
               variant="outline"
               size="lg"
               className="min-w-30 border-gray-300"
@@ -255,7 +338,7 @@ const OnboardingPage = () => {
               size="lg"
               className="min-w-30 bg-lime-500 hover:bg-lime-600 text-white font-semibold"
             >
-              {currentStep === STEPS.length - 1 ? (
+              {currentStep === steps.length - 1 ? (
                 "Complete"
               ) : (
                 <>
