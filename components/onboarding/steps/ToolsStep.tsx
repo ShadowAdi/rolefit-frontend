@@ -7,7 +7,10 @@ import {
   GetUserToolsAction,
 } from "@/action/tools/tool.action";
 import { AddToolToUserRequest, AddToolToUserResponse } from "@/types";
-import { EntityComboboxPicker, StepFooter } from "@/components/onboarding/shared";
+import {
+  EntityComboboxPicker,
+  StepFooter,
+} from "@/components/onboarding/shared";
 
 interface StepProps {
   onNext: () => void;
