@@ -24,19 +24,23 @@ export const resolvePostLoginRedirect = async (
     const result = await getProfile(token);
     const profile = result.success ? result.data?.data : null;
 
+    // No profile exists → go to onboarding to choose method
     if (!profile) {
       clearOnboardingCompleted();
-      return "/profile";
+      return "/onboarding";
     }
 
+    // Profile exists and onboarding is complete → go to profile
     if (profile.isOnboarded) {
       markOnboardingCompleted();
       return "/profile";
     }
 
+    // Profile exists but onboarding not complete → go to onboarding steps
     clearOnboardingCompleted();
     return "/onboarding";
   } catch {
-    return "/profile";
+    // Default to onboarding for new users
+    return "/onboarding";
   }
 };
