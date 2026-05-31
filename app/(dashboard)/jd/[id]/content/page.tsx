@@ -38,16 +38,14 @@ const JDContentPage = () => {
   const [isLoadingContents, setIsLoadingContents] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Dialog states
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [contentType, setContentType] = useState<"resume" | "cover_letter" | null>(null);
-  const [userProfileData, setUserProfileData] = useState("");
+  const [userSpecifications, setUserSpecifications] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedContentToDelete, setSelectedContentToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Load JD details
   useEffect(() => {
     const fetchJD = async () => {
       if (!token || authLoading || !jdId) return;
@@ -72,7 +70,6 @@ const JDContentPage = () => {
     fetchJD();
   }, [token, authLoading, jdId]);
 
-  // Load contents
   useEffect(() => {
     const fetchContents = async () => {
       if (!token || authLoading || !jdId) return;
@@ -101,16 +98,11 @@ const JDContentPage = () => {
   const canCreateCoverLetter = coverLetterCount < 3;
 
   const handleCreateContent = async () => {
-    if (!contentType || !userProfileData.trim()) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-
     try {
       setIsCreating(true);
 
       const payload = {
-        user_profile_data: userProfileData,
+        user_specifications: userSpecifications || "",
       };
 
       let result;
@@ -123,7 +115,7 @@ const JDContentPage = () => {
       if (result.success && result.data) {
         toast.success(`${contentType === "resume" ? "Resume" : "Cover Letter"} generated successfully`);
         setIsCreateDialogOpen(false);
-        setUserProfileData("");
+        setUserSpecifications("");
         setContentType(null);
         
         // Refresh contents
@@ -202,7 +194,6 @@ const JDContentPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-5xl mx-auto px-4">
-        {/* Header */}
         <Button
           variant="ghost"
           size="icon"
@@ -219,9 +210,7 @@ const JDContentPage = () => {
           <p className="text-gray-600">{jd.company}</p>
         </div>
 
-        {/* Create Content Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          {/* Create Resume */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -241,7 +230,7 @@ const JDContentPage = () => {
                 setIsCreateDialogOpen(true);
               }}
               disabled={!canCreateResume}
-              className={`w-full ${canCreateResume ? "bg-blue-500 hover:bg-blue-600" : ""}`}
+              className={`w-full ${canCreateResume ? "bg-blue-500 hover:bg-blue-600" : ""} rounded-none`}
               variant={canCreateResume ? "default" : "outline"}
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -249,11 +238,10 @@ const JDContentPage = () => {
             </Button>
           </div>
 
-          {/* Create Cover Letter */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <FileText className="w-6 h-6 text-green-500" />
+                <FileText className="w-6 h-6 text-lime-500" />
                 <div>
                   <h3 className="font-semibold text-gray-900">Cover Letter</h3>
                   <p className="text-sm text-gray-600">{coverLetterCount}/3 created</p>
@@ -269,7 +257,7 @@ const JDContentPage = () => {
                 setIsCreateDialogOpen(true);
               }}
               disabled={!canCreateCoverLetter}
-              className={`w-full ${canCreateCoverLetter ? "bg-green-500 hover:bg-green-600" : ""}`}
+              className={`w-full ${canCreateCoverLetter ? "bg-lime-500 hover:bg-lime-600" : ""} rounded-none`}
               variant={canCreateCoverLetter ? "default" : "outline"}
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -278,7 +266,6 @@ const JDContentPage = () => {
           </div>
         </div>
 
-        {/* Contents List */}
         <div>
           <h2 className="text-xl font-bold text-gray-900 mb-4">Generated Content</h2>
 
@@ -371,21 +358,18 @@ const JDContentPage = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-sm text-gray-600 mb-4">
-              Provide your profile information to generate a tailored {contentType === "resume" ? "resume" : "cover letter"}
-            </p>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Your Profile Information</label>
+                <label className="block text-sm font-medium mb-2">Your Specifications (Optional)</label>
                 <Textarea
-                  placeholder="Share your skills, experience, achievements, and any other relevant information..."
-                  value={userProfileData}
-                  onChange={(e) => setUserProfileData(e.target.value)}
-                  className="min-h-40"
+                  placeholder="Add any specific requirements or details you'd like included"
+                  value={userSpecifications}
+                  onChange={(e) => setUserSpecifications(e.target.value)}
+                  className="min-h-32"
                 />
                 <p className="text-xs text-gray-600 mt-1">
-                  This will be used along with the job description to generate tailored content
+                  Share any additional skills, achievements, or preferences you want highlighted.
                 </p>
               </div>
 
@@ -394,7 +378,7 @@ const JDContentPage = () => {
                   variant="outline"
                   onClick={() => {
                     setIsCreateDialogOpen(false);
-                    setUserProfileData("");
+                    setUserSpecifications("");
                     setContentType(null);
                   }}
                   disabled={isCreating}

@@ -143,7 +143,7 @@ const JDDetailPage = () => {
             <Button
               variant="ghost"
               onClick={() => router.push(`/jd/${jdId}/content`)}
-              className="hover:bg-blue-50 hover:text-blue-600 gap-2"
+              className="hover:bg-blue-50 hover:text-lime-600 gap-2"
             >
               <Sparkles className="w-4 h-4" />
               <span className="text-sm">Generate Content</span>

@@ -14,7 +14,6 @@ export enum GeneratedDocumentStatus {
 
 export interface GenerateContentQuery {
   user_specifications?: string;
-  user_profile_data?: string;
 }
 
 export interface GeneratedDocumentCreateResponse {
