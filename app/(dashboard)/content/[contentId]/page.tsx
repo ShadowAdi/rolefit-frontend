@@ -54,7 +54,11 @@ const ContentDetailPage = () => {
         const result = await GetContentResumeAction(contentId, token);
 
         if (result.success && result.data) {
-          setContent(result.data);
+          const contentWithStatus = {
+            ...result.data,
+            status: result.data.status || (result.data.resume_text || result.data.cover_letter_text ? "completed" : "pending"),
+          };
+          setContent(contentWithStatus);
         } else {
           setError(result.message || "Failed to fetch content");
         }
@@ -322,24 +326,6 @@ const ContentDetailPage = () => {
             <Button variant="outline" onClick={() => router.back()}>
               Back
             </Button>
-            {!isProcessing && !isFailed && (content?.resume_text || content?.cover_letter_text || (content as any)?.content) && (
-              <>
-                <Button
-                  onClick={handleCopyToClipboard}
-                  className="bg-blue-500 hover:bg-blue-600 text-white gap-2"
-                >
-                  <Copy className="w-4 h-4" />
-                  Copy
-                </Button>
-                <Button
-                  onClick={handleDownload}
-                  className="bg-green-500 hover:bg-green-600 text-white gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  Download
-                </Button>
-              </>
-            )}
           </div>
         </div>
       </div>
