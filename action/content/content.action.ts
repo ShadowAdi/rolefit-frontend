@@ -27,7 +27,7 @@ export const CreateCoverLetterContentAction = (
 ) =>
   apiRequest<GeneratedDocumentCreateResponse>({
     method: "post",
-    url: "/cover-letter/" + jobId,
+    url: "/content/cover-letter/" + jobId,
     token,
     body: payload,
     errorMessage: "Generate Cover letter Documnet creation failed",
@@ -36,7 +36,7 @@ export const CreateCoverLetterContentAction = (
 export const GetContentResumeAction = (contentId: string, token: string) =>
   apiRequest<GeneratedDocumentResponse>({
     method: "get",
-    url: `/content/${contentId}`,
+    url: `/content/item/${contentId}`,
     token,
     errorMessage: "Failed to fetch content",
   });
@@ -52,7 +52,7 @@ export const GetAllContentsAction = (jobId: string, token: string) =>
 export const DeleteContentAction = (token: string, contentId: string) =>
   apiRequest<GeneratedDocumentDeleteResponse>({
     method: "delete",
-    url: `/content/${contentId}`,
+    url: `/content/item/${contentId}`,
     token,
     errorMessage: "Failed to delete content",
   });
@@ -63,5 +63,5 @@ export const ContentStatussAction = (token: string, docId: string) =>
     method: "get",
     url: `/content/${docId}/status`,
     token,
-    errorMessage: "Failed to get content content",
+    errorMessage: "Failed to get content status",
   });
