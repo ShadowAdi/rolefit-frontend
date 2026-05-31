@@ -70,7 +70,6 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
         ws.current = new WebSocket(wsUrl);
 
         ws.current.onopen = () => {
-          console.log("[WS] ✅ Connected successfully");
           setIsConnected(true);
           reconnectAttempts.current = 0;
           reconnectDelay.current = 1000;
@@ -89,7 +88,7 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
         };
 
         ws.current.onerror = (error) => {
-          console.error("[WS] ❌ Connection error:", {
+          console.error("[WS] Connection error:", {
             readyState: ws.current?.readyState,
             readyStateText:
               ws.current?.readyState === 0
@@ -105,7 +104,7 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
         };
 
         ws.current.onclose = (event) => {
-          console.log("[WS] 🔌 Connection closed:", {
+          console.log("[WS] Connection closed:", {
             code: event.code,
             reason: event.reason || "No reason provided",
             wasClean: event.wasClean,
@@ -115,7 +114,7 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
           // 1008 = Policy violation (auth failed)
           // 1006 = Abnormal closure
           if (event.code === 1008) {
-            console.error("[WS] ⚠️ Authentication failed (code 1008)");
+            console.error("[WS]  Authentication failed (code 1008)");
             setIsConnected(false);
             return; // Don't retry auth failures
           }
@@ -140,7 +139,7 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
         }, reconnectDelay.current);
         reconnectDelay.current = Math.min(reconnectDelay.current * 2, 10000);
       } else {
-        console.error("[WS] ⚠️ Max reconnection attempts reached");
+        console.error("[WS] Max reconnection attempts reached");
       }
     };
 
