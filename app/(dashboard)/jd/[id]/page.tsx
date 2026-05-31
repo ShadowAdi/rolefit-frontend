@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ChevronLeft, MapPin, DollarSign, Calendar, ChevronDown, Trash2, Edit, ArrowLeft } from "lucide-react";
+import { ChevronLeft, MapPin, DollarSign, Calendar, ChevronDown, Trash2, Edit, ArrowLeft, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 const JDDetailPage = () => {
@@ -140,6 +140,14 @@ const JDDetailPage = () => {
           </Button>
           
           <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              onClick={() => router.push(`/jd/${jdId}/content`)}
+              className="hover:bg-blue-50 hover:text-blue-600 gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span className="text-sm">Generate Content</span>
+            </Button>
             <Button
               variant="ghost"
               size="icon"

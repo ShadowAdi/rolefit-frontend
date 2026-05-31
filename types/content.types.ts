@@ -14,6 +14,7 @@ export enum GeneratedDocumentStatus {
 
 export interface GenerateContentQuery {
   user_specifications?: string;
+  user_profile_data?: string;
 }
 
 export interface GeneratedDocumentCreateResponse {
@@ -37,6 +38,9 @@ export interface GeneratedDocumentResponse {
   user_specifications: string | null;
   created_at: ISODateTime;
   updated_at: ISODateTime;
+  status?: "pending" | "processing" | "completed" | "failed";
+  content?: string;
+  document_type?: "resume" | "cover_letter";
 }
 
 export interface GeneratedDocumentDeleteResponse {
