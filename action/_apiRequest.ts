@@ -64,9 +64,50 @@ export const apiRequest = async <T>({
   body,
   params,
   errorMessage,
+  responseType = "json",
 }: RequestOptions): Promise<ApiResult<T>> => {
   try {
-    const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+    const headers: Record<string, string> = token
+      ? { Authorization: `Bearer ${token}` }
+      : {};
+
+    if (responseType === "blob") {
+      const response = await axiosInstance.request({
+        method,
+        url,
+        params,
+        headers,
+        data: body,
+        responseType: "blob", // Important: tell axios to treat as blob
+      });
+
+      const contentType = response.headers["content-type"];
+
+      if (
+        typeof contentType === "string" &&
+        contentType.includes("application/pdf")
+      ) {
+        return {
+          success: true,
+          data: response.data as T,
+        };
+      } else {
+        const text = await response.data.text();
+        try {
+          const errorJson = JSON.parse(text);
+          return {
+            success: false,
+            message: extractMessage(errorJson, errorMessage),
+            errors: extractErrors(errorJson),
+          };
+        } catch {
+          return {
+            success: false,
+            message: errorMessage,
+          };
+        }
+      }
+    }
 
     const response =
       method === "get" || method === "delete"
@@ -101,6 +142,24 @@ export const apiRequest = async <T>({
   } catch (error: unknown) {
     const errorData = (error as { response?: { data?: BackendErrorPayload } })
       ?.response?.data;
+
+    if ((error as any)?.response?.data instanceof Blob) {
+      const blob = (error as any).response.data;
+      const text = await blob.text();
+      try {
+        const errorJson = JSON.parse(text);
+        return {
+          success: false,
+          message: extractMessage(errorJson, errorMessage),
+          errors: extractErrors(errorJson),
+        };
+      } catch {
+        return {
+          success: false,
+          message: errorMessage,
+        };
+      }
+    }
 
     return {
       success: false,
