@@ -54,6 +54,7 @@ interface RequestOptions {
   body?: unknown;
   params?: Record<string, unknown>;
   errorMessage: string;
+  responseType?: "json" | "blob" | "text";
 }
 
 export const apiRequest = async <T>({

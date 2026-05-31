@@ -16,8 +16,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ChevronLeft, Download, Trash2, Copy, RefreshCw } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ChevronLeft, Download, Trash2, Copy, RefreshCw, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { DownloadResumePdfAction } from "@/action/resume_pdf/resume_pdf.action";
 
 const ContentDetailPage = () => {
   const router = useRouter();
@@ -31,6 +39,16 @@ const ContentDetailPage = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [selectedResumeType, setSelectedResumeType] = useState<string>("classic");
+
+  // Resume template options
+  const resumeTypes = [
+    { value: "classic", label: "Classic" },
+    { value: "minimalist", label: "Minimalist" },
+    { value: "bold", label: "Bold" },
+    { value: "two-column", label: "Two Column" },
+  ];
 
   // Helper function to format JSON content
   const formatContentDisplay = (rawText: string | null | undefined): string => {
@@ -79,7 +97,6 @@ const ContentDetailPage = () => {
     contentId,
     (event) => {
       console.log("[WS] Received event:", event);
-      // Update status in real-time
       setContent((prev) => {
         if (!prev) return prev;
         return {
@@ -89,7 +106,6 @@ const ContentDetailPage = () => {
       });
     },
     () => {
-      // On completion, fetch full content
       toast.success("Content generation completed!");
       GetContentResumeAction(contentId, token!).then((result) => {
         if (result.success && result.data) {
@@ -98,12 +114,9 @@ const ContentDetailPage = () => {
       });
     },
     (error) => {
-      // On failure
       toast.error(error || "Content generation failed");
     }
   );
-
-  // Remove old polling effect - now using WebSocket
 
   const handleRefresh = async () => {
     if (!token) return;
@@ -161,6 +174,69 @@ const ContentDetailPage = () => {
     }
   };
 
+  // Updated handleGeneratePdf function
+const handleGeneratePdf = async () => {
+  if (!token) {
+    toast.error("Authentication required");
+    return;
+  }
+
+  if (!content) {
+    toast.error("No content available");
+    return;
+  }
+
+  // Check if content is ready
+  if (content.status !== "completed") {
+    toast.error("Content is not ready yet. Please wait for generation to complete.");
+    return;
+  }
+
+  // Check if there's resume text
+  if (!content.resume_text) {
+    toast.error("No resume content to generate PDF from");
+    return;
+  }
+
+  try {
+    setIsGeneratingPdf(true);
+    toast.loading("Generating PDF...", { id: "pdf-generation" });
+
+    // Call the PDF generation API with the selected resume type
+    const result = await DownloadResumePdfAction(contentId, token, selectedResumeType);
+
+    if (result.success && result.data) {
+      // result.data should be a Blob
+      const blob = result.data as Blob;
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      
+      // Extract filename from Content-Disposition header if possible, or create one
+      const filename = `${content.document_type}_${selectedResumeType}_${new Date().getTime()}.pdf`;
+      link.download = filename;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      
+      toast.success("PDF generated successfully!", { id: "pdf-generation" });
+    } else {
+      toast.error(result.message || "Failed to generate PDF", { id: "pdf-generation" });
+    }
+  } catch (err) {
+    console.error("Error generating PDF:", err);
+    toast.error("Failed to generate PDF. Please try again.", { id: "pdf-generation" });
+  } finally {
+    setIsGeneratingPdf(false);
+  }
+};
+
   const handleDownload = () => {
     const rawText = content?.resume_text || content?.cover_letter_text || (content as any)?.content;
     if (!rawText || !content) {
@@ -217,6 +293,7 @@ const ContentDetailPage = () => {
 
   const isProcessing = content.status === "processing" || content.status === "pending";
   const isFailed = content.status === "failed";
+  const isReady = content.status === "completed";
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -304,6 +381,50 @@ const ContentDetailPage = () => {
               </div>
             )}
           </div>
+
+          {/* PDF Generation Section - Only show for completed content */}
+          {isReady && (
+            <div className="px-8 py-6 border-t border-gray-200 bg-gray-50">
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                <div className="flex-1">
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Generate PDF {content.document_type === "resume" ? "Resume" : "Cover Letter"}
+                  </label>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {content.document_type === "resume" && (
+                      <Select value={selectedResumeType} onValueChange={setSelectedResumeType}>
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Select template" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {resumeTypes.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                    
+                    {/* Generate PDF Button */}
+                    <Button
+                      onClick={handleGeneratePdf}
+                      disabled={isGeneratingPdf}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <FileText className="w-4 h-4 mr-2" />
+                      {isGeneratingPdf ? "Generating PDF..." : "Generate PDF"}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {content.document_type === "resume" 
+                      ? "Choose a template style for your resume PDF" 
+                      : "Generate a professional PDF version of your cover letter"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Footer Actions */}
           <div className="px-8 py-6 border-t border-gray-200 bg-gray-50 flex gap-2 justify-end">
