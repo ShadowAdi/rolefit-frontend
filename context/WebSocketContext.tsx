@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useRef, ReactNode, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export interface WebSocketEvent {
   type: string;
@@ -17,28 +18,59 @@ interface WebSocketContextType {
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
 
-export const WebSocketProvider = ({ children, userId, token }: { children: ReactNode; userId?: string; token?: string }) => {
+export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => {
+  const { user, token, isLoading: authLoading } = useAuth();
   const ws = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const subscriptions = useRef<Set<(event: WebSocketEvent) => void>>(new Set());
   const reconnectAttempts = useRef(0);
   const maxReconnectAttempts = 5;
   const reconnectDelay = useRef(1000);
+  const connectionAttempted = useRef(false);
 
   useEffect(() => {
-    if (!userId || !token) return;
+    // Wait for auth to load
+    if (authLoading) {
+      console.log("[WS] Auth still loading, waiting...");
+      return;
+    }
+
+    // Check if we have required credentials
+    if (!user?.id || !token) {
+      console.log("[WS] No credentials available", {
+        hasUser: !!user,
+        hasToken: !!token,
+        userId: user?.id,
+      });
+      return;
+    }
+
+    // Don't attempt connection if already connected or attempting
+    if (connectionAttempted.current && ws.current?.readyState === WebSocket.OPEN) {
+      console.log("[WS] Already connected");
+      return;
+    }
+
+    connectionAttempted.current = true;
 
     const connectWebSocket = () => {
       try {
-        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        const wsUrl = `${protocol}//${window.location.host}/api/v1/ws/${userId}?token=${token}`;
+        // Use backend URL for WebSocket connection, not frontend URL
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const protocol = backendUrl.startsWith("https") ? "wss:" : "ws:";
+        const backendHost = backendUrl.replace("https://", "").replace("http://", "");
+        const wsUrl = `${protocol}//${backendHost}/api/v1/websocket/ws/${user.id}?token=${token}`;
 
-        console.log("[WS] Attempting connection to:", wsUrl);
+        console.log("[WS] Attempting connection", {
+          url: wsUrl.replace(token, "TOKEN_REDACTED"),
+          userId: user.id,
+          hasToken: !!token,
+        });
 
         ws.current = new WebSocket(wsUrl);
 
         ws.current.onopen = () => {
-          console.log("[WS] Connected successfully");
+          console.log("[WS] ✅ Connected successfully");
           setIsConnected(true);
           reconnectAttempts.current = 0;
           reconnectDelay.current = 1000;
@@ -48,7 +80,7 @@ export const WebSocketProvider = ({ children, userId, token }: { children: React
           try {
             const data = JSON.parse(event.data) as WebSocketEvent;
             if (data.type !== "pong") {
-              console.log("[WS] Event received:", data);
+              console.log("[WS] 📨 Event received:", data.type, data.doc_id);
               subscriptions.current.forEach((callback) => callback(data));
             }
           } catch (err) {
@@ -57,20 +89,37 @@ export const WebSocketProvider = ({ children, userId, token }: { children: React
         };
 
         ws.current.onerror = (error) => {
-          console.error("[WS] WebSocket error:", {
+          console.error("[WS] ❌ Connection error:", {
             readyState: ws.current?.readyState,
-            url: ws.current?.url,
-            error: error instanceof Event ? error.type : error,
+            readyStateText:
+              ws.current?.readyState === 0
+                ? "CONNECTING"
+                : ws.current?.readyState === 1
+                  ? "OPEN"
+                  : ws.current?.readyState === 2
+                    ? "CLOSING"
+                    : "CLOSED",
+            error: error instanceof Event ? error.type : String(error),
           });
           setIsConnected(false);
         };
 
         ws.current.onclose = (event) => {
-          console.log("[WS] Connection closed:", {
+          console.log("[WS] 🔌 Connection closed:", {
             code: event.code,
-            reason: event.reason,
+            reason: event.reason || "No reason provided",
             wasClean: event.wasClean,
           });
+          
+          // 1000 = Normal closure, don't reconnect
+          // 1008 = Policy violation (auth failed)
+          // 1006 = Abnormal closure
+          if (event.code === 1008) {
+            console.error("[WS] ⚠️ Authentication failed (code 1008)");
+            setIsConnected(false);
+            return; // Don't retry auth failures
+          }
+
           setIsConnected(false);
           attemptReconnect();
         };
@@ -83,13 +132,15 @@ export const WebSocketProvider = ({ children, userId, token }: { children: React
     const attemptReconnect = () => {
       if (reconnectAttempts.current < maxReconnectAttempts) {
         reconnectAttempts.current += 1;
-        console.log(`[WS] Reconnecting in ${reconnectDelay.current}ms (attempt ${reconnectAttempts.current}/${maxReconnectAttempts})`);
+        console.log(
+          `[WS] 🔄 Reconnecting in ${reconnectDelay.current}ms (attempt ${reconnectAttempts.current}/${maxReconnectAttempts})`
+        );
         setTimeout(() => {
           connectWebSocket();
         }, reconnectDelay.current);
         reconnectDelay.current = Math.min(reconnectDelay.current * 2, 10000);
       } else {
-        console.error("[WS] Max reconnection attempts reached");
+        console.error("[WS] ⚠️ Max reconnection attempts reached");
       }
     };
 
@@ -104,11 +155,12 @@ export const WebSocketProvider = ({ children, userId, token }: { children: React
 
     return () => {
       clearInterval(pingInterval);
-      if (ws.current) {
-        ws.current.close();
+      connectionAttempted.current = false;
+      if (ws.current?.readyState === WebSocket.OPEN) {
+        ws.current.close(1000, "Component unmounting");
       }
     };
-  }, [userId, token]);
+  }, [user?.id, token, authLoading]);
 
   const subscribe = (callback: (event: WebSocketEvent) => void): (() => void) => {
     subscriptions.current.add(callback);
