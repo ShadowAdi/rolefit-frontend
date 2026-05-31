@@ -79,6 +79,11 @@ const ContentDetailPage = () => {
 
           if (result.data?.status === "completed") {
             toast.success("Content generation completed!");
+            // Fetch full content including resume_text/cover_letter_text
+            const contentResult = await GetContentResumeAction(contentId, token);
+            if (contentResult.success && contentResult.data && isMounted) {
+              setContent(contentResult.data);
+            }
           } else if (result.data?.status === "failed") {
             toast.error("Content generation failed");
           }
@@ -135,17 +140,24 @@ const ContentDetailPage = () => {
   };
 
   const handleCopyToClipboard = () => {
-    if ((content as any)?.content) {
-      navigator.clipboard.writeText((content as any).content);
+    const text = content?.resume_text || content?.cover_letter_text || (content as any)?.content;
+    if (text) {
+      navigator.clipboard.writeText(text);
       toast.success("Copied to clipboard!");
+    } else {
+      toast.error("No content to copy");
     }
   };
 
   const handleDownload = () => {
-    if (!(content as any)?.content || !content) return;
+    const text = content?.resume_text || content?.cover_letter_text || (content as any)?.content;
+    if (!text || !content) {
+      toast.error("No content to download");
+      return;
+    }
 
     const element = document.createElement("a");
-    const file = new Blob([(content as any).content], { type: "text/plain" });
+    const file = new Blob([text], { type: "text/plain" });
     element.href = URL.createObjectURL(file);
     element.download = `${(content as any)?.document_type || content?.gen_doc_type}-${new Date().getTime()}.txt`;
     document.body.appendChild(element);
@@ -264,10 +276,10 @@ const ContentDetailPage = () => {
                 <p className="text-red-800 font-medium">Failed to generate content</p>
                 <p className="text-red-700 text-sm mt-2">Please try creating again</p>
               </div>
-            ) : (content as any)?.content ? (
+            ) : (content?.resume_text || content?.cover_letter_text || (content as any)?.content) ? (
               <div className="prose max-w-none">
                 <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 whitespace-pre-wrap text-gray-800 leading-relaxed text-sm font-mono">
-                  {(content as any).content}
+                  {content?.resume_text || content?.cover_letter_text || (content as any)?.content}
                 </div>
               </div>
             ) : (
@@ -282,7 +294,7 @@ const ContentDetailPage = () => {
             <Button variant="outline" onClick={() => router.back()}>
               Back
             </Button>
-            {!isProcessing && !isFailed && (content as any)?.content && (
+            {!isProcessing && !isFailed && (content?.resume_text || content?.cover_letter_text || (content as any)?.content) && (
               <>
                 <Button
                   onClick={handleCopyToClipboard}
