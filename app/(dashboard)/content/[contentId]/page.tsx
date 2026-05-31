@@ -31,6 +31,17 @@ const ContentDetailPage = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Helper function to format JSON content
+  const formatContentDisplay = (rawText: string | null | undefined): string => {
+    if (!rawText) return "";
+    try {
+      const parsed = JSON.parse(rawText);
+      return JSON.stringify(parsed, null, 2);
+    } catch {
+      return rawText;
+    }
+  };
+
   // Fetch content
   useEffect(() => {
     const fetchContent = async () => {
@@ -58,9 +69,9 @@ const ContentDetailPage = () => {
     fetchContent();
   }, [token, authLoading, contentId]);
 
-  // Poll for status updates if processing
+  // Poll for status updates if processing or pending
   useEffect(() => {
-    if (!content || content.status !== "processing" || !token) return;
+    if (!content || (content.status !== "processing" && content.status !== "pending") || !token) return;
 
     let isMounted = true;
     const interval = setInterval(async () => {
@@ -140,9 +151,16 @@ const ContentDetailPage = () => {
   };
 
   const handleCopyToClipboard = () => {
-    const text = content?.resume_text || content?.cover_letter_text || (content as any)?.content;
-    if (text) {
-      navigator.clipboard.writeText(text);
+    const rawText = content?.resume_text || content?.cover_letter_text || (content as any)?.content;
+    if (rawText) {
+      try {
+        // Try to parse as JSON and format, otherwise use raw text
+        const parsed = JSON.parse(rawText);
+        const formatted = JSON.stringify(parsed, null, 2);
+        navigator.clipboard.writeText(formatted);
+      } catch {
+        navigator.clipboard.writeText(rawText);
+      }
       toast.success("Copied to clipboard!");
     } else {
       toast.error("No content to copy");
@@ -150,10 +168,20 @@ const ContentDetailPage = () => {
   };
 
   const handleDownload = () => {
-    const text = content?.resume_text || content?.cover_letter_text || (content as any)?.content;
-    if (!text || !content) {
+    const rawText = content?.resume_text || content?.cover_letter_text || (content as any)?.content;
+    if (!rawText || !content) {
       toast.error("No content to download");
       return;
+    }
+
+    let text = rawText;
+    try {
+      // Try to parse as JSON and format
+      const parsed = JSON.parse(rawText);
+      text = JSON.stringify(parsed, null, 2);
+    } catch {
+      // If not JSON, use raw text
+      text = rawText;
     }
 
     const element = document.createElement("a");
@@ -195,7 +223,7 @@ const ContentDetailPage = () => {
     );
   }
 
-  const isProcessing = content.status === "processing";
+  const isProcessing = content.status === "processing" || content.status === "pending";
   const isFailed = content.status === "failed";
 
   return (
@@ -250,13 +278,13 @@ const ContentDetailPage = () => {
               <div className={`px-4 py-2 rounded-lg text-sm font-semibold ${
                 content.status === "completed"
                   ? "bg-green-100 text-green-700"
-                  : content.status === "processing"
+                  : (content.status === "processing" || content.status === "pending")
                     ? "bg-yellow-100 text-yellow-700"
                     : "bg-red-100 text-red-700"
               }`}>
                 {content.status === "completed"
                   ? "Ready"
-                  : content.status === "processing"
+                  : (content.status === "processing" || content.status === "pending")
                     ? "Generating..."
                     : "Failed"}
               </div>
@@ -279,7 +307,7 @@ const ContentDetailPage = () => {
             ) : (content?.resume_text || content?.cover_letter_text || (content as any)?.content) ? (
               <div className="prose max-w-none">
                 <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 whitespace-pre-wrap text-gray-800 leading-relaxed text-sm font-mono">
-                  {content?.resume_text || content?.cover_letter_text || (content as any)?.content}
+                  {formatContentDisplay(content?.resume_text || content?.cover_letter_text || (content as any)?.content)}
                 </div>
               </div>
             ) : (

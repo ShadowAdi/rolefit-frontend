@@ -114,15 +114,27 @@ const JDContentPage = () => {
       }
 
       if (result.success && result.data) {
-        toast.success(`${contentType === "resume" ? "Resume" : "Cover Letter"} generated successfully`);
+        toast.success(`${contentType === "resume" ? "Resume" : "Cover Letter"} generation started`);
         setIsCreateDialogOpen(false);
         setUserSpecifications("");
         setContentType(null);
         
-        const contentsResult = await GetAllContentsAction(jdId, token!);
-        if (contentsResult.success && Array.isArray(contentsResult.data)) {
-          setContents(contentsResult.data);
-        }
+        // Add the newly created content to the list with initial status from response
+        const newContent: GeneratedDocumentResponse = {
+          id: result.data.doc_id,
+          resume_text: null,
+          cover_letter_text: null,
+          userId: "" as any,
+          jobId: jdId as any,
+          gen_doc_type: contentType === "resume" ? "Resume" : "Cover-letter",
+          user_specifications: userSpecifications || null,
+          created_at: new Date().toISOString() as any,
+          updated_at: new Date().toISOString() as any,
+          status: result.data.status || "pending",
+          document_type: (contentType === "resume" ? "resume" : "cover_letter") as "resume" | "cover_letter",
+        };
+        
+        setContents([newContent, ...contents]);
       } else {
         toast.error((result as any)?.message || "Failed to generate content");
       }

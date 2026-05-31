@@ -1,5 +1,6 @@
 import {
   GenerateContentQuery,
+  GenerateContentResponse,
   GeneratedDocumentCreateResponse,
   GeneratedDocumentDeleteResponse,
   GeneratedDocumentResponse,
@@ -12,7 +13,7 @@ export const CreateResumeContentAction = (
   jobId: string,
   token: string,
 ) =>
-  apiRequest<GeneratedDocumentCreateResponse>({
+  apiRequest<GenerateContentResponse>({
     method: "post",
     url: "/content/" + jobId,
     token,
@@ -25,7 +26,7 @@ export const CreateCoverLetterContentAction = (
   jobId: string,
   token: string,
 ) =>
-  apiRequest<GeneratedDocumentCreateResponse>({
+  apiRequest<GenerateContentResponse>({
     method: "post",
     url: "/content/cover-letter/" + jobId,
     token,

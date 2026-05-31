@@ -16,6 +16,13 @@ export interface GenerateContentQuery {
   user_specifications?: string;
 }
 
+export interface GenerateContentResponse {
+  doc_id: UUID;
+  task_id: string;
+  status: "pending" | "processing" | "completed" | "failed";
+  message: string;
+}
+
 export interface GeneratedDocumentCreateResponse {
   id: UUID;
   userId: UUID;
