@@ -36,7 +36,7 @@ export const CreateCoverLetterContentAction = (
 export const GetContentResumeAction = (contentId: string, token: string) =>
   apiRequest<GeneratedDocumentResponse>({
     method: "get",
-    url: `/content/item/${contentId}`,
+    url: `/content/${contentId}`,
     token,
     errorMessage: "Failed to fetch content",
   });
@@ -52,7 +52,7 @@ export const GetAllContentsAction = (jobId: string, token: string) =>
 export const DeleteContentAction = (token: string, contentId: string) =>
   apiRequest<GeneratedDocumentDeleteResponse>({
     method: "delete",
-    url: `/content/item/${contentId}`,
+    url: `/content/${contentId}`,
     token,
     errorMessage: "Failed to delete content",
   });
