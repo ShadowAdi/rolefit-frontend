@@ -4,7 +4,10 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useContentGenerationStatus } from "@/hooks/useContentGenerationStatus";
-import { GetContentResumeAction, DeleteContentAction } from "@/action/content/content.action";
+import {
+  GetContentResumeAction,
+  DeleteContentAction,
+} from "@/action/content/content.action";
 import { GeneratedDocumentResponse } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,9 +26,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronLeft, Download, Trash2, Copy, RefreshCw, FileText } from "lucide-react";
+import {
+  ChevronLeft,
+  Download,
+  Trash2,
+  Copy,
+  RefreshCw,
+  FileText,
+} from "lucide-react";
 import { toast } from "sonner";
 import { DownloadResumePdfAction } from "@/action/resume_pdf/resume_pdf.action";
+import { DownloadCoverLetterPdfAction } from "@/action/cover_letter_pdf/cover_letter_pdf.action";
 
 const ContentDetailPage = () => {
   const router = useRouter();
@@ -33,16 +44,19 @@ const ContentDetailPage = () => {
   const { token, isLoading: authLoading } = useAuth();
   const contentId = params.contentId as string;
 
-  const [content, setContent] = useState<GeneratedDocumentResponse | null>(null);
+  const [content, setContent] = useState<GeneratedDocumentResponse | null>(
+    null,
+  );
+  const [docType, setDocType] = useState<"resume" | "cover_letter">("resume");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
-  const [selectedResumeType, setSelectedResumeType] = useState<string>("classic");
+  const [selectedResumeType, setSelectedResumeType] =
+    useState<string>("classic");
 
-  // Resume template options
   const resumeTypes = [
     { value: "classic", label: "Classic" },
     { value: "minimalist", label: "Minimalist" },
@@ -50,7 +64,6 @@ const ContentDetailPage = () => {
     { value: "two-column", label: "Two Column" },
   ];
 
-  // Helper function to format JSON content
   const formatContentDisplay = (rawText: string | null | undefined): string => {
     if (!rawText) return "";
     try {
@@ -61,7 +74,6 @@ const ContentDetailPage = () => {
     }
   };
 
-  // Fetch content
   useEffect(() => {
     const fetchContent = async () => {
       if (!token || authLoading || !contentId) return;
@@ -75,9 +87,16 @@ const ContentDetailPage = () => {
         if (result.success && result.data) {
           const contentWithStatus = {
             ...result.data,
-            status: result.data.status || (result.data.resume_text || result.data.cover_letter_text ? "completed" : "pending"),
+            status:
+              result.data.status ||
+              (result.data.resume_text || result.data.cover_letter_text
+                ? "completed"
+                : "pending"),
           };
           setContent(contentWithStatus);
+          if (result.data.document_type) {
+            setDocType(result.data.document_type);
+          }
         } else {
           setError(result.message || "Failed to fetch content");
         }
@@ -92,7 +111,6 @@ const ContentDetailPage = () => {
     fetchContent();
   }, [token, authLoading, contentId]);
 
-  // WebSocket listener for real-time status updates
   useContentGenerationStatus(
     contentId,
     (event) => {
@@ -115,7 +133,7 @@ const ContentDetailPage = () => {
     },
     (error) => {
       toast.error(error || "Content generation failed");
-    }
+    },
   );
 
   const handleRefresh = async () => {
@@ -159,7 +177,10 @@ const ContentDetailPage = () => {
   };
 
   const handleCopyToClipboard = () => {
-    const rawText = content?.resume_text || content?.cover_letter_text || (content as any)?.content;
+    const rawText =
+      content?.resume_text ||
+      content?.cover_letter_text ||
+      (content as any)?.content;
     if (rawText) {
       try {
         const parsed = JSON.parse(rawText);
@@ -174,66 +195,85 @@ const ContentDetailPage = () => {
     }
   };
 
-  // Updated handleGeneratePdf function
-const handleGeneratePdf = async () => {
-  if (!token) {
-    toast.error("Authentication required");
-    return;
-  }
-
-  if (!content) {
-    toast.error("No content available");
-    return;
-  }
-
-  // Check if content is ready
-  if (content.status !== "completed") {
-    toast.error("Content is not ready yet. Please wait for generation to complete.");
-    return;
-  }
-
-  // Check if there's resume text
-  if (!content.resume_text) {
-    toast.error("No resume content to generate PDF from");
-    return;
-  }
-
-  try {
-    setIsGeneratingPdf(true);
-    toast.loading("Generating PDF...", { id: "pdf-generation" });
-
-    const result = await DownloadResumePdfAction(contentId, token, selectedResumeType);
-
-    if (result.success && result.data) {
-      const blob = result.data as Blob;
-      
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      
-      const filename = `${content.document_type}_${selectedResumeType}_${new Date().getTime()}.pdf`;
-      link.download = filename;
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      window.URL.revokeObjectURL(url);
-      
-      toast.success("PDF generated successfully!", { id: "pdf-generation" });
-    } else {
-      toast.error(result.message || "Failed to generate PDF", { id: "pdf-generation" });
+  const handleGeneratePdf = async () => {
+    if (!token) {
+      toast.error("Authentication required");
+      return;
     }
-  } catch (err) {
-    console.error("Error generating PDF:", err);
-    toast.error("Failed to generate PDF. Please try again.", { id: "pdf-generation" });
-  } finally {
-    setIsGeneratingPdf(false);
-  }
-};
+
+    if (!content) {
+      toast.error("No content available");
+      return;
+    }
+
+    // Check if content is ready
+    if (content.status !== "completed") {
+      toast.error(
+        "Content is not ready yet. Please wait for generation to complete.",
+      );
+      return;
+    }
+
+    if (!content.resume_text) {
+      toast.error("No resume content to generate PDF from");
+      return;
+    }
+
+    try {
+      setIsGeneratingPdf(true);
+      toast.loading("Generating PDF...", { id: "pdf-generation" });
+      let result;
+      if (docType === "resume") {
+        result = await DownloadResumePdfAction(
+          contentId,
+          token,
+          selectedResumeType,
+        );
+      } else {
+        result = await DownloadCoverLetterPdfAction(
+          contentId,
+          token,
+          selectedResumeType,
+        );
+      }
+
+      if (result.success && result.data) {
+        const blob = result.data as Blob;
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+
+        const filename = `${content.document_type}_${selectedResumeType}_${new Date().getTime()}.pdf`;
+        link.download = filename;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        window.URL.revokeObjectURL(url);
+
+        toast.success("PDF generated successfully!", { id: "pdf-generation" });
+      } else {
+        toast.error(result.message || "Failed to generate PDF", {
+          id: "pdf-generation",
+        });
+      }
+    } catch (err) {
+      console.error("Error generating PDF:", err);
+      toast.error("Failed to generate PDF. Please try again.", {
+        id: "pdf-generation",
+      });
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
 
   const handleDownload = () => {
-    const rawText = content?.resume_text || content?.cover_letter_text || (content as any)?.content;
+    const rawText =
+      content?.resume_text ||
+      content?.cover_letter_text ||
+      (content as any)?.content;
     if (!rawText || !content) {
       toast.error("No content to download");
       return;
@@ -272,11 +312,18 @@ const handleGeneratePdf = async () => {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-4xl mx-auto px-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()} className="mb-6">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.back()}
+            className="mb-6"
+          >
             <ChevronLeft className="w-5 h-5" />
           </Button>
           <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-            <p className="text-red-600 font-medium">{error || "Content not found"}</p>
+            <p className="text-red-600 font-medium">
+              {error || "Content not found"}
+            </p>
             <Button className="mt-4" onClick={() => router.back()}>
               Go Back
             </Button>
@@ -286,7 +333,8 @@ const handleGeneratePdf = async () => {
     );
   }
 
-  const isProcessing = content.status === "processing" || content.status === "pending";
+  const isProcessing =
+    content.status === "processing" || content.status === "pending";
   const isFailed = content.status === "failed";
   const isReady = content.status === "completed";
 
@@ -298,10 +346,22 @@ const handleGeneratePdf = async () => {
             <ChevronLeft className="w-5 h-5" />
           </Button>
           <div className="flex gap-2">
-            <Button variant="ghost" size="icon" onClick={handleRefresh} disabled={isRefreshing}>
-              <RefreshCw className={`w-5 h-5 ${isRefreshing ? "animate-spin" : ""}`} />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <RefreshCw
+                className={`w-5 h-5 ${isRefreshing ? "animate-spin" : ""}`}
+              />
             </Button>
-            <Button variant="ghost" size="icon" onClick={handleCopyToClipboard} disabled={isProcessing || isFailed}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleCopyToClipboard}
+              disabled={isProcessing || isFailed}
+            >
               <Copy className="w-5 h-5" />
             </Button>
             <Button
@@ -329,23 +389,29 @@ const handleGeneratePdf = async () => {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 capitalize">
-                  {content.document_type === "resume" ? "Resume" : "Cover Letter"}
+                  {content.document_type === "resume"
+                    ? "Resume"
+                    : "Cover Letter"}
                 </h1>
                 <p className="text-sm text-gray-600">
-                  Created: {new Date(content.created_at).toLocaleDateString()} at{" "}
-                  {new Date(content.created_at).toLocaleTimeString()}
+                  Created: {new Date(content.created_at).toLocaleDateString()}{" "}
+                  at {new Date(content.created_at).toLocaleTimeString()}
                 </p>
               </div>
-              <div className={`px-4 py-2 rounded-lg text-sm font-semibold ${
-                content.status === "completed"
-                  ? "bg-green-100 text-green-700"
-                  : (content.status === "processing" || content.status === "pending")
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-red-100 text-red-700"
-              }`}>
+              <div
+                className={`px-4 py-2 rounded-lg text-sm font-semibold ${
+                  content.status === "completed"
+                    ? "bg-green-100 text-green-700"
+                    : content.status === "processing" ||
+                        content.status === "pending"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-red-100 text-red-700"
+                }`}
+              >
                 {content.status === "completed"
                   ? "Ready"
-                  : (content.status === "processing" || content.status === "pending")
+                  : content.status === "processing" ||
+                      content.status === "pending"
                     ? "Generating..."
                     : "Failed"}
               </div>
@@ -356,18 +422,36 @@ const handleGeneratePdf = async () => {
             {isProcessing ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mb-4"></div>
-                <p className="text-gray-600">Your {content.document_type === "resume" ? "resume" : "cover letter"} is being generated...</p>
-                <p className="text-sm text-gray-500 mt-2">This may take a few minutes</p>
+                <p className="text-gray-600">
+                  Your{" "}
+                  {content.document_type === "resume"
+                    ? "resume"
+                    : "cover letter"}{" "}
+                  is being generated...
+                </p>
+                <p className="text-sm text-gray-500 mt-2">
+                  This may take a few minutes
+                </p>
               </div>
             ) : isFailed ? (
               <div className="p-6 bg-red-50 border border-red-200 rounded-lg text-center">
-                <p className="text-red-800 font-medium">Failed to generate content</p>
-                <p className="text-red-700 text-sm mt-2">Please try creating again</p>
+                <p className="text-red-800 font-medium">
+                  Failed to generate content
+                </p>
+                <p className="text-red-700 text-sm mt-2">
+                  Please try creating again
+                </p>
               </div>
-            ) : (content?.resume_text || content?.cover_letter_text || (content as any)?.content) ? (
+            ) : content?.resume_text ||
+              content?.cover_letter_text ||
+              (content as any)?.content ? (
               <div className="prose max-w-none">
                 <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 whitespace-pre-wrap text-gray-800 leading-relaxed text-sm font-mono">
-                  {formatContentDisplay(content?.resume_text || content?.cover_letter_text || (content as any)?.content)}
+                  {formatContentDisplay(
+                    content?.resume_text ||
+                      content?.cover_letter_text ||
+                      (content as any)?.content,
+                  )}
                 </div>
               </div>
             ) : (
@@ -383,11 +467,17 @@ const handleGeneratePdf = async () => {
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                 <div className="flex-1">
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Generate PDF {content.document_type === "resume" ? "Resume" : "Cover Letter"}
+                    Generate PDF{" "}
+                    {content.document_type === "resume"
+                      ? "Resume"
+                      : "Cover Letter"}
                   </label>
                   <div className="flex flex-col sm:flex-row gap-3">
                     {content.document_type === "resume" && (
-                      <Select value={selectedResumeType} onValueChange={setSelectedResumeType}>
+                      <Select
+                        value={selectedResumeType}
+                        onValueChange={setSelectedResumeType}
+                      >
                         <SelectTrigger className="w-[180px]">
                           <SelectValue placeholder="Select template" />
                         </SelectTrigger>
@@ -400,7 +490,7 @@ const handleGeneratePdf = async () => {
                         </SelectContent>
                       </Select>
                     )}
-                    
+
                     <Button
                       onClick={handleGeneratePdf}
                       disabled={isGeneratingPdf}
@@ -411,8 +501,8 @@ const handleGeneratePdf = async () => {
                     </Button>
                   </div>
                   <p className="text-xs text-gray-500 mt-2">
-                    {content.document_type === "resume" 
-                      ? "Choose a template style for your resume PDF" 
+                    {content.document_type === "resume"
+                      ? "Choose a template style for your resume PDF"
                       : "Generate a professional PDF version of your cover letter"}
                   </p>
                 </div>
@@ -428,12 +518,16 @@ const handleGeneratePdf = async () => {
         </div>
       </div>
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Content</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this {content.document_type}? This action cannot be undone.
+              Are you sure you want to delete this {content.document_type}? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3 justify-end">
