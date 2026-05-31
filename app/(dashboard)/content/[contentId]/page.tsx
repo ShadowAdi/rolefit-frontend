@@ -158,7 +158,6 @@ const ContentDetailPage = () => {
     const rawText = content?.resume_text || content?.cover_letter_text || (content as any)?.content;
     if (rawText) {
       try {
-        // Try to parse as JSON and format, otherwise use raw text
         const parsed = JSON.parse(rawText);
         const formatted = JSON.stringify(parsed, null, 2);
         navigator.clipboard.writeText(formatted);
@@ -180,11 +179,9 @@ const ContentDetailPage = () => {
 
     let text = rawText;
     try {
-      // Try to parse as JSON and format
       const parsed = JSON.parse(rawText);
       text = JSON.stringify(parsed, null, 2);
     } catch {
-      // If not JSON, use raw text
       text = rawText;
     }
 
@@ -233,7 +230,6 @@ const ContentDetailPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-4xl mx-auto px-4">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <Button variant="ghost" size="icon" onClick={() => router.back()}>
             <ChevronLeft className="w-5 h-5" />
@@ -265,9 +261,7 @@ const ContentDetailPage = () => {
           </div>
         </div>
 
-        {/* Content Card */}
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-          {/* Header Info */}
           <div className="p-6 border-b border-gray-200 bg-linear-to-r from-gray-50 to-gray-100">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -295,7 +289,6 @@ const ContentDetailPage = () => {
             </div>
           </div>
 
-          {/* Content Body */}
           <div className="p-8">
             {isProcessing ? (
               <div className="flex flex-col items-center justify-center py-12">
