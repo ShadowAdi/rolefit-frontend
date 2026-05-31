@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useWebSocket } from "@/context/WebSocketContext";
 import { GetJDAction } from "@/action/job-description/jd.action";
 import {
   CreateResumeContentAction,
@@ -30,6 +31,7 @@ const JDContentPage = () => {
   const router = useRouter();
   const params = useParams();
   const { token, isLoading: authLoading } = useAuth();
+  const { subscribe } = useWebSocket();
   const jdId = params.id as string;
 
   const [jd, setJd] = useState<JobDescriptionResponse | null>(null);
@@ -77,10 +79,20 @@ const JDContentPage = () => {
       try {
         setIsLoadingContents(true);
         const result = await GetAllContentsAction(jdId, token);
-        console.log("Results ",result)
+        console.log("Results ", result);
 
         if (result.success && result.data) {
-          setContents(result.data);
+          // Ensure document_type is set from gen_doc_type
+          const contentsWithType = (result.data as any[]).map((item) => ({
+            ...item,
+            document_type:
+              item.gen_doc_type === "Resume"
+                ? "resume"
+                : item.gen_doc_type === "Cover-letter"
+                  ? "cover_letter"
+                  : item.document_type,
+          }));
+          setContents(contentsWithType);
         }
       } catch (err) {
         console.error("Error fetching contents:", err);
@@ -91,6 +103,34 @@ const JDContentPage = () => {
 
     fetchContents();
   }, [token, authLoading, jdId]);
+
+  // WebSocket listener for real-time content updates
+  useEffect(() => {
+    const unsubscribe = subscribe((event) => {
+      console.log("[WS] Content update event:", event);
+      
+      // Update the content status in real-time
+      setContents((prev) =>
+        prev.map((c) => {
+          if (c.id === event.doc_id) {
+            return { ...c, status: event.status };
+          }
+          return c;
+        })
+      );
+
+      // If completed, show success
+      if (event.status === "completed") {
+        toast.success("Content generated successfully!");
+      }
+      // If failed, show error
+      if (event.status === "failed") {
+        toast.error(`Generation failed: ${event.error || event.message}`);
+      }
+    });
+
+    return unsubscribe;
+  }, [subscribe]);
 
   const resumeCount = contents.filter((c) => c.document_type === "resume").length;
   const coverLetterCount = contents.filter((c) => c.document_type === "cover_letter").length;

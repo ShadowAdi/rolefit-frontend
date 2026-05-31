@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { GetContentResumeAction, ContentStatussAction, DeleteContentAction } from "@/action/content/content.action";
+import { useContentGenerationStatus } from "@/hooks/useContentGenerationStatus";
+import { GetContentResumeAction, DeleteContentAction } from "@/action/content/content.action";
 import { GeneratedDocumentResponse } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ChevronLeft, Download, Trash2, Share2, Copy, RefreshCw } from "lucide-react";
+import { ChevronLeft, Download, Trash2, Copy, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 const ContentDetailPage = () => {
@@ -73,46 +74,36 @@ const ContentDetailPage = () => {
     fetchContent();
   }, [token, authLoading, contentId]);
 
-  // Poll for status updates if processing or pending
-  useEffect(() => {
-    if (!content || (content.status !== "processing" && content.status !== "pending") || !token) return;
-
-    let isMounted = true;
-    const interval = setInterval(async () => {
-      if (!isMounted) return;
-      
-      try {
-        const result = await ContentStatussAction(token, contentId);
-        if (result.success && result.data && isMounted) {
-          setContent((prev) => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              status: (result.data?.status as any) || prev.status,
-            };
-          });
-
-          if (result.data?.status === "completed") {
-            toast.success("Content generation completed!");
-            // Fetch full content including resume_text/cover_letter_text
-            const contentResult = await GetContentResumeAction(contentId, token);
-            if (contentResult.success && contentResult.data && isMounted) {
-              setContent(contentResult.data);
-            }
-          } else if (result.data?.status === "failed") {
-            toast.error("Content generation failed");
-          }
+  // WebSocket listener for real-time status updates
+  useContentGenerationStatus(
+    contentId,
+    (event) => {
+      console.log("[WS] Received event:", event);
+      // Update status in real-time
+      setContent((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          status: event.status,
+        };
+      });
+    },
+    () => {
+      // On completion, fetch full content
+      toast.success("Content generation completed!");
+      GetContentResumeAction(contentId, token!).then((result) => {
+        if (result.success && result.data) {
+          setContent(result.data);
         }
-      } catch (err) {
-        console.error("Error checking status:", err);
-      }
-    }, 3000);
+      });
+    },
+    (error) => {
+      // On failure
+      toast.error(error || "Content generation failed");
+    }
+  );
 
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
-  }, [content?.status, token, contentId]);
+  // Remove old polling effect - now using WebSocket
 
   const handleRefresh = async () => {
     if (!token) return;
