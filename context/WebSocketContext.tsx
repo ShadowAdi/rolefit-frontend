@@ -33,10 +33,12 @@ export const WebSocketProvider = ({ children, userId, token }: { children: React
         const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
         const wsUrl = `${protocol}//${window.location.host}/api/v1/ws/${userId}?token=${token}`;
 
+        console.log("[WS] Attempting connection to:", wsUrl);
+
         ws.current = new WebSocket(wsUrl);
 
         ws.current.onopen = () => {
-          console.log("[WS] Connected");
+          console.log("[WS] Connected successfully");
           setIsConnected(true);
           reconnectAttempts.current = 0;
           reconnectDelay.current = 1000;
@@ -46,7 +48,7 @@ export const WebSocketProvider = ({ children, userId, token }: { children: React
           try {
             const data = JSON.parse(event.data) as WebSocketEvent;
             if (data.type !== "pong") {
-              console.log("[WS] Event:", data);
+              console.log("[WS] Event received:", data);
               subscriptions.current.forEach((callback) => callback(data));
             }
           } catch (err) {
@@ -55,17 +57,25 @@ export const WebSocketProvider = ({ children, userId, token }: { children: React
         };
 
         ws.current.onerror = (error) => {
-          console.error("[WS] Error:", error);
+          console.error("[WS] WebSocket error:", {
+            readyState: ws.current?.readyState,
+            url: ws.current?.url,
+            error: error instanceof Event ? error.type : error,
+          });
           setIsConnected(false);
         };
 
-        ws.current.onclose = () => {
-          console.log("[WS] Disconnected");
+        ws.current.onclose = (event) => {
+          console.log("[WS] Connection closed:", {
+            code: event.code,
+            reason: event.reason,
+            wasClean: event.wasClean,
+          });
           setIsConnected(false);
           attemptReconnect();
         };
       } catch (err) {
-        console.error("[WS] Connection failed:", err);
+        console.error("[WS] Connection setup failed:", err);
         attemptReconnect();
       }
     };

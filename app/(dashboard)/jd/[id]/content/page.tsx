@@ -34,6 +34,14 @@ const JDContentPage = () => {
   const { subscribe } = useWebSocket();
   const jdId = params.id as string;
 
+  // Helper function to normalize document type
+  const getDocumentType = (content: any): "resume" | "cover_letter" => {
+    if (content.document_type) return content.document_type;
+    if (content.gen_doc_type === "Resume") return "resume";
+    if (content.gen_doc_type === "Cover-letter") return "cover_letter";
+    return "resume";
+  };
+
   const [jd, setJd] = useState<JobDescriptionResponse | null>(null);
   const [contents, setContents] = useState<GeneratedDocumentResponse[]>([]);
   const [isLoadingJD, setIsLoadingJD] = useState(true);
@@ -132,8 +140,8 @@ const JDContentPage = () => {
     return unsubscribe;
   }, [subscribe]);
 
-  const resumeCount = contents.filter((c) => c.document_type === "resume").length;
-  const coverLetterCount = contents.filter((c) => c.document_type === "cover_letter").length;
+  const resumeCount = contents.filter((c) => getDocumentType(c) === "resume").length;
+  const coverLetterCount = contents.filter((c) => getDocumentType(c) === "cover_letter").length;
 
   const canCreateResume = resumeCount < 3;
   const canCreateCoverLetter = coverLetterCount < 3;
@@ -340,17 +348,19 @@ const JDContentPage = () => {
                   className="bg-white rounded-lg border border-gray-200 p-4 flex items-center justify-between hover:border-gray-300 transition-colors"
                 >
                   <div className="flex items-center gap-4 flex-1">
-                    <div className={`p-3 rounded ${content.document_type === "resume" ? "bg-blue-100" : "bg-green-100"}`}>
-                      <FileText
-                        className={`w-5 h-5 ${
-                          content.document_type === "resume" ? "text-blue-600" : "text-green-600"
-                        }`}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 capitalize">
-                        {content.document_type === "resume" ? "Resume" : "Cover Letter"}
-                      </h3>
+                  <div className={`p-3 rounded ${
+                    getDocumentType(content) === "resume" ? "bg-blue-100" : "bg-green-100"
+                  }`}>
+                    <FileText
+                      className={`w-5 h-5 ${
+                        getDocumentType(content) === "resume" ? "text-blue-600" : "text-green-600"
+                      }`}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 capitalize">
+                      {getDocumentType(content) === "resume" ? "Resume" : "Cover Letter"}
+                    </h3>
                       <p className="text-sm text-gray-600">
                         Created: {new Date(content.created_at).toLocaleDateString()}
                       </p>
