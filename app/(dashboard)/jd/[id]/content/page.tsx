@@ -77,6 +77,7 @@ const JDContentPage = () => {
       try {
         setIsLoadingContents(true);
         const result = await GetAllContentsAction(jdId, token);
+        console.log("Results ",result)
 
         if (result.success && result.data) {
           setContents(result.data);
@@ -118,7 +119,6 @@ const JDContentPage = () => {
         setUserSpecifications("");
         setContentType(null);
         
-        // Refresh contents
         const contentsResult = await GetAllContentsAction(jdId, token!);
         if (contentsResult.success && Array.isArray(contentsResult.data)) {
           setContents(contentsResult.data);
@@ -342,7 +342,6 @@ const JDContentPage = () => {
         </div>
       </div>
 
-      {/* Create Content Modal */}
       {isCreateDialogOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="fixed inset-0 bg-black/50" onClick={() => setIsCreateDialogOpen(false)}></div>
@@ -401,7 +400,6 @@ const JDContentPage = () => {
         </div>
       )}
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

@@ -84,6 +84,9 @@ export const apiRequest = async <T>({
           });
 
     const apiResponse = response.data;
+    console.log("Api response ",apiResponse)
+    console.log("Api response success",apiResponse.success)
+    console.log("Api response data",apiResponse.data)
 
     if (apiResponse.success) {
       return {
