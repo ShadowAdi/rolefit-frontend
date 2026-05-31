@@ -446,7 +446,7 @@ const JDContentPage = () => {
                 >
                   Cancel
                 </Button>
-                <Button onClick={handleCreateContent} disabled={isCreating} className="bg-blue-500 hover:bg-blue-600 text-white">
+                <Button onClick={handleCreateContent} disabled={isCreating} className="bg-lime-500 hover:bg-lime-600 text-white">
                   {isCreating ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
