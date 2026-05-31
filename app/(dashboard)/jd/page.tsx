@@ -7,6 +7,15 @@ import { GetJDsAction, DeleteJDsAction } from "@/action/job-description/jd.actio
 import { JobDescriptionResponse } from "@/types/jobDescription.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Search, Plus, Briefcase, MapPin, DollarSign, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -19,6 +28,9 @@ const JDPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedJDId, setSelectedJDId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchJDs = async () => {
@@ -64,20 +76,24 @@ const JDPage = () => {
     setFilteredJds(filtered);
   }, [searchQuery, jds]);
 
-  const handleDeleteJD = async (jdId: string, e: React.MouseEvent) => {
+  const handleDeleteClick = (jdId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    setSelectedJDId(jdId);
+    setIsDeleteDialogOpen(true);
+  };
 
-    if (!confirm("Are you sure you want to delete this job description? This action cannot be undone.")) {
-      return;
-    }
+  const handleDeleteConfirm = async () => {
+    if (!selectedJDId) return;
 
     try {
-      setDeletingId(jdId);
-      const result = await DeleteJDsAction(jdId, token!);
+      setIsDeleting(true);
+      const result = await DeleteJDsAction(selectedJDId, token!);
 
       if (result.success) {
-        setJds(jds.filter((jd) => jd.id !== jdId));
+        setJds(jds.filter((jd) => jd.id !== selectedJDId));
         toast.success("Job description deleted successfully");
+        setIsDeleteDialogOpen(false);
+        setSelectedJDId(null);
       } else {
         toast.error(result.message || "Failed to delete job description");
       }
@@ -85,7 +101,7 @@ const JDPage = () => {
       const errorMsg = err instanceof Error ? err.message : "Failed to delete job description";
       toast.error(errorMsg);
     } finally {
-      setDeletingId(null);
+      setIsDeleting(false);
     }
   };
 
@@ -288,14 +304,9 @@ const JDPage = () => {
                       variant="ghost"
                       size="sm"
                       className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8"
-                      disabled={deletingId === jd.id}
-                      onClick={(e) => handleDeleteJD(jd.id!, e)}
+                      onClick={(e) => handleDeleteClick(jd.id!, e)}
                     >
-                      {deletingId === jd.id ? (
-                        <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <Trash2 className="w-4 h-4" />
-                      )}
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
@@ -303,7 +314,26 @@ const JDPage = () => {
             })}
           </div>
         )}
-      </div>
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Job Description</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this job description? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="flex gap-3 justify-end">
+              <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                disabled={isDeleting}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </AlertDialogAction>
+            </div>
+          </AlertDialogContent>
+        </AlertDialog>      </div>
     </div>
   );
 };

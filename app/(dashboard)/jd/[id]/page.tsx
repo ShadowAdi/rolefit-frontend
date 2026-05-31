@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ChevronLeft, MapPin, DollarSign, Calendar, ChevronDown, Trash2 } from "lucide-react";
+import { ChevronLeft, MapPin, DollarSign, Calendar, ChevronDown, Trash2, Edit, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 const JDDetailPage = () => {
@@ -128,14 +128,37 @@ const JDDetailPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-4xl mx-auto px-4">
-        <Button
-          variant="outline"
-          className="mb-8 gap-2"
-          onClick={() => router.push("/jd")}
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Back to Jobs
-        </Button>
+        {/* Top Action Bar */}
+        <div className="flex items-center justify-between mb-8">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push("/jd")}
+            className="hover:bg-gray-200"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push(`/jd/${jdId}/edit`)}
+              className="hover:bg-gray-200"
+            >
+              <Edit className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsDeleteDialogOpen(true)}
+              disabled={isDeleting}
+              className="hover:bg-red-100 hover:text-red-600"
+            >
+              <Trash2 className="w-5 h-5" />
+            </Button>
+          </div>
+        </div>
 
         {/* Main Card */}
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -290,53 +313,29 @@ const JDDetailPage = () => {
               </section>
             )}
           </div>
-
-          <div className="px-8 py-6 border-t border-gray-100 bg-gray-50 flex gap-3">
-            <Button
-              onClick={() => router.push("/jd")}
-              variant="outline"
-              className="flex-1 rounded-none"
-            >
-              Back to Jobs
-            </Button>
-            <Button
-              onClick={() => router.push(`/jd/${jdId}/edit`)}
-              className="flex-1 bg-lime-500 hover:bg-lime-600 text-white rounded-none"
-            >
-              Edit
-            </Button>
-            <Button
-              onClick={() => setIsDeleteDialogOpen(true)}
-              className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-none gap-2"
-              disabled={isDeleting}
-            >
-              <Trash2 className="w-4 h-4" />
-              Delete
-            </Button>
-          </div>
-
-          <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete Job Description</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete this job description? This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <div className="flex gap-3">
-                <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteConfirm}
-                  disabled={isDeleting}
-                  className="bg-red-600 hover:bg-red-700"
-                >
-                  {isDeleting ? "Deleting..." : "Delete"}
-                </AlertDialogAction>
-              </div>
-            </AlertDialogContent>
-          </AlertDialog>
         </div>
       </div>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Job Description</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this job description? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-3">
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
