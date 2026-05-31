@@ -3,10 +3,20 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { GetJDAction } from "@/action/job-description/jd.action";
+import { GetJDAction, DeleteJDsAction } from "@/action/job-description/jd.action";
 import { JobDescriptionResponse } from "@/types/jobDescription.types";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, MapPin, DollarSign, Calendar, ChevronDown } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { ChevronLeft, MapPin, DollarSign, Calendar, ChevronDown, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 const JDDetailPage = () => {
   const router = useRouter();
@@ -18,6 +28,8 @@ const JDDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRawJDOpen, setIsRawJDOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchJD = async () => {
@@ -44,6 +56,27 @@ const JDDetailPage = () => {
 
     fetchJD();
   }, [token, authLoading, jdId]);
+
+  const handleDeleteConfirm = async () => {
+    try {
+      setIsDeleting(true);
+      const result = await DeleteJDsAction(jdId, token!);
+
+      if (result.success) {
+        toast.success("Job description deleted successfully");
+        router.push("/jd");
+      } else {
+        toast.error(result.message || "Failed to delete job description");
+        setIsDeleteDialogOpen(false);
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "Failed to delete job description";
+      toast.error(errorMsg);
+      setIsDeleteDialogOpen(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (authLoading || isLoading) {
     return (
@@ -272,7 +305,36 @@ const JDDetailPage = () => {
             >
               Edit
             </Button>
+            <Button
+              onClick={() => setIsDeleteDialogOpen(true)}
+              className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-none gap-2"
+              disabled={isDeleting}
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete
+            </Button>
           </div>
+
+          <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Job Description</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete this job description? This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="flex gap-3">
+                <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteConfirm}
+                  disabled={isDeleting}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </AlertDialogAction>
+              </div>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </div>
