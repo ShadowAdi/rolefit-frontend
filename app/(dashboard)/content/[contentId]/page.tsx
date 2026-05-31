@@ -202,19 +202,15 @@ const handleGeneratePdf = async () => {
     setIsGeneratingPdf(true);
     toast.loading("Generating PDF...", { id: "pdf-generation" });
 
-    // Call the PDF generation API with the selected resume type
     const result = await DownloadResumePdfAction(contentId, token, selectedResumeType);
 
     if (result.success && result.data) {
-      // result.data should be a Blob
       const blob = result.data as Blob;
       
-      // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       
-      // Extract filename from Content-Disposition header if possible, or create one
       const filename = `${content.document_type}_${selectedResumeType}_${new Date().getTime()}.pdf`;
       link.download = filename;
       
@@ -222,7 +218,6 @@ const handleGeneratePdf = async () => {
       link.click();
       document.body.removeChild(link);
       
-      // Clean up
       window.URL.revokeObjectURL(url);
       
       toast.success("PDF generated successfully!", { id: "pdf-generation" });
@@ -406,11 +401,10 @@ const handleGeneratePdf = async () => {
                       </Select>
                     )}
                     
-                    {/* Generate PDF Button */}
                     <Button
                       onClick={handleGeneratePdf}
                       disabled={isGeneratingPdf}
-                      className="bg-blue-600 hover:bg-blue-700"
+                      className="bg-lime-600 hover:bg-lime-700"
                     >
                       <FileText className="w-4 h-4 mr-2" />
                       {isGeneratingPdf ? "Generating PDF..." : "Generate PDF"}
@@ -426,7 +420,6 @@ const handleGeneratePdf = async () => {
             </div>
           )}
 
-          {/* Footer Actions */}
           <div className="px-8 py-6 border-t border-gray-200 bg-gray-50 flex gap-2 justify-end">
             <Button variant="outline" onClick={() => router.back()}>
               Back
@@ -435,7 +428,6 @@ const handleGeneratePdf = async () => {
         </div>
       </div>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
