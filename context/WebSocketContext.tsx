@@ -29,13 +29,11 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
   const connectionAttempted = useRef(false);
 
   useEffect(() => {
-    // Wait for auth to load
     if (authLoading) {
       console.log("[WS] Auth still loading, waiting...");
       return;
     }
 
-    // Check if we have required credentials
     if (!user?.id || !token) {
       console.log("[WS] No credentials available", {
         hasUser: !!user,
@@ -45,7 +43,6 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
       return;
     }
 
-    // Don't attempt connection if already connected or attempting
     if (connectionAttempted.current && ws.current?.readyState === WebSocket.OPEN) {
       console.log("[WS] Already connected");
       return;
@@ -55,8 +52,7 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
 
     const connectWebSocket = () => {
       try {
-        // Use backend URL for WebSocket connection, not frontend URL
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const backendUrl = process.env.NEXT_PUBLIC_SERVER_API_URL || "http://localhost:8000";
         const protocol = backendUrl.startsWith("https") ? "wss:" : "ws:";
         const backendHost = backendUrl.replace("https://", "").replace("http://", "");
         const wsUrl = `${protocol}//${backendHost}/api/v1/websocket/ws/${user.id}?token=${token}`;
@@ -73,7 +69,7 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
         ws.current = new WebSocket(wsUrl);
 
         ws.current.onopen = () => {
-          console.log("[WS] ✅ Connection established");
+          console.log("[WS] Connection established");
           setIsConnected(true);
           reconnectAttempts.current = 0;
           reconnectDelay.current = 1000;
@@ -83,7 +79,7 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
           try {
             const data = JSON.parse(event.data) as WebSocketEvent;
             if (data.type !== "pong") {
-              console.log("[WS] 📨 Event received:", data.type, data.doc_id);
+              console.log("[WS] Event received:", data.type, data.doc_id);
               subscriptions.current.forEach((callback) => callback(data));
             }
           } catch (err) {
@@ -92,7 +88,7 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
         };
 
         ws.current.onerror = (error) => {
-          console.error("[WS] ❌ Connection error:", {
+          console.error("[WS] Connection error:", {
             readyState: ws.current?.readyState,
             readyStateText:
               ws.current?.readyState === 0
@@ -109,7 +105,7 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
         };
 
         ws.current.onclose = (event) => {
-          console.log("[WS] 📭 Connection closed:", {
+          console.log("[WS] Connection closed:", {
             code: event.code,
             codeText:
               event.code === 1000 ? "Normal closure" :
@@ -124,13 +120,10 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
             wasClean: event.wasClean,
           });
           
-          // 1000 = Normal closure, don't reconnect
-          // 1008 = Policy violation (auth failed)
-          // 1006 = Abnormal closure
           if (event.code === 1008) {
-            console.error("[WS] 🔐 Authentication failed (code 1008) - check your token and user ID");
+            console.error("[WS] Authentication failed (code 1008) - check your token and user ID");
             setIsConnected(false);
-            return; // Don't retry auth failures
+            return;
           }
 
           setIsConnected(false);
@@ -146,14 +139,14 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
       if (reconnectAttempts.current < maxReconnectAttempts) {
         reconnectAttempts.current += 1;
         console.log(
-          `[WS] 🔄 Reconnecting in ${reconnectDelay.current}ms (attempt ${reconnectAttempts.current}/${maxReconnectAttempts})`
+          `[WS] Reconnecting in ${reconnectDelay.current}ms (attempt ${reconnectAttempts.current}/${maxReconnectAttempts})`
         );
         setTimeout(() => {
           connectWebSocket();
         }, reconnectDelay.current);
         reconnectDelay.current = Math.min(reconnectDelay.current * 2, 10000);
       } else {
-        console.error("[WS] ❌ Max reconnection attempts reached. WebSocket connection failed.");
+        console.error("[WS] Max reconnection attempts reached. WebSocket connection failed.");
         console.error("[WS] Common solutions:");
         console.error("  1. Verify NEXT_PUBLIC_API_URL is set correctly");
         console.error("  2. Ensure backend server is running on the specified URL");
@@ -164,7 +157,6 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
 
     connectWebSocket();
 
-    // Ping heartbeat every 30 seconds
     const pingInterval = setInterval(() => {
       if (ws.current?.readyState === WebSocket.OPEN) {
         ws.current.send(JSON.stringify({ type: "ping" }));
