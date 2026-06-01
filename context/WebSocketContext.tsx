@@ -65,11 +65,15 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
           url: wsUrl.replace(token, "TOKEN_REDACTED"),
           userId: user.id,
           hasToken: !!token,
+          backendUrl,
+          protocol,
+          backendHost,
         });
 
         ws.current = new WebSocket(wsUrl);
 
         ws.current.onopen = () => {
+          console.log("[WS] ✅ Connection established");
           setIsConnected(true);
           reconnectAttempts.current = 0;
           reconnectDelay.current = 1000;
@@ -88,7 +92,7 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
         };
 
         ws.current.onerror = (error) => {
-          console.error("[WS] Connection error:", {
+          console.error("[WS] ❌ Connection error:", {
             readyState: ws.current?.readyState,
             readyStateText:
               ws.current?.readyState === 0
@@ -99,13 +103,23 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
                     ? "CLOSING"
                     : "CLOSED",
             error: error instanceof Event ? error.type : String(error),
+            url: wsUrl.replace(token, "TOKEN_REDACTED"),
           });
           setIsConnected(false);
         };
 
         ws.current.onclose = (event) => {
-          console.log("[WS] Connection closed:", {
+          console.log("[WS] 📭 Connection closed:", {
             code: event.code,
+            codeText:
+              event.code === 1000 ? "Normal closure" :
+              event.code === 1001 ? "Going away" :
+              event.code === 1002 ? "Protocol error" :
+              event.code === 1003 ? "Unsupported data" :
+              event.code === 1006 ? "Abnormal closure (usually auth/server issue)" :
+              event.code === 1008 ? "Policy violation (auth failed)" :
+              event.code === 1011 ? "Server error" :
+              "Unknown",
             reason: event.reason || "No reason provided",
             wasClean: event.wasClean,
           });
@@ -114,7 +128,7 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
           // 1008 = Policy violation (auth failed)
           // 1006 = Abnormal closure
           if (event.code === 1008) {
-            console.error("[WS]  Authentication failed (code 1008)");
+            console.error("[WS] 🔐 Authentication failed (code 1008) - check your token and user ID");
             setIsConnected(false);
             return; // Don't retry auth failures
           }
@@ -139,7 +153,12 @@ export const WebSocketProviderBase = ({ children }: { children: ReactNode }) => 
         }, reconnectDelay.current);
         reconnectDelay.current = Math.min(reconnectDelay.current * 2, 10000);
       } else {
-        console.error("[WS] Max reconnection attempts reached");
+        console.error("[WS] ❌ Max reconnection attempts reached. WebSocket connection failed.");
+        console.error("[WS] Common solutions:");
+        console.error("  1. Verify NEXT_PUBLIC_API_URL is set correctly");
+        console.error("  2. Ensure backend server is running on the specified URL");
+        console.error("  3. Check if WebSocket endpoint is properly registered");
+        console.error("  4. Verify authentication token is valid");
       }
     };
 
