@@ -123,7 +123,6 @@ const ProfilePage = () => {
     }
 
     if (token) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- standard data fetch on mount
       fetchProfile();
     }
   }, [token, authLoading, router, fetchProfile]);
@@ -165,7 +164,6 @@ const ProfilePage = () => {
             : "Profile updated successfully!",
         );
         
-        // If it's a new profile creation, redirect to onboarding wizard
         if (isNewProfile) {
           setTimeout(() => {
             router.push("/onboarding");
@@ -251,7 +249,9 @@ const ProfilePage = () => {
 
           {profile && !isEditing ? (
             <div className="space-y-6 mb-8">
-              <OnboardingBanner isOnboarded={!!profile.isOnboarded} />
+              {!profile.isOnboarded && (
+                <OnboardingBanner isOnboarded={!!profile.isOnboarded} />
+              )}
 
               <div className="bg-white/40 backdrop-blur-sm border border-white/60 rounded-lg p-5 space-y-4">
                 <div>
