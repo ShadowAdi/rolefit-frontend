@@ -150,11 +150,11 @@ export default function AllContentPage() {
   const getStatusBadgeStyle = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-100 text-green-800";
+        return "bg-emerald-100 text-emerald-800";
       case "processing":
         return "bg-blue-100 text-blue-800";
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-amber-100 text-amber-800";
       case "failed":
         return "bg-red-100 text-red-800";
       default:
@@ -194,42 +194,42 @@ export default function AllContentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-white py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-950 mb-2">
+        <div className="mb-10">
+          <h1 className="text-5xl font-bold text-gray-900 mb-3">
             Generated Content
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-lg">
             Manage all your AI-generated resumes and cover letters
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-sm text-gray-600 mb-1">Total Documents</div>
-            <div className="text-3xl font-bold text-gray-950">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-10">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="text-sm font-medium text-gray-600 mb-2">Total Documents</div>
+            <div className="text-4xl font-bold text-gray-900">
               {content.length}
             </div>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-sm text-gray-600 mb-1">Completed</div>
-            <div className="text-3xl font-bold text-green-600">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="text-sm font-medium text-gray-600 mb-2">Completed</div>
+            <div className="text-4xl font-bold text-lime-600">
               {content.filter((c) => getDocumentStatus(c) === "completed").length}
             </div>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-sm text-gray-600 mb-1">Processing</div>
-            <div className="text-3xl font-bold text-blue-600">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="text-sm font-medium text-gray-600 mb-2">Processing</div>
+            <div className="text-4xl font-bold text-blue-600">
               {content.filter((c) => getDocumentStatus(c) === "processing")
                 .length}
             </div>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-sm text-gray-600 mb-1">Pending/Failed</div>
-            <div className="text-3xl font-bold text-yellow-600">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="text-sm font-medium text-gray-600 mb-2">Pending/Failed</div>
+            <div className="text-4xl font-bold text-amber-600">
               {
                 content.filter(
                   (c) =>
@@ -241,31 +241,28 @@ export default function AllContentPage() {
           </div>
         </div>
 
-        {/* Filters and Search */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Filter className="w-5 h-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8 shadow-sm">
+          <div className="flex items-center gap-2 mb-6">
+            <Filter className="w-5 h-5 text-lime-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Filters & Search</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Search */}
             <div className="relative">
               <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
-                placeholder="Search by document ID..."
+                placeholder="Search documents..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 border-gray-200 focus:border-lime-400 focus:ring-lime-400"
               />
             </div>
 
-            {/* Type Filter */}
             <Select
               value={filterType}
               onValueChange={(value: any) => setFilterType(value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="border-gray-200 focus:border-lime-400 focus:ring-lime-400">
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
               <SelectContent>
@@ -275,12 +272,11 @@ export default function AllContentPage() {
               </SelectContent>
             </Select>
 
-            {/* Status Filter */}
             <Select
               value={filterStatus}
               onValueChange={(value: any) => setFilterStatus(value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="border-gray-200 focus:border-lime-400 focus:ring-lime-400">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
@@ -292,12 +288,11 @@ export default function AllContentPage() {
               </SelectContent>
             </Select>
 
-            {/* Sort */}
             <Select
               value={sortField}
               onValueChange={(value: any) => setSortField(value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="border-gray-200 focus:border-lime-400 focus:ring-lime-400">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -308,36 +303,33 @@ export default function AllContentPage() {
             </Select>
           </div>
 
-          {/* Results count */}
-          <div className="mt-4 text-sm text-gray-600">
-            Showing <span className="font-semibold">{filteredContent.length}</span> of{" "}
-            <span className="font-semibold">{content.length}</span> documents
+          <div className="mt-5 text-sm text-gray-600">
+            Showing <span className="font-semibold text-lime-700">{filteredContent.length}</span> of{" "}
+            <span className="font-semibold text-lime-700">{content.length}</span> documents
           </div>
         </div>
 
-        {/* Content List */}
         {isLoading ? (
-          <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-            <Loader className="w-12 h-12 text-blue-600 mx-auto mb-4 animate-spin" />
+          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center shadow-sm">
+            <Loader className="w-12 h-12 text-lime-600 mx-auto mb-4 animate-spin" />
             <p className="text-gray-600">Loading your content...</p>
           </div>
         ) : filteredContent.length === 0 ? (
-          <div className="bg-white rounded-lg border border-dashed border-gray-300 p-12 text-center">
+          <div className="bg-white rounded-xl border border-dashed border-gray-300 p-12 text-center shadow-sm">
             <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-600 mb-4">No content found</p>
+            <p className="text-gray-600 mb-6 text-lg">No content found</p>
             <Link href="/jd">
-              <Button className="bg-blue-600 hover:bg-blue-700">
+              <Button className="bg-lime-500 hover:bg-lime-600 text-white font-semibold px-6 py-2">
                 Create Your First Content
               </Button>
             </Link>
           </div>
         ) : (
-          <div className="space-y-4">
-            {/* Table Header */}
-            <div className="hidden md:grid grid-cols-5 gap-4 px-4 py-3 bg-gray-100 rounded-lg font-semibold text-sm text-gray-700">
+          <div className="space-y-3">
+            <div className="hidden md:grid grid-cols-4 gap-4 px-6 py-4 bg-gray-50 rounded-lg font-semibold text-sm text-gray-900 border border-gray-200">
               <button
                 onClick={() => handleToggleSort("created_at")}
-                className="flex items-center gap-2 hover:text-gray-900"
+                className="flex items-center gap-2 hover:text-lime-600"
               >
                 Date Created
                 {sortField === "created_at" && (
@@ -346,7 +338,7 @@ export default function AllContentPage() {
               </button>
               <button
                 onClick={() => handleToggleSort("document_type")}
-                className="flex items-center gap-2 hover:text-gray-900"
+                className="flex items-center gap-2 hover:text-lime-600"
               >
                 Type
                 {sortField === "document_type" && (
@@ -355,130 +347,106 @@ export default function AllContentPage() {
               </button>
               <button
                 onClick={() => handleToggleSort("status")}
-                className="flex items-center gap-2 hover:text-gray-900"
+                className="flex items-center gap-2 hover:text-lime-600"
               >
                 Status
                 {sortField === "status" && <ArrowUpDown className="w-4 h-4" />}
               </button>
-              <div className="col-span-1">ID</div>
               <div className="col-span-1 text-right">Actions</div>
             </div>
 
-            {/* Content Items */}
             {filteredContent.map((doc) => {
               const docType = getDocumentType(doc);
               const docStatus = getDocumentStatus(doc);
               return (
                 <div
                   key={doc.id}
-                  className="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-all hover:shadow-md overflow-hidden"
+                  className="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-all cursor-pointer overflow-hidden"
+                  onClick={() => router.push(`/content/${doc.id}`)}
                 >
-                  {/* Mobile View */}
-                  <div className="md:hidden p-4 space-y-3">
-                    <div className="flex items-start justify-between gap-2">
+                  <div className="md:hidden p-5 space-y-4">
+                    <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <FileText className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                        <FileText className="w-6 h-6 text-gray-600 shrink-0" />
                         <div className="min-w-0">
-                          <p className="font-medium text-gray-900 truncate">
-                            {docType === "Resume" ? "📄 Resume" : "📝 Cover Letter"}
+                          <p className="font-semibold text-gray-900 text-base">
+                            {docType === "Resume" ? "Resume" : "Cover Letter"}
                           </p>
-                          <p className="text-xs text-gray-600 truncate">
-                            ID: {doc.id.substring(0, 8)}...
+                          <p className="text-sm text-gray-500">
+                            {formatDate(doc.created_at)}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(docStatus)}
-                      </div>
+                      {getStatusIcon(docStatus)}
                     </div>
                     <div className="flex items-center justify-between">
-                      <div>
-                        <span
-                          className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeStyle(
-                            docStatus
-                          )}`}
-                        >
-                          {docStatus}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        {formatDate(doc.created_at)}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                        onClick={() => router.push(`/content/${doc.id}`)}
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadgeStyle(
+                          docStatus
+                        )}`}
                       >
-                        <Eye className="w-4 h-4 mr-2" />
-                        View
-                      </Button>
+                        {docStatus.charAt(0).toUpperCase() + docStatus.slice(1)}
+                      </span>
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1"
                         disabled={docStatus !== "completed"}
+                        className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
                       >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download
+                        <Download className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
 
-                  {/* Desktop View */}
-                  <div className="hidden md:grid grid-cols-5 gap-4 p-4 items-center">
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(docStatus)}
-                        <span className="text-sm text-gray-600">
-                          {formatDate(doc.created_at)}
-                        </span>
-                      </div>
+                  <div className="hidden md:grid grid-cols-4 gap-4 p-5 items-center transition-colors">
+                    <div className="flex items-center gap-3">
+                      {getStatusIcon(docStatus)}
+                      <span className="text-sm text-gray-700">
+                        {formatDate(doc.created_at)}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-900">
-                        {docType === "Resume" ? "📄 Resume" : "📝 Cover Letter"}
+                      <span className="text-sm font-semibold text-gray-900">
+                        {docType === "Resume" ? "Resume" : "Cover Letter"}
                       </span>
                     </div>
                     <div>
                       <span
-                        className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeStyle(
+                        className={`inline-block px-3 py-1.5 rounded-full text-xs font-semibold ${getStatusBadgeStyle(
                           docStatus
                         )}`}
                       >
-                        {docStatus}
+                        {docStatus.charAt(0).toUpperCase() + docStatus.slice(1)}
                       </span>
-                    </div>
-                    <div className="text-sm text-gray-600 truncate">
-                      {doc.id.substring(0, 20)}...
                     </div>
                     <div className="flex items-center justify-end gap-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => router.push(`/content/${doc.id}`)}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
                         disabled={docStatus !== "completed"}
+                        className="border-gray-300 text-gray-600 hover:bg-gray-50"
                         title={
                           docStatus !== "completed"
                             ? "Download available when completed"
                             : "Download document"
                         }
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
                       >
                         <Download className="w-4 h-4" />
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-red-600 hover:text-red-700"
+                        className="border-gray-300 text-gray-600 hover:bg-gray-50"
                         title="Delete document"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
