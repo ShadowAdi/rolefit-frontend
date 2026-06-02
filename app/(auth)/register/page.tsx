@@ -14,12 +14,14 @@ import {
   Mail,
   Lock,
   CheckCircle2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { registerUser } from "@/action/register/register.action";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const registerSchema = z.object({
   email: z.email("Please enter a valid email address"),
@@ -31,6 +33,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export default function RegisterPage() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -136,14 +139,27 @@ export default function RegisterPage() {
                 <Lock className="size-4 text-lime-600" />
                 Password
               </Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                {...register("password")}
-                aria-invalid={!!errors.password}
-                className="h-11 border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-400 focus:ring-lime-400/20 transition-colors"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  {...register("password")}
+                  aria-invalid={!!errors.password}
+                  className="h-11 border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-lime-400 focus:ring-lime-400/20 transition-colors pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                >
+                  {showPassword ? (
+                    <EyeOff className="size-4" />
+                  ) : (
+                    <Eye className="size-4" />
+                  )}
+                </button>
+              </div>
               {errors.password && (
                 <p className="text-xs font-medium text-red-600 flex items-center gap-1">
                   {errors.password.message}
