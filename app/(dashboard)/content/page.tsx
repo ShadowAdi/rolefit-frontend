@@ -196,49 +196,28 @@ export default function AllContentPage() {
   return (
     <div className="min-h-screen bg-white py-8">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Header */}
         <div className="mb-10">
           <h1 className="text-5xl font-bold text-gray-900 mb-3">
-            Generated Content
+            Your Documents
           </h1>
           <p className="text-gray-600 text-lg">
-            Manage all your AI-generated resumes and cover letters
+            View and manage all your AI-generated resumes and cover letters
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-10">
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="text-sm font-medium text-gray-600 mb-2">Total Documents</div>
-            <div className="text-4xl font-bold text-gray-900">
-              {content.length}
+        <div className="flex items-center gap-8 mb-10">
+            <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-gray-900">{content.length}</span>
+                <span className="text-gray-600">Documents</span>
             </div>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="text-sm font-medium text-gray-600 mb-2">Completed</div>
-            <div className="text-4xl font-bold text-lime-600">
-              {content.filter((c) => getDocumentStatus(c) === "completed").length}
+            <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-lime-600">{content.filter((c) => getDocumentStatus(c) === "completed").length}</span>
+                <span className="text-gray-600">Ready</span>
             </div>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="text-sm font-medium text-gray-600 mb-2">Processing</div>
-            <div className="text-4xl font-bold text-blue-600">
-              {content.filter((c) => getDocumentStatus(c) === "processing")
-                .length}
+            <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold text-blue-600">{content.filter((c) => getDocumentStatus(c) === "processing").length}</span>
+                <span className="text-gray-600">Processing</span>
             </div>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="text-sm font-medium text-gray-600 mb-2">Pending/Failed</div>
-            <div className="text-4xl font-bold text-amber-600">
-              {
-                content.filter(
-                  (c) =>
-                    getDocumentStatus(c) === "pending" ||
-                    getDocumentStatus(c) === "failed"
-                ).length
-              }
-            </div>
-          </div>
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8 shadow-sm">
