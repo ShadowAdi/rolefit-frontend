@@ -91,8 +91,15 @@ const OnboardingPage = () => {
       try {
         const result = await getProfile(token);
         if (result.success && result.data?.data) {
-          // Profile exists, redirect to profile page to view/complete it
-          router.push("/profile");
+          if (result.data.data.isOnboarded) {
+            // Already onboarded → nothing left to do, view the profile
+            router.push("/profile");
+          } else {
+            // Profile exists but onboarding isn't finished (e.g. just created,
+            // or recreated after a delete) → jump straight into the section
+            // steps instead of bouncing back to /profile.
+            setOnboardingMethod("manual");
+          }
         }
       } catch (err) {
         // No profile exists, allow method selection
