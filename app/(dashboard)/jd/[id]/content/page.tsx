@@ -34,7 +34,6 @@ const JDContentPage = () => {
   const { subscribe } = useWebSocket();
   const jdId = params.id as string;
 
-  // Helper function to normalize document type
   const getDocumentType = (content: any): "resume" | "cover_letter" => {
     if (content.document_type) return content.document_type;
     if (content.gen_doc_type === "Resume") return "resume";
