@@ -86,9 +86,10 @@ const ResumeExtractorStep = ({ onNext, onSkip }: ResumeExtractorStepProps) => {
         setExtractedCounts(data.counts);
         setStatus("success");
         toast.success("Resume extracted successfully!");
-        // Redirect to profile after 2 seconds to show the extracted data
+        // Let the parent finish onboarding (marks isOnboarded + redirects)
+        // after briefly showing the extracted counts.
         setTimeout(() => {
-          router.push("/profile");
+          onNext();
         }, 2000);
       }
     } catch (error) {

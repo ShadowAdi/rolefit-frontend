@@ -194,7 +194,10 @@ const ProfilePage = () => {
           toast.success("Delete Profile Successfull");
           clearOnboardingCompleted();
           setProfile(null);
-          setIsEditing(true);
+          // Send the user back to the onboarding method selection. At this
+          // point no profile exists, so the "Upload Resume" option is available
+          // again (resume extraction only works when there is no profile yet).
+          router.push("/onboarding");
         } else {
           toast.error(
             response.detail || response.message || "Failed to delete profile",
