@@ -58,7 +58,7 @@ export default function AllContentPage() {
         if (result.success && result.data) {
           setContent(result.data);
         } else {
-          toast.error(result.error?.message || "Failed to load content");
+          toast.error(result.errors?.[0].message || "Failed to load content");
         }
       } catch (err) {
         console.error("Error fetching content:", err);
