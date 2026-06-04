@@ -38,9 +38,9 @@ export default function AllContentPage() {
   const { token, isLoading: authLoading, user } = useAuth();
   const [content, setContent] = useState<GeneratedDocumentResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filterType, setFilterType] = useState<"all" | "Resume" | "Cover-letter">(
-    "all"
-  );
+  const [filterType, setFilterType] = useState<
+    "all" | "Resume" | "Cover-letter"
+  >("all");
   const [filterStatus, setFilterStatus] = useState<
     "all" | "pending" | "processing" | "completed" | "failed"
   >("all");
@@ -131,7 +131,7 @@ export default function AllContentPage() {
   };
 
   const getStatusBadgeColor = (
-    status: string
+    status: string,
   ): "default" | "success" | "warning" | "error" | "secondary" => {
     switch (status) {
       case "completed":
@@ -196,34 +196,55 @@ export default function AllContentPage() {
   return (
     <div className="min-h-screen bg-white py-8">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="mb-10">
-          <h1 className="text-5xl font-bold text-gray-900 mb-3">
-            Your Documents
-          </h1>
-          <p className="text-gray-600 text-lg">
-            View and manage all your AI-generated resumes and cover letters
-          </p>
+        <div className="flex flex-row items-center  justify-between space-x-10">
+          <div className="mb-10">
+            <h1 className="text-5xl font-bold text-gray-900 mb-3">
+              Your Documents
+            </h1>
+            <p className="text-gray-600 text-lg">
+              View and manage all your AI-generated resumes and cover letters
+            </p>
+          </div>
+          <Link href={"/content/add"}>
+            <Button className="bg-lime-500 hover:bg-lime-600 px-4 py-5 rounded-none text-base  cursor-pointer text-white">
+              Create Content
+            </Button>
+          </Link>
         </div>
 
         <div className="flex items-center gap-8 mb-10">
-            <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-gray-900">{content.length}</span>
-                <span className="text-gray-600">Documents</span>
-            </div>
-            <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-lime-600">{content.filter((c) => getDocumentStatus(c) === "completed").length}</span>
-                <span className="text-gray-600">Ready</span>
-            </div>
-            <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-blue-600">{content.filter((c) => getDocumentStatus(c) === "processing").length}</span>
-                <span className="text-gray-600">Processing</span>
-            </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-bold text-gray-900">
+              {content.length}
+            </span>
+            <span className="text-gray-600">Documents</span>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-bold text-lime-600">
+              {
+                content.filter((c) => getDocumentStatus(c) === "completed")
+                  .length
+              }
+            </span>
+            <span className="text-gray-600">Ready</span>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-bold text-blue-600">
+              {
+                content.filter((c) => getDocumentStatus(c) === "processing")
+                  .length
+              }
+            </span>
+            <span className="text-gray-600">Processing</span>
+          </div>
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8 shadow-sm">
           <div className="flex items-center gap-2 mb-6">
             <Filter className="w-5 h-5 text-lime-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Filters & Search</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Filters & Search
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -283,8 +304,15 @@ export default function AllContentPage() {
           </div>
 
           <div className="mt-5 text-sm text-gray-600">
-            Showing <span className="font-semibold text-lime-700">{filteredContent.length}</span> of{" "}
-            <span className="font-semibold text-lime-700">{content.length}</span> documents
+            Showing{" "}
+            <span className="font-semibold text-lime-700">
+              {filteredContent.length}
+            </span>{" "}
+            of{" "}
+            <span className="font-semibold text-lime-700">
+              {content.length}
+            </span>{" "}
+            documents
           </div>
         </div>
 
@@ -361,7 +389,7 @@ export default function AllContentPage() {
                     <div className="flex items-center justify-between">
                       <span
                         className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadgeStyle(
-                          docStatus
+                          docStatus,
                         )}`}
                       >
                         {docStatus.charAt(0).toUpperCase() + docStatus.slice(1)}
@@ -395,7 +423,7 @@ export default function AllContentPage() {
                     <div>
                       <span
                         className={`inline-block px-3 py-1.5 rounded-full text-xs font-semibold ${getStatusBadgeStyle(
-                          docStatus
+                          docStatus,
                         )}`}
                       >
                         {docStatus.charAt(0).toUpperCase() + docStatus.slice(1)}
