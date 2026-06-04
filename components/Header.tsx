@@ -41,11 +41,7 @@ export default function Header() {
                 Dashboard
               </Link>
             ) : null}
-            {isAuthLoading ? (
-              <div className="ml-1 sm:ml-2 px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-200 rounded-md animate-pulse shadow-sm">
-                Loading...
-              </div>
-            ) : isAuthenticated ? (
+            {isAuthLoading ? null : isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost">Hi, {user?.email}</Button>
@@ -65,6 +61,19 @@ export default function Header() {
                     <Link href={`/jd`}>
                       <DropdownMenuItem className="cursor-pointer">
                         Job Descriptions
+                      </DropdownMenuItem>
+                    </Link>
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <Link href={`/resume-download`}>
+                      <DropdownMenuItem className="cursor-pointer">
+                        Your Resumes
+                      </DropdownMenuItem>
+                    </Link>
+                    <Link href={`/cover-letter-download`}>
+                      <DropdownMenuItem className="cursor-pointer">
+                        Your Cover Letters
                       </DropdownMenuItem>
                     </Link>
                   </DropdownMenuGroup>
