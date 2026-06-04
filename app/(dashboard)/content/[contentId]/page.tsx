@@ -28,6 +28,8 @@ import {
 } from "@/components/ui/select";
 import {
   ChevronLeft,
+  ChevronDown,
+  ChevronUp,
   Download,
   Trash2,
   Copy,
@@ -59,6 +61,7 @@ const ContentDetailPage = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isContentExpanded, setIsContentExpanded] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string>("classic");
   const [templates, setTemplates] = useState<
     { id: string; name: string; description?: string }[]
@@ -504,14 +507,32 @@ const ContentDetailPage = () => {
             ) : content?.resume_text ||
               content?.cover_letter_text ||
               (content as any)?.content ? (
-              <div className="prose max-w-none">
-                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 whitespace-pre-wrap text-gray-800 leading-relaxed text-sm font-mono">
-                  {formatContentDisplay(
-                    content?.resume_text ||
-                      content?.cover_letter_text ||
-                      (content as any)?.content,
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={() => setIsContentExpanded((v) => !v)}
+                  className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                >
+                  {isContentExpanded ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
                   )}
-                </div>
+                  {isContentExpanded
+                    ? "Hide raw content"
+                    : "Show raw content (JSON)"}
+                </button>
+                {isContentExpanded && (
+                  <div className="prose max-w-none">
+                    <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 whitespace-pre-wrap text-gray-800 leading-relaxed text-sm font-mono max-h-[28rem] overflow-auto">
+                      {formatContentDisplay(
+                        content?.resume_text ||
+                          content?.cover_letter_text ||
+                          (content as any)?.content,
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
