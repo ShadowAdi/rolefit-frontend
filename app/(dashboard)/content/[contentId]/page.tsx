@@ -35,8 +35,14 @@ import {
   FileText,
 } from "lucide-react";
 import { toast } from "sonner";
-import { DownloadResumePdfAction } from "@/action/resume_pdf/resume_pdf.action";
-import { DownloadCoverLetterPdfAction } from "@/action/cover_letter_pdf/cover_letter_pdf.action";
+import {
+  DownloadResumePdfAction,
+  ListTemplates as ListResumeTemplates,
+} from "@/action/resume_pdf/resume_pdf.action";
+import {
+  DownloadCoverLetterPdfAction,
+  ListTemplates as ListCoverLetterTemplates,
+} from "@/action/cover_letter_pdf/cover_letter_pdf.action";
 
 const ContentDetailPage = () => {
   const router = useRouter();
@@ -47,22 +53,24 @@ const ContentDetailPage = () => {
   const [content, setContent] = useState<GeneratedDocumentResponse | null>(
     null,
   );
-  const [docType, setDocType] = useState<"resume" | "Cover-letter">("resume");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
-  const [selectedResumeType, setSelectedResumeType] =
-    useState<string>("classic");
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("classic");
+  const [templates, setTemplates] = useState<
+    { id: string; name: string; description?: string }[]
+  >([]);
 
-  const resumeTypes = [
-    { value: "classic", label: "Classic" },
-    { value: "minimalist", label: "Minimalist" },
-    { value: "bold", label: "Bold" },
-    { value: "two-column", label: "Two Column" },
-  ];
+  // Resolve the document type from `document_type` (optional) with a fallback
+  // to `gen_doc_type` ("Resume" / "Cover-letter"), which is always present.
+  const resolveIsResume = (doc: GeneratedDocumentResponse) =>
+    !(
+      doc.document_type === "Cover-letter" ||
+      doc.gen_doc_type === "Cover-letter"
+    );
 
   const formatContentDisplay = (rawText: string | null | undefined): string => {
     if (!rawText) return "";
@@ -94,9 +102,6 @@ const ContentDetailPage = () => {
                 : "pending"),
           };
           setContent(contentWithStatus);
-          if (result.data.document_type) {
-            setDocType(result.data.document_type);
-          }
         } else {
           setError(result.message || "Failed to fetch content");
         }
@@ -135,6 +140,47 @@ const ContentDetailPage = () => {
       toast.error(error || "Content generation failed");
     },
   );
+
+  // Load the available PDF templates once we know whether this is a resume or
+  // a cover letter (each has its own template set).
+  useEffect(() => {
+    const loadTemplates = async () => {
+      if (!token || !content) return;
+
+      const fallback = [
+        { id: "classic", name: "Classic", description: "Clean, single-column" },
+        {
+          id: "minimalist",
+          name: "Minimalist",
+          description: "Generous white space",
+        },
+        { id: "bold", name: "Bold", description: "Dark header, vivid accents" },
+      ];
+
+      try {
+        const res = resolveIsResume(content)
+          ? await ListResumeTemplates(token)
+          : await ListCoverLetterTemplates(token);
+
+        const list = (res as any)?.data?.templates;
+        const resolved =
+          Array.isArray(list) && list.length > 0 ? list : fallback;
+
+        setTemplates(resolved);
+        setSelectedTemplate((prev) =>
+          resolved.some((t: { id: string }) => t.id === prev)
+            ? prev
+            : resolved[0].id,
+        );
+      } catch {
+        setTemplates(fallback);
+      }
+    };
+
+    loadTemplates();
+    // Re-run only when the resolved document type changes, not on every content update.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, content ? resolveIsResume(content) : null]);
 
   const handleRefresh = async () => {
     if (!token) return;
@@ -213,28 +259,29 @@ const ContentDetailPage = () => {
       return;
     }
 
-    if (!content.resume_text) {
-      toast.error("No resume content to generate PDF from");
+    const isCoverLetter =
+      content.document_type === "Cover-letter" ||
+      content.gen_doc_type === "Cover-letter";
+
+    const documentText = isCoverLetter
+      ? content.cover_letter_text
+      : content.resume_text;
+
+    if (!documentText) {
+      toast.error(
+        isCoverLetter
+          ? "No cover letter content to generate PDF from"
+          : "No resume content to generate PDF from",
+      );
       return;
     }
 
     try {
       setIsGeneratingPdf(true);
       toast.loading("Generating PDF...", { id: "pdf-generation" });
-      let result;
-      if (docType === "resume") {
-        result = await DownloadResumePdfAction(
-          contentId,
-          token,
-          selectedResumeType,
-        );
-      } else {
-        result = await DownloadCoverLetterPdfAction(
-          contentId,
-          token,
-          selectedResumeType,
-        );
-      }
+      const result = isCoverLetter
+        ? await DownloadCoverLetterPdfAction(contentId, token, selectedTemplate)
+        : await DownloadResumePdfAction(contentId, token, selectedTemplate);
 
       if (result.success && result.data) {
         const blob = result.data as Blob;
@@ -243,7 +290,7 @@ const ContentDetailPage = () => {
         const link = document.createElement("a");
         link.href = url;
 
-        const filename = `${content.document_type}_${selectedResumeType}_${new Date().getTime()}.pdf`;
+        const filename = `${isCoverLetter ? "cover-letter" : "resume"}_${selectedTemplate}_${new Date().getTime()}.pdf`;
         link.download = filename;
 
         document.body.appendChild(link);
@@ -337,6 +384,13 @@ const ContentDetailPage = () => {
   const isFailed = content.status === "failed";
   const isReady = content.status === "completed";
 
+  // Resolve the document type robustly: `document_type` is optional, so fall
+  // back to `gen_doc_type` ("Resume" / "Cover-letter") which is always present.
+  const isResume = !(
+    content.document_type === "Cover-letter" ||
+    content.gen_doc_type === "Cover-letter"
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-4xl mx-auto px-4">
@@ -388,9 +442,7 @@ const ContentDetailPage = () => {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 capitalize">
-                  {content.document_type === "resume"
-                    ? "Resume"
-                    : "Cover Letter"}
+                  {isResume ? "Resume" : "Cover Letter"}
                 </h1>
                 <p className="text-sm text-gray-600">
                   Created: {new Date(content.created_at).toLocaleDateString()}{" "}
@@ -415,6 +467,17 @@ const ContentDetailPage = () => {
                     : "Failed"}
               </div>
             </div>
+
+            {content.user_specifications && (
+              <div className="mt-2 rounded-lg border border-gray-200 bg-white/70 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                  Your instructions
+                </p>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                  {content.user_specifications}
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="p-8">
@@ -422,11 +485,8 @@ const ContentDetailPage = () => {
               <div className="flex flex-col items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mb-4"></div>
                 <p className="text-gray-600">
-                  Your{" "}
-                  {content.document_type === "resume"
-                    ? "resume"
-                    : "cover letter"}{" "}
-                  is being generated...
+                  Your {isResume ? "resume" : "cover letter"} is being
+                  generated...
                 </p>
                 <p className="text-sm text-gray-500 mt-2">
                   This may take a few minutes
@@ -465,24 +525,21 @@ const ContentDetailPage = () => {
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                 <div className="flex-1">
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Generate PDF{" "}
-                    {content.document_type === "resume"
-                      ? "Resume"
-                      : "Cover Letter"}
+                    Generate PDF {isResume ? "Resume" : "Cover Letter"}
                   </label>
                   <div className="flex flex-col sm:flex-row gap-3">
-                    {content.document_type === "resume" && (
+                    {templates.length > 0 && (
                       <Select
-                        value={selectedResumeType}
-                        onValueChange={setSelectedResumeType}
+                        value={selectedTemplate}
+                        onValueChange={setSelectedTemplate}
                       >
                         <SelectTrigger className="w-[180px]">
                           <SelectValue placeholder="Select template" />
                         </SelectTrigger>
                         <SelectContent>
-                          {resumeTypes.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>
-                              {type.label}
+                          {templates.map((type) => (
+                            <SelectItem key={type.id} value={type.id}>
+                              {type.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -499,9 +556,9 @@ const ContentDetailPage = () => {
                     </Button>
                   </div>
                   <p className="text-xs text-gray-500 mt-2">
-                    {content.document_type === "resume"
+                    {isResume
                       ? "Choose a template style for your resume PDF"
-                      : "Generate a professional PDF version of your cover letter"}
+                      : "Choose a template style for your cover letter PDF"}
                   </p>
                 </div>
               </div>
