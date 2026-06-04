@@ -298,12 +298,11 @@ const JDDetailPage = () => {
               </section>
             )}
 
-            {/* Full Job Description - Collapsible */}
             {jd.raw_jd && (
               <section>
                 <button
                   onClick={() => setIsRawJDOpen(!isRawJDOpen)}
-                  className="w-full flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="w-full flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
                 >
                   <h2 className="text-lg font-semibold text-gray-900">Full Job Description</h2>
                   <ChevronDown

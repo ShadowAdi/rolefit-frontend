@@ -195,6 +195,10 @@ const ProfilePage = () => {
           clearOnboardingCompleted();
           setProfile(null);
           setIsEditing(true);
+        } else {
+          toast.error(
+            response.detail || response.message || "Failed to delete profile",
+          );
         }
       } else {
         toast.error(`Profile do not exist`);
