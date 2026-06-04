@@ -26,6 +26,8 @@ import {
   CheckCircle2,
   Loader,
   ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -163,13 +165,18 @@ export default function AllContentPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const d = new Date(dateString);
+    return {
+      date: d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }),
+      time: d.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
   };
 
   const handleToggleSort = (field: SortField) => {
@@ -178,6 +185,51 @@ export default function AllContentPage() {
     } else {
       setSortField(field);
       setSortOrder("desc");
+    }
+  };
+
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field)
+      return <ArrowUpDown className="w-3.5 h-3.5 text-gray-300" />;
+    return sortOrder === "asc" ? (
+      <ArrowUp className="w-3.5 h-3.5 text-lime-600" />
+    ) : (
+      <ArrowDown className="w-3.5 h-3.5 text-lime-600" />
+    );
+  };
+
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case "completed":
+        return {
+          icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+          style: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+          dot: "bg-emerald-500",
+        };
+      case "processing":
+        return {
+          icon: <Loader className="w-3.5 h-3.5 animate-spin" />,
+          style: "bg-blue-50 text-blue-700 border border-blue-200",
+          dot: "bg-blue-500",
+        };
+      case "pending":
+        return {
+          icon: <Clock className="w-3.5 h-3.5" />,
+          style: "bg-amber-50 text-amber-700 border border-amber-200",
+          dot: "bg-amber-400",
+        };
+      case "failed":
+        return {
+          icon: <AlertCircle className="w-3.5 h-3.5" />,
+          style: "bg-red-50 text-red-700 border border-red-200",
+          dot: "bg-red-500",
+        };
+      default:
+        return {
+          icon: <FileText className="w-3.5 h-3.5" />,
+          style: "bg-gray-50 text-gray-600 border border-gray-200",
+          dot: "bg-gray-400",
+        };
     }
   };
 
@@ -239,45 +291,41 @@ export default function AllContentPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8 shadow-sm">
-          <div className="flex items-center gap-2 mb-6">
-            <Filter className="w-5 h-5 text-lime-600" />
-            <h2 className="text-lg font-semibold text-gray-900">
-              Filters & Search
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="relative">
-              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <div className="bg-white border border-gray-200 rounded-lg p-4 mb-5">
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Search */}
+            <div className="relative flex-1 min-w-0">
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
               <Input
                 placeholder="Search documents..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-gray-200 focus:border-lime-400 focus:ring-lime-400"
+                className="pl-9 h-9 text-sm border-gray-200 focus:border-lime-400 focus:ring-lime-400 rounded-md"
               />
             </div>
 
+            {/* Type filter */}
             <Select
               value={filterType}
-              onValueChange={(value: any) => setFilterType(value)}
+              onValueChange={(v: any) => setFilterType(v)}
             >
-              <SelectTrigger className="border-gray-200 focus:border-lime-400 focus:ring-lime-400">
-                <SelectValue placeholder="Filter by type" />
+              <SelectTrigger className="h-9 text-sm border-gray-200 w-full sm:w-36 rounded-md">
+                <SelectValue placeholder="Type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="Resume">Resumes</SelectItem>
-                <SelectItem value="Cover-letter">Cover Letters</SelectItem>
+                <SelectItem value="Resume">Resume</SelectItem>
+                <SelectItem value="Cover-letter">Cover Letter</SelectItem>
               </SelectContent>
             </Select>
 
+            {/* Status filter */}
             <Select
               value={filterStatus}
-              onValueChange={(value: any) => setFilterStatus(value)}
+              onValueChange={(v: any) => setFilterStatus(v)}
             >
-              <SelectTrigger className="border-gray-200 focus:border-lime-400 focus:ring-lime-400">
-                <SelectValue placeholder="Filter by status" />
+              <SelectTrigger className="h-9 text-sm border-gray-200 w-full sm:w-36 rounded-md">
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
@@ -288,180 +336,185 @@ export default function AllContentPage() {
               </SelectContent>
             </Select>
 
+            {/* Sort */}
             <Select
               value={sortField}
-              onValueChange={(value: any) => setSortField(value)}
+              onValueChange={(v: any) => setSortField(v)}
             >
-              <SelectTrigger className="border-gray-200 focus:border-lime-400 focus:ring-lime-400">
+              <SelectTrigger className="h-9 text-sm border-gray-200 w-full sm:w-36 rounded-md">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="created_at">Date Created</SelectItem>
-                <SelectItem value="document_type">Document Type</SelectItem>
+                <SelectItem value="document_type">Type</SelectItem>
                 <SelectItem value="status">Status</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div className="mt-5 text-sm text-gray-600">
+          <p className="text-xs text-gray-400 mt-3">
             Showing{" "}
-            <span className="font-semibold text-lime-700">
+            <span className="font-semibold text-gray-700">
               {filteredContent.length}
             </span>{" "}
             of{" "}
-            <span className="font-semibold text-lime-700">
+            <span className="font-semibold text-gray-700">
               {content.length}
             </span>{" "}
             documents
-          </div>
+          </p>
         </div>
 
+        {/* Table */}
         {isLoading ? (
-          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center shadow-sm">
-            <Loader className="w-12 h-12 text-lime-600 mx-auto mb-4 animate-spin" />
-            <p className="text-gray-600">Loading your content...</p>
+          <div className="bg-white border border-gray-200 rounded-lg p-16 text-center">
+            <Loader className="w-8 h-8 text-lime-500 mx-auto mb-3 animate-spin" />
+            <p className="text-sm text-gray-500">Loading your documents...</p>
           </div>
         ) : filteredContent.length === 0 ? (
-          <div className="bg-white rounded-xl border border-dashed border-gray-300 p-12 text-center shadow-sm">
-            <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-600 mb-6 text-lg">No content found</p>
-            <Link href="/jd">
-              <Button className="bg-lime-500 hover:bg-lime-600 text-white font-semibold px-6 py-2">
-                Create Your First Content
-              </Button>
-            </Link>
+          <div className="bg-white border border-dashed border-gray-300 rounded-lg p-16 text-center">
+            <FileText className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+            <p className="text-sm font-medium text-gray-600 mb-1">
+              No documents found
+            </p>
+            <p className="text-xs text-gray-400 mb-5">
+              {searchQuery || filterType !== "all" || filterStatus !== "all"
+                ? "Try adjusting your filters"
+                : "Create your first resume or cover letter to get started"}
+            </p>
+            {!searchQuery && filterType === "all" && filterStatus === "all" && (
+              <Link href="/content/add">
+                <Button className="bg-lime-500 hover:bg-lime-600 text-white text-sm rounded-none">
+                  Create Content
+                </Button>
+              </Link>
+            )}
           </div>
         ) : (
-          <div className="space-y-3">
-            <div className="hidden md:grid grid-cols-4 gap-4 px-6 py-4 bg-gray-50 rounded-lg font-semibold text-sm text-gray-900 border border-gray-200">
-              <button
-                onClick={() => handleToggleSort("created_at")}
-                className="flex items-center gap-2 hover:text-lime-600"
-              >
-                Date Created
-                {sortField === "created_at" && (
-                  <ArrowUpDown className="w-4 h-4" />
-                )}
-              </button>
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            {/* Table header */}
+            <div className="grid grid-cols-12 gap-4 px-5 py-3 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
               <button
                 onClick={() => handleToggleSort("document_type")}
-                className="flex items-center gap-2 hover:text-lime-600"
+                className="col-span-3 flex items-center gap-1.5 hover:text-gray-800 transition-colors text-left"
               >
-                Type
-                {sortField === "document_type" && (
-                  <ArrowUpDown className="w-4 h-4" />
-                )}
+                Type <SortIcon field="document_type" />
               </button>
               <button
                 onClick={() => handleToggleSort("status")}
-                className="flex items-center gap-2 hover:text-lime-600"
+                className="col-span-2 flex items-center gap-1.5 hover:text-gray-800 transition-colors text-left"
               >
-                Status
-                {sortField === "status" && <ArrowUpDown className="w-4 h-4" />}
+                Status <SortIcon field="status" />
               </button>
-              <div className="col-span-1 text-right">Actions</div>
+              <div className="col-span-2 text-gray-500">Specs</div>
+              <button
+                onClick={() => handleToggleSort("created_at")}
+                className="col-span-3 flex items-center gap-1.5 hover:text-gray-800 transition-colors text-left"
+              >
+                Created <SortIcon field="created_at" />
+              </button>
+              <div className="col-span-2 text-right">Actions</div>
             </div>
 
-            {filteredContent.map((doc) => {
-              const docType = getDocumentType(doc);
-              const docStatus = getDocumentStatus(doc);
-              return (
-                <div
-                  key={doc.id}
-                  className="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-all cursor-pointer overflow-hidden"
-                  onClick={() => router.push(`/content/${doc.id}`)}
-                >
-                  <div className="md:hidden p-5 space-y-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <FileText className="w-6 h-6 text-gray-600 shrink-0" />
-                        <div className="min-w-0">
-                          <p className="font-semibold text-gray-900 text-base">
-                            {docType === "Resume" ? "Resume" : "Cover Letter"}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {formatDate(doc.created_at)}
-                          </p>
-                        </div>
-                      </div>
-                      {getStatusIcon(docStatus)}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadgeStyle(
-                          docStatus,
-                        )}`}
-                      >
-                        {docStatus.charAt(0).toUpperCase() + docStatus.slice(1)}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={docStatus !== "completed"}
-                        className="border-gray-300 text-gray-600 hover:bg-gray-50"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                      >
-                        <Download className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
+            <div className="divide-y divide-gray-100">
+              {filteredContent.map((doc) => {
+                const docType = getDocumentType(doc);
+                const docStatus = getDocumentStatus(doc);
+                const statusConfig = getStatusConfig(docStatus);
+                const { date, time } = formatDate(doc.created_at);
+                const isResume = docType === "Resume";
 
-                  <div className="hidden md:grid grid-cols-4 gap-4 p-5 items-center transition-colors">
-                    <div className="flex items-center gap-3">
-                      {getStatusIcon(docStatus)}
-                      <span className="text-sm text-gray-700">
-                        {formatDate(doc.created_at)}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-gray-900">
-                        {docType === "Resume" ? "Resume" : "Cover Letter"}
-                      </span>
-                    </div>
-                    <div>
-                      <span
-                        className={`inline-block px-3 py-1.5 rounded-full text-xs font-semibold ${getStatusBadgeStyle(
-                          docStatus,
-                        )}`}
+                return (
+                  <div
+                    key={doc.id}
+                    className="grid grid-cols-12 gap-4 px-5 py-4 items-center hover:bg-gray-50 transition-colors cursor-pointer group"
+                    onClick={() => router.push(`/content/${doc.id}`)}
+                  >
+                    <div className="col-span-3 flex items-center gap-3 min-w-0">
+                      <div
+                        className={`p-2 rounded ${isResume ? "bg-blue-50" : "bg-lime-50"} flex-shrink-0`}
                       >
+                        <FileText
+                          className={`w-4 h-4 ${isResume ? "text-blue-500" : "text-lime-600"}`}
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {isResume ? "Resume" : "Cover Letter"}
+                        </p>
+                        <p className="text-xs text-gray-400 truncate font-mono">
+                          #{doc.id.slice(0, 8)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="col-span-2">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig.style}`}
+                      >
+                        {statusConfig.icon}
                         {docStatus.charAt(0).toUpperCase() + docStatus.slice(1)}
                       </span>
                     </div>
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
+
+                    <div className="col-span-2">
+                      {doc.user_specifications ? (
+                        <span
+                          className="text-xs text-gray-500 line-clamp-1 truncate block max-w-[120px]"
+                          title={doc.user_specifications}
+                        >
+                          {doc.user_specifications}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-300">—</span>
+                      )}
+                    </div>
+
+                    <div className="col-span-3">
+                      <p className="text-sm text-gray-700">{date}</p>
+                      <p className="text-xs text-gray-400">{time}</p>
+                    </div>
+
+                    <div
+                      className="col-span-2 flex items-center justify-end gap-1"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        onClick={() => router.push(`/content/${doc.id}`)}
+                        className="p-1.5 rounded hover:bg-blue-50 hover:text-blue-600 text-gray-400 transition-colors"
+                        title="View"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button
                         disabled={docStatus !== "completed"}
-                        className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                        className="p-1.5 rounded hover:bg-lime-50 hover:text-lime-600 text-gray-400 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                         title={
                           docStatus !== "completed"
-                            ? "Download available when completed"
-                            : "Download document"
+                            ? "Available when completed"
+                            : "Download"
                         }
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
                       >
                         <Download className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-gray-300 text-gray-600 hover:bg-gray-50"
-                        title="Delete document"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
+                      </button>
+                      <button
+                        className="p-1.5 rounded hover:bg-red-50 hover:text-red-500 text-gray-400 transition-colors"
+                        title="Delete"
                       >
                         <Trash2 className="w-4 h-4" />
-                      </Button>
+                      </button>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+
+            <div className="px-5 py-3 bg-gray-50 border-t border-gray-200">
+              <p className="text-xs text-gray-400">
+                {filteredContent.length} document
+                {filteredContent.length !== 1 ? "s" : ""}
+              </p>
+            </div>
           </div>
         )}
       </div>
