@@ -17,3 +17,4 @@ export * from "./coverLetter.types";
 export * from "./resumeExtractor.types";
 export * from "./websocket.types";
 export * from "./health.types";
+export * from "./dashboard.types";
