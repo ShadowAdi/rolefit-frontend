@@ -33,13 +33,6 @@ export default function Header() {
               <div className="ml-1 sm:ml-2 px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-200 rounded-md animate-pulse shadow-sm">
                 Loading...
               </div>
-            ) : isAuthenticated ? (
-              <Link
-                href="/dashboard"
-                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-100 rounded-md transition-colors"
-              >
-                Dashboard
-              </Link>
             ) : null}
             {isAuthLoading ? null : isAuthenticated ? (
               <DropdownMenu>
@@ -58,14 +51,19 @@ export default function Header() {
                         Content
                       </DropdownMenuItem>
                     </Link>
-                    <Link href={`/jd`}>
+                    <Link href={`dashboard`}>
                       <DropdownMenuItem className="cursor-pointer">
-                        Job Descriptions
+                        Dashboard
                       </DropdownMenuItem>
                     </Link>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
+                    <Link href={`/jd`}>
+                      <DropdownMenuItem className="cursor-pointer">
+                        Job Descriptions
+                      </DropdownMenuItem>
+                    </Link>
                     <Link href={`/resume-download`}>
                       <DropdownMenuItem className="cursor-pointer">
                         Your Resumes
