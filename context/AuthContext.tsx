@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthContextType, UserAuthenticatedResponse } from '@/types/auth';
+import { redirect } from 'next/navigation';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -39,6 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     localStorage.removeItem('authToken');
     localStorage.removeItem('auth_user');
+    redirect("/")
   };
 
   const value: AuthContextType = {
