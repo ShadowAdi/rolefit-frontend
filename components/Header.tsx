@@ -29,12 +29,18 @@ export default function Header() {
             </Link>
           </div>
           <nav className="flex items-center gap-1 sm:gap-2">
-            <Link
-              href="/"
-              className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-100 rounded-md transition-colors"
-            >
-              Home
-            </Link>
+            {isAuthLoading ? (
+              <div className="ml-1 sm:ml-2 px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-200 rounded-md animate-pulse shadow-sm">
+                Loading...
+              </div>
+            ) : isAuthenticated ? (
+              <Link
+                href="/dashboard"
+                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-100 rounded-md transition-colors"
+              >
+                Dashboard
+              </Link>
+            ) : null}
             {isAuthLoading ? (
               <div className="ml-1 sm:ml-2 px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-200 rounded-md animate-pulse shadow-sm">
                 Loading...
@@ -51,9 +57,9 @@ export default function Header() {
                         Profile
                       </DropdownMenuItem>
                     </Link>
-                    <Link href={`/dashboard`}>
+                    <Link href={`/content`}>
                       <DropdownMenuItem className="cursor-pointer">
-                        Dashboard
+                        Content
                       </DropdownMenuItem>
                     </Link>
                     <Link href={`/jd`}>
