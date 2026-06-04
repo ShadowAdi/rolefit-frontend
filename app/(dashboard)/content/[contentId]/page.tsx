@@ -206,7 +206,6 @@ const ContentDetailPage = () => {
       return;
     }
 
-    // Check if content is ready
     if (content.status !== "completed") {
       toast.error(
         "Content is not ready yet. Please wait for generation to complete.",
@@ -461,7 +460,6 @@ const ContentDetailPage = () => {
             )}
           </div>
 
-          {/* PDF Generation Section - Only show for completed content */}
           {isReady && (
             <div className="px-8 py-6 border-t border-gray-200 bg-gray-50">
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
