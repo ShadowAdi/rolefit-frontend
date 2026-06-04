@@ -46,7 +46,7 @@ export interface GeneratedDocumentResponse {
   updated_at: ISODateTime;
   status?: "pending" | "processing" | "completed" | "failed";
   content?: string;
-  document_type?: "resume" | "cover_letter";
+  document_type?: "resume" | "Cover-letter";
 }
 
 export interface GeneratedDocumentDeleteResponse {

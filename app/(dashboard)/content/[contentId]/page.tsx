@@ -47,7 +47,7 @@ const ContentDetailPage = () => {
   const [content, setContent] = useState<GeneratedDocumentResponse | null>(
     null,
   );
-  const [docType, setDocType] = useState<"resume" | "cover_letter">("resume");
+  const [docType, setDocType] = useState<"resume" | "Cover-letter">("resume");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);

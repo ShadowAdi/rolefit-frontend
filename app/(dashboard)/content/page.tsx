@@ -248,7 +248,7 @@ export default function AllContentPage() {
   return (
     <div className="min-h-screen bg-white py-8">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex flex-row items-center  justify-between space-x-10">
+        <div className="flex flex-col mb-4 sm:mb-0 items-start sm:flex-row sm:items-center  justify-between space-10">
           <div className="mb-10">
             <h1 className="text-5xl font-bold text-gray-900 mb-3">
               Your Documents
