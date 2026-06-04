@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { DownloadCoverLetterPdfAction } from "@/action/cover_letter_pdf/cover_letter_pdf.action";
+import { usePdfGenerationStatus } from "@/hooks/usePdfGenerationStatus";
 
 interface Template {
   id: string;
@@ -88,6 +89,16 @@ export default function CoverLetterDownloadPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<string>("classic");
   const [isDownloading, setIsDownloading] = useState(false);
+
+  // Live PDF generation status for the cover letter currently being downloaded
+  usePdfGenerationStatus(isDownloading ? selectedId : null, {
+    onProcessing: (event) =>
+      toast.loading(event.message || "Generating PDF…", { id: "pdf" }),
+    onCompleted: () =>
+      toast.success("Cover letter PDF generated", { id: "pdf" }),
+    onFailed: (error) =>
+      toast.error(error || "Cover letter PDF generation failed", { id: "pdf" }),
+  });
 
   useEffect(() => {
     const load = async () => {

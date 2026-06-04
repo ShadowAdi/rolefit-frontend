@@ -21,6 +21,7 @@ import {
   Check,
 } from "lucide-react";
 import { toast } from "sonner";
+import { usePdfGenerationStatus } from "@/hooks/usePdfGenerationStatus";
 
 
 interface Template {
@@ -79,6 +80,16 @@ export default function ResumeDownloadPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<string>("classic");
   const [isDownloading, setIsDownloading] = useState(false);
+
+  // Live PDF generation status for the resume currently being downloaded
+  usePdfGenerationStatus(isDownloading ? selectedId : null, {
+    onProcessing: (event) =>
+      toast.loading(event.message || "Generating PDF…", { id: "pdf" }),
+    onCompleted: () =>
+      toast.success("Resume PDF generated", { id: "pdf" }),
+    onFailed: (error) =>
+      toast.error(error || "Resume PDF generation failed", { id: "pdf" }),
+  });
 
   useEffect(() => {
     const load = async () => {
