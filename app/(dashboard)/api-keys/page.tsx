@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { ApiKeyCard } from "@/components/api-keys/ApiKeyCard";
@@ -34,7 +34,7 @@ export default function ApiKeysPage() {
 
   const router = useRouter();
 
-  const fetchApiKeys = async () => {
+   const fetchApiKeys = useCallback(async () => {
     if (!token) return;
 
     setLoading(true);
@@ -56,7 +56,7 @@ export default function ApiKeysPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     if (!authLoading && !token) {
