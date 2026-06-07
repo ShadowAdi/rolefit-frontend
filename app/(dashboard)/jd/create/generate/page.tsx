@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, ChevronLeft, CheckCircle, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { ApiKeySelector } from "@/components/global/ApiKeySelector";
+import { ApiKeyCombobox } from "@/components/global/ApiKeySelector";
 
+const MAX_JD_LENGTH = 8000;
 const GenerateJDPage = () => {
   const router = useRouter();
   const { token, isLoading: authLoading } = useAuth();
@@ -17,8 +18,7 @@ const GenerateJDPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-    const [selectedApiKeyId, setSelectedApiKeyId] = useState<string>("");
-
+  const [selectedApiKeyId, setSelectedApiKeyId] = useState<string>("");
 
   if (authLoading) {
     return (
@@ -54,6 +54,12 @@ const GenerateJDPage = () => {
         return;
       }
 
+      if (rawJD.length > MAX_JD_LENGTH) {
+        toast.error(
+          `Job description exceeds ${MAX_JD_LENGTH.toLocaleString()} characters limit`,
+        );
+        return;
+      }
 
       setIsLoading(true);
       setError(null);
@@ -71,7 +77,8 @@ const GenerateJDPage = () => {
         toast.error(result.message || "Failed to generate job description");
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "An unexpected error occurred";
+      const errorMsg =
+        err instanceof Error ? err.message : "An unexpected error occurred";
       setError(errorMsg);
       toast.error(errorMsg);
     } finally {
@@ -79,10 +86,13 @@ const GenerateJDPage = () => {
     }
   };
 
+  const characterCount = rawJD.length;
+  const isOverLimit = characterCount > MAX_JD_LENGTH;
+  const remainingChars = MAX_JD_LENGTH - characterCount;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-12">
-        {/* Header */}
         <div className="mb-8">
           <Button
             variant="outline"
@@ -97,11 +107,11 @@ const GenerateJDPage = () => {
             Generate Job Description
           </h1>
           <p className="text-lg text-gray-600">
-            Paste a job description and we'll automatically extract all the key information
+            Paste a job description and we'll automatically extract all the key
+            information
           </p>
         </div>
 
-        {/* Form */}
         <div className="bg-white rounded-xl border border-gray-200 p-8">
           {success ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -110,12 +120,12 @@ const GenerateJDPage = () => {
                 Job Description Generated!
               </h2>
               <p className="text-gray-600 mb-6">
-                Your job description has been successfully created. Redirecting...
+                Your job description has been successfully created.
+                Redirecting...
               </p>
             </div>
           ) : (
             <div className="space-y-6">
-              {/* Error State */}
               {error && (
                 <div className="flex items-start gap-3 p-4 rounded-lg bg-red-50 border border-red-200">
                   <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
@@ -126,7 +136,7 @@ const GenerateJDPage = () => {
                 </div>
               )}
 
-               <ApiKeySelector
+              <ApiKeyCombobox
                 onApiKeySelect={setSelectedApiKeyId}
                 selectedApiKeyId={selectedApiKeyId}
                 required={true}
@@ -138,33 +148,63 @@ const GenerateJDPage = () => {
                   Job Description Text
                 </label>
                 <p className="text-sm text-gray-600">
-                  Paste the complete job description from LinkedIn, company website, or any job board
+                  Paste the complete job description from LinkedIn, company
+                  website, or any job board
                 </p>
                 <Textarea
                   placeholder="Paste job description here... e.g., 'Senior Full-Stack Developer at TechCorp. We are looking for a skilled developer with 5+ years experience in React, Node.js, and PostgreSQL...'"
                   value={rawJD}
-                  onChange={(e) => setRawJD(e.target.value)}
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    if (newValue.length <= MAX_JD_LENGTH) {
+                      setRawJD(newValue);
+                    }
+                  }}
                   disabled={isLoading}
                   className="min-h-96 text-base resize-vertical"
                 />
-                <p className="text-xs text-gray-500">
-                  Minimum length: 50 characters | Current: {rawJD.length} characters
-                </p>
+                <div className="flex justify-between items-center">
+                  <p className="text-xs text-gray-500">
+                    Minimum length: 50 characters
+                  </p>
+                  <p
+                    className={`text-xs font-medium ${isOverLimit ? "text-red-600" : characterCount > 7000 ? "text-yellow-600" : "text-gray-500"}`}
+                  >
+                    {characterCount.toLocaleString()} /{" "}
+                    {MAX_JD_LENGTH.toLocaleString()} characters
+                    {isOverLimit && (
+                      <span className="text-red-600 ml-1">
+                        (Over limit by {Math.abs(remainingChars)}!)
+                      </span>
+                    )}
+                    {!isOverLimit &&
+                      remainingChars <= 1000 &&
+                      remainingChars > 0 && (
+                        <span className="text-yellow-600 ml-1">
+                          ({remainingChars} remaining)
+                        </span>
+                      )}
+                  </p>
+                </div>
               </div>
 
-              {/* Info Box */}
               <div className="rounded-lg bg-blue-50 border border-blue-200 p-4">
                 <h4 className="font-medium text-blue-900 text-sm mb-2">
                   💡 For best results:
                 </h4>
                 <ul className="text-sm text-blue-800 space-y-1">
                   <li>• Include complete job descriptions with all details</li>
-                  <li>• Include role, company, responsibilities, and requirements</li>
+                  <li>
+                    • Include role, company, responsibilities, and requirements
+                  </li>
                   <li>• The more detail provided, the better the extraction</li>
+                  <li>
+                    • Maximum {MAX_JD_LENGTH.toLocaleString()} characters
+                    allowed
+                  </li>
                 </ul>
               </div>
 
-              {/* Actions */}
               <div className="flex gap-3 pt-4">
                 <Button
                   onClick={handleGenerate}
@@ -184,7 +224,7 @@ const GenerateJDPage = () => {
                   variant="outline"
                   onClick={() => router.push("/jd/create")}
                   disabled={isLoading}
-                  className="flex-1 rounded-lg"
+                  className="flex-1 rounded-lg h-12"
                 >
                   Cancel
                 </Button>
