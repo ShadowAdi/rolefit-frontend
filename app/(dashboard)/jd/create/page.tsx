@@ -44,9 +44,7 @@ const CreateJDPage = () => {
           </p>
         </div>
 
-        {/* Method Selection Cards */}
         <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
-          {/* Generate Method */}
           <div
             className="group cursor-pointer"
             onClick={() => router.push("/jd/create/generate")}
@@ -88,7 +86,6 @@ const CreateJDPage = () => {
             </div>
           </div>
 
-          {/* Manual Method */}
           <div
             className="group cursor-pointer"
             onClick={() => router.push("/jd/create/manual")}
