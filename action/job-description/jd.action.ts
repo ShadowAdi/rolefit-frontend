@@ -46,14 +46,18 @@ export const UpdateJDAction = (
     errorMessage: "Job Descriptions patch failed",
   });
 
-
-  export const GenerateJDAction = (
+// action/job-description/jd.action.ts
+export const GenerateJDAction = (
   jobDescription: string,
   token: string,
+  apiKeyId: string, // Add apiKeyId parameter
 ) =>
   apiRequest<JobDescriptionResponse>({
     method: "post",
-    body: { payload: jobDescription },
+    body: {
+      payload: jobDescription,
+      api_key_id: apiKeyId,
+    },
     url: "/job-descriptions/generate",
     token,
     errorMessage: "Job Descriptions generation failed",

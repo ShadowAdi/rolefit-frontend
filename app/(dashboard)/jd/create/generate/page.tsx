@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, ChevronLeft, CheckCircle, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { ApiKeySelector } from "@/components/global/ApiKeySelector";
 
 const GenerateJDPage = () => {
   const router = useRouter();
@@ -16,6 +17,8 @@ const GenerateJDPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+    const [selectedApiKeyId, setSelectedApiKeyId] = useState<string>("");
+
 
   if (authLoading) {
     return (
@@ -46,10 +49,16 @@ const GenerateJDPage = () => {
         return;
       }
 
+      if (!selectedApiKeyId) {
+        toast.error("Please select an API key");
+        return;
+      }
+
+
       setIsLoading(true);
       setError(null);
 
-      const result = await GenerateJDAction(rawJD, token);
+      const result = await GenerateJDAction(rawJD, token, selectedApiKeyId);
 
       if (result.success) {
         setSuccess(true);
@@ -117,7 +126,13 @@ const GenerateJDPage = () => {
                 </div>
               )}
 
-              {/* Text Input */}
+               <ApiKeySelector
+                onApiKeySelect={setSelectedApiKeyId}
+                selectedApiKeyId={selectedApiKeyId}
+                required={true}
+                label="API Key"
+              />
+
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-900">
                   Job Description Text
