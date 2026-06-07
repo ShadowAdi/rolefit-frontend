@@ -74,10 +74,7 @@ export default function Header() {
                         Your Cover Letters
                       </DropdownMenuItem>
                     </Link>
-                  </DropdownMenuGroup>
-                   <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <Link href={`api-keys`}>
+                     <Link href={`api-keys`}>
                       <DropdownMenuItem className="cursor-pointer">
                         Api Keys
                       </DropdownMenuItem>
