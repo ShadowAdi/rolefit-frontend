@@ -193,13 +193,6 @@ const ProfilePage = () => {
         if (response.success) {
           toast.success("Delete Profile Successfull");
           clearOnboardingCompleted();
-          // Send the user to the onboarding method selection (the two-option
-          // "Upload Resume" / "Fill Manually" screen). We intentionally do NOT
-          // setProfile(null) here: that would re-render this page's inline
-          // create form (which has Resume/Cover-letter URL fields) for a beat,
-          // making it look like we jumped straight to the resume-URL step.
-          // At /onboarding no profile exists, so both options are available
-          // (resume extraction only works when there is no profile yet).
           router.push("/onboarding");
         } else {
           toast.error(
