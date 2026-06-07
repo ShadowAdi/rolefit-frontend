@@ -27,6 +27,7 @@ import {
   ApiKey,
   ProviderType,
 } from "@/types/api_keys.types";
+import { useEffect } from "react";
 
 // Update schema to use undefined instead of null
 const apiKeySchema = z.object({
@@ -90,6 +91,49 @@ export function ApiKeyForm({
     },
   });
 
+  useEffect(() => {
+    if (initialData) {
+      reset({
+        provider: initialData.provider || ProviderType.GROQ,
+        key_name: initialData.key_name || "",
+        key_value: initialData.key_value || "",
+        api_base_url: initialData.api_base_url || "",
+        api_version: initialData.api_version || "",
+        is_active: initialData.is_active ?? true,
+        isDefault: initialData.isDefault ?? false,
+        expires_at: initialData.expires_at
+          ? initialData.expires_at.split("T")[0]
+          : "",
+      });
+    } else {
+      reset({
+        provider: ProviderType.GROQ,
+        key_name: "",
+        key_value: "",
+        api_base_url: "",
+        api_version: "",
+        is_active: true,
+        isDefault: false,
+        expires_at: "",
+      });
+    }
+  }, [initialData, reset]);
+
+  useEffect(() => {
+    if (open && !initialData) {
+      reset({
+        provider: ProviderType.GROQ,
+        key_name: "",
+        key_value: "",
+        api_base_url: "",
+        api_version: "",
+        is_active: true,
+        isDefault: false,
+        expires_at: "",
+      });
+    }
+  }, [open, initialData, reset]);
+
   const isDefault = watch("isDefault");
 
   const onFormSubmit = handleSubmit(async (data: ApiKeyFormData) => {
@@ -100,29 +144,42 @@ export function ApiKeyForm({
       key_value: data.key_value,
       is_active: data.is_active,
       isDefault: data.isDefault,
-      api_base_url: data.api_base_url && data.api_base_url.trim() !== "" 
-        ? data.api_base_url 
-        : undefined,
-      api_version: data.api_version && data.api_version.trim() !== "" 
-        ? data.api_version 
-        : undefined,
-      expires_at: data.expires_at && data.expires_at.trim() !== "" 
-        ? data.expires_at 
-        : undefined,
+      api_base_url:
+        data.api_base_url && data.api_base_url.trim() !== ""
+          ? data.api_base_url
+          : undefined,
+      api_version:
+        data.api_version && data.api_version.trim() !== ""
+          ? data.api_version
+          : undefined,
+      expires_at:
+        data.expires_at && data.expires_at.trim() !== ""
+          ? data.expires_at
+          : undefined,
     };
 
     // If we have initialData, it's an update, otherwise it's a create
     if (initialData) {
       // For update, only include fields that have changed
       const updateData: UpdateApiKeyRequest = {};
-      if (submitData.provider !== initialData.provider) updateData.provider = submitData.provider;
-      if (submitData.key_name !== initialData.key_name) updateData.key_name = submitData.key_name;
-      if (submitData.key_value !== initialData.key_value) updateData.key_value = submitData.key_value;
-      if (submitData.api_base_url !== initialData.api_base_url) updateData.api_base_url = submitData.api_base_url;
-      if (submitData.api_version !== initialData.api_version) updateData.api_version = submitData.api_version;
-      if (submitData.is_active !== initialData.is_active) updateData.is_active = submitData.is_active;
-      if (submitData.isDefault !== initialData.isDefault) updateData.isDefault = submitData.isDefault;
-      if (submitData.expires_at !== (initialData.expires_at?.split("T")[0] || undefined)) {
+      if (submitData.provider !== initialData.provider)
+        updateData.provider = submitData.provider;
+      if (submitData.key_name !== initialData.key_name)
+        updateData.key_name = submitData.key_name;
+      if (submitData.key_value !== initialData.key_value)
+        updateData.key_value = submitData.key_value;
+      if (submitData.api_base_url !== initialData.api_base_url)
+        updateData.api_base_url = submitData.api_base_url;
+      if (submitData.api_version !== initialData.api_version)
+        updateData.api_version = submitData.api_version;
+      if (submitData.is_active !== initialData.is_active)
+        updateData.is_active = submitData.is_active;
+      if (submitData.isDefault !== initialData.isDefault)
+        updateData.isDefault = submitData.isDefault;
+      if (
+        submitData.expires_at !==
+        (initialData.expires_at?.split("T")[0] || undefined)
+      ) {
         updateData.expires_at = submitData.expires_at;
       }
 
