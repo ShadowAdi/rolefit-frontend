@@ -8,8 +8,9 @@ import {
 } from "@/types";
 import { apiRequest } from "../_apiRequest";
 
+
 export const CreateResumeContentAction = (
-  payload: GenerateContentQuery,
+  payload: { user_specifications: string; api_key_id: string }, 
   jobId: string,
   token: string,
 ) =>
@@ -18,11 +19,11 @@ export const CreateResumeContentAction = (
     url: "/content/" + jobId,
     token,
     body: payload,
-    errorMessage: "Generate Documnet creation failed",
+    errorMessage: "Generate Document creation failed",
   });
 
 export const CreateCoverLetterContentAction = (
-  payload: GenerateContentQuery,
+  payload: { user_specifications: string; api_key_id: string }, 
   jobId: string,
   token: string,
 ) =>
@@ -31,7 +32,7 @@ export const CreateCoverLetterContentAction = (
     url: "/content/cover-letter/" + jobId,
     token,
     body: payload,
-    errorMessage: "Generate Cover letter Documnet creation failed",
+    errorMessage: "Generate Cover letter Document creation failed",
   });
 
 export const GetContentResumeAction = (contentId: string, token: string) =>

@@ -37,6 +37,7 @@ import {
   Building2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { ApiKeyCombobox } from "@/components/global/ApiKeySelector";
 
 const ContentPage = () => {
   const router = useRouter();
@@ -73,6 +74,9 @@ const ContentPage = () => {
     string | null
   >(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [selectedApiKeyId, setSelectedApiKeyId] = useState<string>("");
+  const [apiKeyError, setApiKeyError] = useState<string | null>(null);
 
   // Fetch all JDs on mount
   useEffect(() => {
@@ -173,10 +177,23 @@ const ContentPage = () => {
   };
 
   const handleCreateContent = async () => {
-    if (!selectedJD) return;
+    if (!selectedJD) {
+      toast.error("Please select a job description first");
+      return;
+    }
+
+    if (!selectedApiKeyId) {
+      setApiKeyError("Please select an API key");
+      toast.error("Please select an API key");
+      return;
+    }
+
     try {
       setIsCreating(true);
-      const payload = { user_specifications: userSpecifications || "" };
+      const payload = {
+        user_specifications: userSpecifications || "",
+        api_key_id: selectedApiKeyId, 
+      };
 
       let result;
       if (contentType === "resume") {
@@ -200,6 +217,8 @@ const ContentPage = () => {
         setIsCreateDialogOpen(false);
         setUserSpecifications("");
         setContentType(null);
+        setSelectedApiKeyId(""); 
+        setApiKeyError(null);
 
         const newContent: GeneratedDocumentResponse = {
           id: result.data.doc_id,
@@ -558,6 +577,17 @@ const ContentPage = () => {
             </div>
 
             <div className="space-y-4">
+              <ApiKeyCombobox
+                onApiKeySelect={(keyId: string) => {
+                  setSelectedApiKeyId(keyId);
+                  setApiKeyError(null);
+                }}
+                selectedApiKeyId={selectedApiKeyId}
+                required={true}
+                label="Select API Key"
+              />
+
+              {/* User Specifications */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Your Specifications{" "}
@@ -581,6 +611,8 @@ const ContentPage = () => {
                     setIsCreateDialogOpen(false);
                     setUserSpecifications("");
                     setContentType(null);
+                    setSelectedApiKeyId("");
+                    setApiKeyError(null);
                   }}
                   disabled={isCreating}
                   className="text-sm"
@@ -589,7 +621,7 @@ const ContentPage = () => {
                 </Button>
                 <Button
                   onClick={handleCreateContent}
-                  disabled={isCreating}
+                  disabled={isCreating || !selectedApiKeyId}
                   className="bg-lime-500 hover:bg-lime-600 text-white text-sm"
                 >
                   {isCreating ? (

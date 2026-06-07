@@ -14,6 +14,7 @@ export enum GeneratedDocumentStatus {
 
 export interface GenerateContentQuery {
   user_specifications?: string;
+  api_key_id: string
 }
 
 export interface GenerateContentResponse {
