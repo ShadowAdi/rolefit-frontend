@@ -68,14 +68,8 @@ const DashboardPage = () => {
   }
 
   if (!token) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Please log in to view your dashboard</p>
-          <Button onClick={() => router.push("/login")}>Go to Login</Button>
-        </div>
-      </div>
-    );
+    router.push("/login");
+    return;
   }
 
   const stats = data?.stats;
@@ -156,11 +150,23 @@ const DashboardPage = () => {
 
   const profileItems = [
     { label: "Projects", value: profile?.totalProjects ?? 0, icon: FolderGit2 },
-    { label: "Experiences", value: profile?.totalExperiences ?? 0, icon: Briefcase },
+    {
+      label: "Experiences",
+      value: profile?.totalExperiences ?? 0,
+      icon: Briefcase,
+    },
     { label: "Skills", value: profile?.totalSkills ?? 0, icon: Sparkles },
     { label: "Tools", value: profile?.totalTools ?? 0, icon: Wrench },
-    { label: "Publications", value: profile?.totalPublications ?? 0, icon: BookOpen },
-    { label: "Academics", value: profile?.totalAcademics ?? 0, icon: GraduationCap },
+    {
+      label: "Publications",
+      value: profile?.totalPublications ?? 0,
+      icon: BookOpen,
+    },
+    {
+      label: "Academics",
+      value: profile?.totalAcademics ?? 0,
+      icon: GraduationCap,
+    },
   ];
 
   return (
@@ -169,10 +175,12 @@ const DashboardPage = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-4xl font-bold text-gray-950 mb-2">
-              Welcome back{profile?.fullName ? `, ${profile.fullName.split(" ")[0]}` : ""}
+              Welcome back
+              {profile?.fullName ? `, ${profile.fullName.split(" ")[0]}` : ""}
             </h1>
             <p className="text-gray-600">
-              {profile?.headline || "Here's an overview of your job search activity"}
+              {profile?.headline ||
+                "Here's an overview of your job search activity"}
             </p>
           </div>
           <Button
@@ -197,7 +205,9 @@ const DashboardPage = () => {
                 <Sparkles className="h-5 w-5" />
               </div>
               <div>
-                <p className="font-semibold text-gray-900">Complete your profile</p>
+                <p className="font-semibold text-gray-900">
+                  Complete your profile
+                </p>
                 <p className="text-sm text-gray-600">
                   Finish onboarding to generate better tailored resumes.
                 </p>
@@ -236,7 +246,9 @@ const DashboardPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-xl border border-gray-200 p-6 lg:col-span-1">
-            <h2 className="text-lg font-bold text-gray-900 mb-1">Document Status</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-1">
+              Document Status
+            </h2>
             <p className="text-sm text-gray-600 mb-5">Generation breakdown</p>
             <div className="space-y-3">
               {docStatus.map((item) => {
@@ -262,9 +274,12 @@ const DashboardPage = () => {
           </div>
 
           <div className="bg-white rounded-xl border border-gray-200 p-6 lg:col-span-2">
-            <h2 className="text-lg font-bold text-gray-900 mb-1">Your Profile</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-1">
+              Your Profile
+            </h2>
             <p className="text-sm text-gray-600 mb-5">
-              {titleCase(profile?.fullName, "Profile")} · building blocks for your resume
+              {titleCase(profile?.fullName, "Profile")} · building blocks for
+              your resume
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {profileItems.map((item) => {
@@ -339,11 +354,15 @@ const DashboardPage = () => {
           </div>
 
           <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-5">Recent Documents</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-5">
+              Recent Documents
+            </h2>
             {recentDocuments.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-center">
                 <FileText className="h-10 w-10 text-gray-300 mb-3" />
-                <p className="text-sm text-gray-600">No documents generated yet</p>
+                <p className="text-sm text-gray-600">
+                  No documents generated yet
+                </p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -362,7 +381,9 @@ const DashboardPage = () => {
                       </span>
                       <div className="min-w-0">
                         <p className="font-medium text-gray-900 truncate">
-                          {doc.type === "Cover-letter" ? "Cover Letter" : "Resume"}
+                          {doc.type === "Cover-letter"
+                            ? "Cover Letter"
+                            : "Resume"}
                         </p>
                         <p className="text-xs text-gray-500">
                           {formatDate(doc.createdAt)}

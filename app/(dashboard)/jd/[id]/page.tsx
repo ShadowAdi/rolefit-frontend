@@ -115,6 +115,12 @@ const JDDetailPage = () => {
     );
   }
 
+  if (!token) {
+    router.push("/login")
+        return;
+
+  }
+
   const capitalizedRole = (jd.role_name || "Untitled Role")
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
@@ -128,7 +134,6 @@ const JDDetailPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-4xl mx-auto px-4">
-        {/* Top Action Bar */}
         <div className="flex items-center justify-between mb-8">
           <Button
             variant="ghost"

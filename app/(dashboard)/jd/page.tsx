@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { GetJDsAction, DeleteJDsAction } from "@/action/job-description/jd.action";
+import {
+  GetJDsAction,
+  DeleteJDsAction,
+} from "@/action/job-description/jd.action";
 import { JobDescriptionResponse } from "@/types/jobDescription.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +19,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, Plus, Briefcase, MapPin, DollarSign, Trash2 } from "lucide-react";
+import {
+  Search,
+  Plus,
+  Briefcase,
+  MapPin,
+  DollarSign,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 
 const JDPage = () => {
@@ -68,8 +78,9 @@ const JDPage = () => {
         (jd.location_city?.toLowerCase().includes(searchLower) ?? false) ||
         (jd.location?.toLowerCase().includes(searchLower) ?? false) ||
         (jd.tech_stack?.some((tech) =>
-          tech.toLowerCase().includes(searchLower)
-        ) ?? false)
+          tech.toLowerCase().includes(searchLower),
+        ) ??
+          false)
       );
     });
 
@@ -98,7 +109,8 @@ const JDPage = () => {
         toast.error(result.message || "Failed to delete job description");
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Failed to delete job description";
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to delete job description";
       toast.error(errorMsg);
     } finally {
       setIsDeleting(false);
@@ -117,14 +129,9 @@ const JDPage = () => {
   }
 
   if (!token) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Please log in to view job descriptions</p>
-          <Button onClick={() => router.push("/login")}>Go to Login</Button>
-        </div>
-      </div>
-    );
+    router.push("/login");
+        return;
+
   }
 
   return (
@@ -133,7 +140,9 @@ const JDPage = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-4xl font-bold text-gray-950 mb-2">Job Descriptions</h1>
+              <h1 className="text-4xl font-bold text-gray-950 mb-2">
+                Job Descriptions
+              </h1>
               <p className="text-gray-600">
                 Manage and organize job descriptions for AI content generation
               </p>
@@ -159,17 +168,16 @@ const JDPage = () => {
 
           {!isLoading && (
             <p className="text-sm text-gray-600 mt-3">
-              {filteredJds.length} job description{filteredJds.length !== 1 ? "s" : ""} found
+              {filteredJds.length} job description
+              {filteredJds.length !== 1 ? "s" : ""} found
             </p>
           )}
         </div>
-
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-red-800 text-sm font-medium">{error}</p>
           </div>
         )}
-
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
             <div className="text-center space-y-4">
@@ -181,7 +189,9 @@ const JDPage = () => {
           <div className="flex flex-col items-center justify-center py-16 bg-white rounded-lg border-2 border-dashed border-gray-200">
             <Briefcase className="w-16 h-16 text-gray-300 mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {jds.length === 0 ? "No Job Descriptions Yet" : "No Results Found"}
+              {jds.length === 0
+                ? "No Job Descriptions Yet"
+                : "No Results Found"}
             </h3>
             <p className="text-gray-600 text-center max-w-md mb-6">
               {jds.length === 0
@@ -203,12 +213,18 @@ const JDPage = () => {
             {filteredJds.map((jd) => {
               const capitalizedRole = (jd.role_name || "Untitled Role")
                 .split(" ")
-                .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .map(
+                  (word) =>
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+                )
                 .join(" ");
 
               const capitalizedCompany = (jd.company || "Company not specified")
                 .split(" ")
-                .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .map(
+                  (word) =>
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+                )
                 .join(" ");
 
               return (
@@ -262,7 +278,9 @@ const JDPage = () => {
 
                     {jd.tech_stack && jd.tech_stack.length > 0 && (
                       <div className="space-y-2">
-                        <p className="text-xs font-semibold text-gray-700 uppercase">Tech Stack</p>
+                        <p className="text-xs font-semibold text-gray-700 uppercase">
+                          Tech Stack
+                        </p>
                         <div className="flex gap-1.5 overflow-x-auto pb-1">
                           {jd.tech_stack.slice(0, 3).map((tech, idx) => (
                             <span
@@ -314,16 +332,22 @@ const JDPage = () => {
             })}
           </div>
         )}
-        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+        >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Job Description</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete this job description? This action cannot be undone.
+                Are you sure you want to delete this job description? This
+                action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="flex gap-3 justify-end">
-              <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+              <AlertDialogCancel disabled={isDeleting}>
+                Cancel
+              </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDeleteConfirm}
                 disabled={isDeleting}
@@ -333,7 +357,8 @@ const JDPage = () => {
               </AlertDialogAction>
             </div>
           </AlertDialogContent>
-        </AlertDialog>      </div>
+        </AlertDialog>{" "}
+      </div>
     </div>
   );
 };

@@ -21,20 +21,14 @@ const CreateJDPage = () => {
   }
 
   if (!token) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Please log in to create job descriptions</p>
-          <Button onClick={() => router.push("/login")}>Go to Login</Button>
-        </div>
-      </div>
-    );
+    router.push("/login");
+        return;
+
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
       <div className="max-w-6xl mx-auto px-4 py-12">
-        {/* Header */}
         <div className="mb-12 text-center">
           <h1 className="text-4xl font-bold text-gray-950 mb-3">
             Create Job Description
@@ -60,8 +54,9 @@ const CreateJDPage = () => {
                 </h3>
 
                 <p className="text-gray-600 mb-6 leading-relaxed">
-                  Paste a job description and let AI automatically extract and structure
-                  all the important details like role, tech stack, and requirements.
+                  Paste a job description and let AI automatically extract and
+                  structure all the important details like role, tech stack, and
+                  requirements.
                 </p>
 
                 <ul className="text-sm text-gray-600 space-y-2 mb-8 text-left w-full">
@@ -101,8 +96,8 @@ const CreateJDPage = () => {
                 </h3>
 
                 <p className="text-gray-600 mb-6 leading-relaxed">
-                  Carefully fill in each field with specific details about the job
-                  opening. Perfect for structured data entry.
+                  Carefully fill in each field with specific details about the
+                  job opening. Perfect for structured data entry.
                 </p>
 
                 <ul className="text-sm text-gray-600 space-y-2 mb-8 text-left w-full">

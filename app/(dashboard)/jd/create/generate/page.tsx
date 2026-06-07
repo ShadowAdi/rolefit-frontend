@@ -32,18 +32,16 @@ const GenerateJDPage = () => {
   }
 
   if (!token) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Please log in</p>
-          <Button onClick={() => router.push("/login")}>Go to Login</Button>
-        </div>
-      </div>
-    );
+    router.push("/login");
+    return;
   }
 
   const handleGenerate = async () => {
     try {
+      if (!token) {
+        toast.error("Not Logged In");
+        return;
+      }
       if (!rawJD.trim()) {
         toast.error("Please enter a job description");
         return;
@@ -73,6 +71,13 @@ const GenerateJDPage = () => {
           router.push("/jd");
         }, 2000);
       } else {
+        if (result.message?.toLowerCase().includes("invalid api key")) {
+          setError(
+            "Your API key appears to be invalid. Please check your API key in Settings and update it.",
+          );
+          toast.error("Invalid API key. Please update it in Settings.");
+          return;
+        }
         setError(result.message || "Failed to generate job description");
         toast.error(result.message || "Failed to generate job description");
       }
