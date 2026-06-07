@@ -117,52 +117,7 @@ export default function AllContentPage() {
       }
     });
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle2 className="w-5 h-5 text-green-500" />;
-      case "processing":
-        return <Loader className="w-5 h-5 text-blue-500 animate-spin" />;
-      case "pending":
-        return <Clock className="w-5 h-5 text-yellow-500" />;
-      case "failed":
-        return <AlertCircle className="w-5 h-5 text-red-500" />;
-      default:
-        return <FileText className="w-5 h-5 text-gray-500" />;
-    }
-  };
 
-  const getStatusBadgeColor = (
-    status: string,
-  ): "default" | "success" | "warning" | "error" | "secondary" => {
-    switch (status) {
-      case "completed":
-        return "success";
-      case "processing":
-        return "secondary";
-      case "pending":
-        return "warning";
-      case "failed":
-        return "error";
-      default:
-        return "default";
-    }
-  };
-
-  const getStatusBadgeStyle = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-emerald-100 text-emerald-800";
-      case "processing":
-        return "bg-blue-100 text-blue-800";
-      case "pending":
-        return "bg-amber-100 text-amber-800";
-      case "failed":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
 
   const formatDate = (dateString: string) => {
     const d = new Date(dateString);
