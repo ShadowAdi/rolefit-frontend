@@ -75,6 +75,14 @@ export default function Header() {
                       </DropdownMenuItem>
                     </Link>
                   </DropdownMenuGroup>
+                   <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <Link href={`api-keys`}>
+                      <DropdownMenuItem className="cursor-pointer">
+                        Api Keys
+                      </DropdownMenuItem>
+                    </Link>
+                  </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem
@@ -86,6 +94,7 @@ export default function Header() {
                       Logout
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
+                 
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
