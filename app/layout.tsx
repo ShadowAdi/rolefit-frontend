@@ -5,6 +5,7 @@ import Providers from "@/components/Providers";
 import Header from "@/components/Header";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/context/AuthContext";
+import GooeyTransition from "@/components/global/GooeyTransition";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,11 +35,32 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-white text-gray-900">
+        <svg className="gooey-filter">
+          <defs>
+            <filter id="goo">
+              <feGaussianBlur
+                in="SourceGraphic"
+                stdDeviation="10"
+                result="blur"
+              />
+              <feColorMatrix
+                in="blur"
+                mode="matrix"
+                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7"
+                result="goo"
+              />
+              <feBlend in="SourceGraphic" in2="goo" />
+            </filter>
+          </defs>
+        </svg>
+
         <AuthProvider>
           <Providers>
-            <Header />
-            <div className="flex-1">{children}</div>
-            <Toaster richColors/>
+            <GooeyTransition>
+              <Header />
+              <div className="flex-1">{children}</div>
+              <Toaster richColors />
+            </GooeyTransition>
           </Providers>
         </AuthProvider>
       </body>

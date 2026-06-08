@@ -24,8 +24,11 @@ import {
   Key,
   LogOut,
 } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
+    const pathname = usePathname();
+
   const { isAuthenticated, isLoading: isAuthLoading, user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -74,6 +77,33 @@ export default function Header() {
                 Rolefit
               </Link>
             </div>
+
+               <div className="flex items-center gap-6">
+        <Link 
+          href="/" 
+          className={`text-sm font-medium transition-colors ${
+            pathname === '/' ? 'text-lime-600' : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Home
+        </Link>
+        <Link 
+          href="/about" 
+          className={`text-sm font-medium transition-colors ${
+            pathname === '/about' ? 'text-lime-600' : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          About
+        </Link>
+        <Link 
+          href="/contact" 
+          className={`text-sm font-medium transition-colors ${
+            pathname === '/contact' ? 'text-lime-600' : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Contact
+        </Link>
+      </div>
 
             <nav className="hidden md:flex items-center gap-2">
               {isAuthLoading ? (

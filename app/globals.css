@@ -4,6 +4,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -125,14 +138,32 @@ body {
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
-  }
+
+.gooey-1,
+.gooey-2 {
+  width: 2.5%;
+  height: 50vh;
+  background: #a3e635; /* lime-400 */
+  will-change: transform;
+}
+
+.gooey-1 {
+  transform-origin: top;
+}
+
+.gooey-2 {
+  transform-origin: bottom;
+}
+
+/* Optional: Add filter for gooey effect */
+#gooey-wrapper {
+  filter: url(#goo);
+}
+
+/* SVG filter for gooey effect */
+.gooey-filter {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
 }
