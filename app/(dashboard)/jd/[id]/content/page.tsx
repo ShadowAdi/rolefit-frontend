@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ChevronLeft, FileText, Trash2, Eye, Plus, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
+import { ApiKeyCombobox } from "@/components/global/ApiKeySelector";
 
 const JDContentPage = () => {
   const router = useRouter();
@@ -54,6 +55,9 @@ const JDContentPage = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedContentToDelete, setSelectedContentToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [selectedApiKeyId, setSelectedApiKeyId] = useState<string>("");
+  const [apiKeyError, setApiKeyError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchJD = async () => {
@@ -146,11 +150,18 @@ const JDContentPage = () => {
   const canCreateCoverLetter = coverLetterCount < 3;
 
   const handleCreateContent = async () => {
+    if (!selectedApiKeyId) {
+      setApiKeyError("Please select an API key");
+      toast.error("Please select an API key");
+      return;
+    }
+
     try {
       setIsCreating(true);
 
       const payload = {
         user_specifications: userSpecifications || "",
+        api_key_id: selectedApiKeyId,
       };
 
       let result;
@@ -165,7 +176,9 @@ const JDContentPage = () => {
         setIsCreateDialogOpen(false);
         setUserSpecifications("");
         setContentType(null);
-        
+        setSelectedApiKeyId("");
+        setApiKeyError(null);
+
         // Add the newly created content to the list with initial status from response
         const newContent: GeneratedDocumentResponse = {
           id: result.data.doc_id,
@@ -420,6 +433,16 @@ const JDContentPage = () => {
             </div>
 
             <div className="space-y-4">
+              <ApiKeyCombobox
+                onApiKeySelect={(keyId: string) => {
+                  setSelectedApiKeyId(keyId);
+                  setApiKeyError(null);
+                }}
+                selectedApiKeyId={selectedApiKeyId}
+                required={true}
+                label="Select API Key"
+              />
+
               <div>
                 <label className="block text-sm font-medium mb-2">Your Specifications (Optional)</label>
                 <Textarea
@@ -440,12 +463,14 @@ const JDContentPage = () => {
                     setIsCreateDialogOpen(false);
                     setUserSpecifications("");
                     setContentType(null);
+                    setSelectedApiKeyId("");
+                    setApiKeyError(null);
                   }}
                   disabled={isCreating}
                 >
                   Cancel
                 </Button>
-                <Button onClick={handleCreateContent} disabled={isCreating} className="bg-lime-500 hover:bg-lime-600 text-white">
+                <Button onClick={handleCreateContent} disabled={isCreating || !selectedApiKeyId} className="bg-lime-500 hover:bg-lime-600 text-white">
                   {isCreating ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
