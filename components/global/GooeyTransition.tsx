@@ -13,6 +13,7 @@ export default function GooeyTransition({ children }: GooeyTransitionProps) {
   const gooey1Ref = useRef<HTMLDivElement[]>([]);
   const gooey2Ref = useRef<HTMLDivElement[]>([]);
   const isTransitioning = useRef(false);
+  const isFirstLoad = useRef(true);
 
   const gooeyEntry = (): Promise<void> => {
     return new Promise((resolve) => {
@@ -65,7 +66,6 @@ export default function GooeyTransition({ children }: GooeyTransitionProps) {
         gooey1Ref.current,
         {
           yPercent: -100,
-          delay: 0.5,
           duration: 1.1,
           ease: "power3.inOut",
           stagger: {
@@ -80,7 +80,6 @@ export default function GooeyTransition({ children }: GooeyTransitionProps) {
         gooey2Ref.current,
         {
           yPercent: 100,
-          delay: 0.35,
           duration: 1.1,
           ease: "power4.inOut",
           stagger: {
@@ -91,6 +90,14 @@ export default function GooeyTransition({ children }: GooeyTransitionProps) {
         0,
       );
     });
+  };
+
+  // Reset gooey to hidden state (exit position)
+  const resetGooeyToHidden = () => {
+    if (gooey1Ref.current.length && gooey2Ref.current.length) {
+      gsap.set(gooey1Ref.current, { yPercent: -100 });
+      gsap.set(gooey2Ref.current, { yPercent: 100 });
+    }
   };
 
   useEffect(() => {
@@ -122,9 +129,8 @@ export default function GooeyTransition({ children }: GooeyTransitionProps) {
       gooey1Ref.current = Array.from(document.querySelectorAll(".gooey-1")) as HTMLDivElement[];
       gooey2Ref.current = Array.from(document.querySelectorAll(".gooey-2")) as HTMLDivElement[];
 
-      // Set initial positions
-      gsap.set(gooey1Ref.current, { yPercent: -100 });
-      gsap.set(gooey2Ref.current, { yPercent: 100 });
+      // Always start hidden
+      resetGooeyToHidden();
     };
 
     createGooeyElements();
@@ -135,7 +141,11 @@ export default function GooeyTransition({ children }: GooeyTransitionProps) {
       if (isTransitioning.current || href === window.location.pathname) return;
       
       isTransitioning.current = true;
+      
+      // Animate gooey in (cover the screen)
       await gooeyEntry();
+      
+      // Navigate to new page
       window.location.href = href;
     };
 
@@ -159,15 +169,17 @@ export default function GooeyTransition({ children }: GooeyTransitionProps) {
     };
   }, []);
 
-  // Reset gooey positions after page load
+  // Reset gooey to hidden state after page loads/completes
   useEffect(() => {
-    const resetGooey = async () => {
-      if (gooey1Ref.current.length && gooey2Ref.current.length) {
-        await gooeyExit();
+    // Small delay to ensure DOM is fully loaded
+    const timer = setTimeout(() => {
+      if (!isFirstLoad.current) {
+        resetGooeyToHidden();
       }
-    };
+      isFirstLoad.current = false;
+    }, 100);
 
-    resetGooey();
+    return () => clearTimeout(timer);
   }, [pathname]);
 
   return (

@@ -155,10 +155,28 @@ body {
   transform-origin: bottom;
 }
 
-/* Optional: Add filter for gooey effect */
-#gooey-wrapper {
-  filter: url(#goo);
+/* Hide scrollbar */
+::-webkit-scrollbar {
+  display: none;
 }
+
+/* Ensure the gooey wrapper is above everything */
+#gooey-wrapper {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+/* Make sure content is below gooey during transition */
+[data-gooey-transition="active"] {
+  pointer-events: none;
+}
+
 
 /* SVG filter for gooey effect */
 .gooey-filter {
