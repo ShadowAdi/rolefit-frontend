@@ -66,7 +66,6 @@ export default function Header() {
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            {/* Logo */}
             <div className="shrink-0">
               <Link
                 href="/"
@@ -76,7 +75,6 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-2">
               {isAuthLoading ? (
                 <div className="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-100 rounded-lg animate-pulse">
@@ -190,7 +188,6 @@ export default function Header() {
               )}
             </nav>
 
-            {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors active:scale-95"
@@ -206,7 +203,6 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <>
           <div
@@ -221,7 +217,6 @@ export default function Header() {
                 </div>
               ) : isAuthenticated ? (
                 <div className="space-y-4">
-                  {/* User Info */}
                   <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-lime-400 to-lime-500 flex items-center justify-center text-gray-900 font-bold text-lg">
                       {getDisplayName()[0].toUpperCase()}
@@ -236,7 +231,6 @@ export default function Header() {
                     </div>
                   </div>
 
-                  {/* Navigation Links */}
                   <div className="space-y-1">
                     <Link
                       href="/profile"
