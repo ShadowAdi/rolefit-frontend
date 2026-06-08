@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Mail, ArrowRight, RefreshCw, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { Mail, ArrowRight, RefreshCw, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { resendVerificationEmail, checkVerificationStatus } from "@/action/verification/verification.action";
 import { toast } from "sonner";
@@ -20,17 +20,12 @@ export default function VerifyEmailPendingPage() {
 
   useEffect(() => {
     if (!email) {
-      // If no email in params, try to get from localStorage or redirect to login
       const storedEmail = localStorage.getItem("pendingVerificationEmail");
       if (!storedEmail) {
         router.push("/login");
         return;
       }
-      // Use stored email instead of redirecting
-      const checkStatus = async () => {
-        await checkVerificationStatusWithEmail(storedEmail);
-      };
-      checkStatus();
+      checkVerificationStatusWithEmail(storedEmail);
     } else {
       localStorage.setItem("pendingVerificationEmail", email);
       checkVerificationStatusWithEmail(email);
@@ -40,7 +35,7 @@ export default function VerifyEmailPendingPage() {
   const checkVerificationStatusWithEmail = async (emailToCheck: string) => {
     setIsChecking(true);
     const status = await checkVerificationStatus(emailToCheck);
-    
+
     if (status?.is_verified) {
       setIsVerified(true);
       toast.success("Email verified! Redirecting to login...");
@@ -54,7 +49,7 @@ export default function VerifyEmailPendingPage() {
 
   const handleResendEmail = async () => {
     if (isResending || countdown > 0) return;
-    
+
     const emailToUse = email || localStorage.getItem("pendingVerificationEmail");
     if (!emailToUse) {
       toast.error("Email address not found. Please try logging in again.");
@@ -64,18 +59,13 @@ export default function VerifyEmailPendingPage() {
 
     setIsResending(true);
     const result = await resendVerificationEmail(emailToUse);
-    
+
     if (result.success) {
       toast.success(result.message);
-      setCountdown(60); // 60 second cooldown
-      
-      // Start countdown timer
+      setCountdown(60);
       const timer = setInterval(() => {
         setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            return 0;
-          }
+          if (prev <= 1) { clearInterval(timer); return 0; }
           return prev - 1;
         });
       }, 1000);
@@ -111,10 +101,11 @@ export default function VerifyEmailPendingPage() {
   const displayEmail = email || localStorage.getItem("pendingVerificationEmail");
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-md w-full text-center space-y-8">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4">
+      <div className="w-full max-w-md flex flex-col items-center text-center space-y-8">
+
         {/* Icon */}
-        <div className="mx-auto w-20 h-20 bg-lime-100 rounded-full flex items-center justify-center">
+        <div className="w-20 h-20 bg-lime-100 rounded-full flex items-center justify-center">
           <Mail className="w-10 h-10 text-lime-600" />
         </div>
 
@@ -123,47 +114,34 @@ export default function VerifyEmailPendingPage() {
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">
             Check your email
           </h1>
-          <p className="text-gray-600">
-            We've sent a verification link to
-          </p>
-          <p className="font-semibold text-gray-900 break-all">
-            {displayEmail}
-          </p>
+          <p className="text-gray-600">We've sent a verification link to</p>
+          <p className="font-semibold text-gray-900 break-all">{displayEmail}</p>
         </div>
 
         {/* Info box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
+        <div className="w-full bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
           <p className="text-sm text-blue-800">
             ✉️ Click the link in the email to verify your account. The link expires in 24 hours.
           </p>
         </div>
 
         {/* Actions */}
-        <div className="space-y-3">
+        <div className="w-full space-y-3">
           <Button
             onClick={handleResendEmail}
             disabled={isResending || countdown > 0}
             className="w-full bg-lime-400 hover:bg-lime-500 text-gray-950"
           >
             {isResending ? (
-              <>
-                <Loader2 className="size-4 animate-spin mr-2" />
-                Sending...
-              </>
+              <><Loader2 className="size-4 animate-spin mr-2" />Sending...</>
             ) : countdown > 0 ? (
-              <>
-                <RefreshCw className="size-4 mr-2" />
-                Resend available in {countdown}s
-              </>
+              <><RefreshCw className="size-4 mr-2" />Resend available in {countdown}s</>
             ) : (
-              <>
-                <RefreshCw className="size-4 mr-2" />
-                Resend verification email
-              </>
+              <><RefreshCw className="size-4 mr-2" />Resend verification email</>
             )}
           </Button>
 
-          <Link href="/login">
+          <Link href="/login" className="block w-full">
             <Button variant="outline" className="w-full">
               Back to Login
               <ArrowRight className="size-4 ml-2" />
