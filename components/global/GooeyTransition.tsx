@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import gsap from 'gsap';
 
 interface GooeyTransitionProps {
@@ -10,89 +10,52 @@ interface GooeyTransitionProps {
 
 export default function GooeyTransition({ children }: GooeyTransitionProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  // Keep a stable ref so the once-mounted click handler always uses the live router.
+  const routerRef = useRef(router);
+  routerRef.current = router;
+
   const gooey1Ref = useRef<HTMLDivElement[]>([]);
   const gooey2Ref = useRef<HTMLDivElement[]>([]);
   const isTransitioning = useRef(false);
+  const pendingReveal = useRef(false);
   const isFirstLoad = useRef(true);
 
+  // Cover the screen (gooey slides into view).
   const gooeyEntry = (): Promise<void> => {
     return new Promise((resolve) => {
-      const tl = gsap.timeline({
-        onComplete: resolve,
-      });
-
+      const tl = gsap.timeline({ onComplete: resolve });
       tl.to(
         gooey1Ref.current,
-        {
-          yPercent: 0,
-          duration: 1.2,
-          ease: "power3.inOut",
-          stagger: {
-            amount: 0.6,
-            from: "random",
-          },
-        },
+        { yPercent: 0, duration: 1.0, ease: 'power3.inOut', stagger: { amount: 0.5, from: 'random' } },
         0,
       );
-
       tl.to(
         gooey2Ref.current,
-        {
-          yPercent: 0,
-          duration: 1.2,
-          ease: "power4.inOut",
-          stagger: {
-            amount: 0.6,
-            from: "random",
-          },
-        },
+        { yPercent: 0, duration: 1.0, ease: 'power4.inOut', stagger: { amount: 0.5, from: 'random' } },
         0,
       );
     });
   };
 
+  // Reveal the new page (gooey slides back out).
   const gooeyExit = (): Promise<void> => {
     return new Promise((resolve) => {
-      const tl = gsap.timeline({
-        onComplete: () => {
-          setTimeout(() => {
-            isTransitioning.current = false;
-            resolve();
-          }, 100);
-        },
-      });
-
+      const tl = gsap.timeline({ onComplete: resolve });
       tl.to(
         gooey1Ref.current,
-        {
-          yPercent: -100,
-          duration: 1.1,
-          ease: "power3.inOut",
-          stagger: {
-            amount: 0.6,
-            from: "random",
-          },
-        },
+        { yPercent: -100, duration: 1.0, ease: 'power3.inOut', stagger: { amount: 0.5, from: 'random' } },
         0,
       );
-
       tl.to(
         gooey2Ref.current,
-        {
-          yPercent: 100,
-          duration: 1.1,
-          ease: "power4.inOut",
-          stagger: {
-            amount: 0.6,
-            from: "random",
-          },
-        },
+        { yPercent: 100, duration: 1.0, ease: 'power4.inOut', stagger: { amount: 0.5, from: 'random' } },
         0,
       );
     });
   };
 
-  // Reset gooey to hidden state (exit position)
+  // Instantly place the gooey off-screen (no animation).
   const resetGooeyToHidden = () => {
     if (gooey1Ref.current.length && gooey2Ref.current.length) {
       gsap.set(gooey1Ref.current, { yPercent: -100 });
@@ -100,93 +63,110 @@ export default function GooeyTransition({ children }: GooeyTransitionProps) {
     }
   };
 
+  // Build the gooey columns and intercept internal-link clicks (once).
   useEffect(() => {
-    // Create gooey elements dynamically
-    const createGooeyElements = () => {
-      const upperWrapper = document.getElementById("gooey-upper");
-      const bottomWrapper = document.getElementById("gooey-bottom");
+    const upperWrapper = document.getElementById('gooey-upper');
+    const bottomWrapper = document.getElementById('gooey-bottom');
 
-      if (!upperWrapper || !bottomWrapper) return;
+    if (upperWrapper && bottomWrapper) {
+      upperWrapper.innerHTML = '';
+      bottomWrapper.innerHTML = '';
 
-      // Clear existing
-      upperWrapper.innerHTML = "";
-      bottomWrapper.innerHTML = "";
-
-      // Create 40 elements for top
       for (let i = 0; i < 40; i++) {
-        const div = document.createElement("div");
-        div.className = "gooey-1";
+        const div = document.createElement('div');
+        div.className = 'gooey-1';
         upperWrapper.appendChild(div);
       }
-
-      // Create 40 elements for bottom
       for (let i = 0; i < 40; i++) {
-        const div = document.createElement("div");
-        div.className = "gooey-2";
+        const div = document.createElement('div');
+        div.className = 'gooey-2';
         bottomWrapper.appendChild(div);
       }
 
-      gooey1Ref.current = Array.from(document.querySelectorAll(".gooey-1")) as HTMLDivElement[];
-      gooey2Ref.current = Array.from(document.querySelectorAll(".gooey-2")) as HTMLDivElement[];
+      gooey1Ref.current = Array.from(document.querySelectorAll('.gooey-1')) as HTMLDivElement[];
+      gooey2Ref.current = Array.from(document.querySelectorAll('.gooey-2')) as HTMLDivElement[];
 
-      // Always start hidden
       resetGooeyToHidden();
-    };
+    }
 
-    createGooeyElements();
-
-    // Handle navigation
-    const handleLinkClick = async (e: MouseEvent, href: string) => {
-      e.preventDefault();
-      if (isTransitioning.current || href === window.location.pathname) return;
-      
-      isTransitioning.current = true;
-      
-      // Animate gooey in (cover the screen)
-      await gooeyEntry();
-      
-      // Navigate to new page
-      window.location.href = href;
-    };
-
-    // Attach click handlers to all internal links
     const handleGlobalClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const link = target.closest('a');
-      
-      if (link && link.getAttribute('href')?.startsWith('/') && !link.getAttribute('target')) {
-        const href = link.getAttribute('href');
-        if (href && href !== window.location.pathname) {
-          handleLinkClick(e, href);
-        }
+      // Let the browser handle modified clicks (open in new tab, etc.).
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+        return;
       }
+
+      const link = (e.target as HTMLElement).closest('a');
+      if (!link) return;
+
+      const href = link.getAttribute('href');
+      const targetAttr = link.getAttribute('target');
+
+      // Only internal, same-window navigations to a different path.
+      if (!href || !href.startsWith('/') || targetAttr || href === window.location.pathname) {
+        return;
+      }
+
+      // Capture phase: run BEFORE Next's <Link> onClick so we own the navigation.
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (isTransitioning.current) return;
+      isTransitioning.current = true;
+
+      // Cover first, then navigate (client-side, no full reload).
+      gooeyEntry().then(() => {
+        pendingReveal.current = true;
+        routerRef.current.push(href);
+      });
     };
 
-    document.addEventListener('click', handleGlobalClick);
-
-    return () => {
-      document.removeEventListener('click', handleGlobalClick);
-    };
+    document.addEventListener('click', handleGlobalClick, true); // capture phase
+    return () => document.removeEventListener('click', handleGlobalClick, true);
   }, []);
 
-  // Reset gooey to hidden state after page loads/completes
+  // React to route changes: reveal the freshly-mounted page.
   useEffect(() => {
-    // Small delay to ensure DOM is fully loaded
-    const timer = setTimeout(() => {
-      if (!isFirstLoad.current) {
-        resetGooeyToHidden();
-      }
+    if (isFirstLoad.current) {
       isFirstLoad.current = false;
-    }, 100);
+      resetGooeyToHidden();
+      return;
+    }
 
-    return () => clearTimeout(timer);
+    if (pendingReveal.current) {
+      // Wait two frames so the new page paints under the cover before revealing.
+      let raf2 = 0;
+      const raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => {
+          gooeyExit().then(() => {
+            pendingReveal.current = false;
+            isTransitioning.current = false;
+          });
+        });
+      });
+      return () => {
+        cancelAnimationFrame(raf1);
+        cancelAnimationFrame(raf2);
+      };
+    }
+
+    // Navigation that bypassed our handler (e.g. browser back/forward): just stay hidden.
+    resetGooeyToHidden();
   }, [pathname]);
 
   return (
     <>
-      <div id="gooey-wrapper" className="fixed inset-0 z-[9999] w-full h-screen flex items-center justify-between flex-col pointer-events-none overflow-hidden">
-        <div id="gooey-upper" className="w-full h-[50vh] overflow-hidden flex items-center justify-between flex-row"></div>
-        <div id="gooey-bottom" className="w-full h-[50vh] overflow-hidden flex items-center justify-between flex-row"></div>
+      <div
+        id="gooey-wrapper"
+        className="fixed inset-0 z-[9999] w-full h-screen flex items-center justify-between flex-col pointer-events-none overflow-hidden"
+      >
+        <div
+          id="gooey-upper"
+          className="w-full h-[50vh] overflow-hidden flex items-center justify-between flex-row"
+        ></div>
+        <div
+          id="gooey-bottom"
+          className="w-full h-[50vh] overflow-hidden flex items-center justify-between flex-row"
+        ></div>
       </div>
       {children}
     </>
