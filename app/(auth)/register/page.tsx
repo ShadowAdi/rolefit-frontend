@@ -58,7 +58,7 @@ export default function RegisterPage() {
       
       if (result.success) {
         toast.success("Registration successful! Redirecting to login...");
-        router.push("/login");
+      router.push(`/verify-email-pending?email=${encodeURIComponent(createUserData.email)}`);
       } else {
         toast.error(result.message);
       }

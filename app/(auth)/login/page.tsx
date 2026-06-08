@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Zap,
   ArrowRight,
@@ -22,6 +22,10 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { loginUser } from "@/action/login/login.action";
 import { resolvePostLoginRedirect } from "@/lib/postLoginRedirect";
+import {
+  Alert,
+  AlertDescription,
+} from "@/components/ui/alert";
 import { useEffect, useState } from "react";
 
 const loginSchema = z.object({
@@ -33,8 +37,12 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const { login, token, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const searchParams = useSearchParams();
+  const verified = searchParams.get("verified");
+
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
 
   const {
     register,
@@ -43,6 +51,15 @@ export default function LoginPage() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
+
+  useEffect(() => {
+    if (verified === "true") {
+      setShowAlert(true);
+      // Hide alert after 5 seconds
+      const timer = setTimeout(() => setShowAlert(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [verified]);
 
   useEffect(() => {
     if (isAuthLoading || !isAuthenticated || !token) return;
@@ -98,6 +115,16 @@ export default function LoginPage() {
         <div className="pointer-events-none absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-gray-200/40 blur-3xl" />
 
         <div className="w-full max-w-md relative z-10">
+          {showAlert && (
+            <div className="fixed top-4 right-4 z-50 max-w-md">
+              <Alert className="bg-green-50 border-green-200">
+                <CheckCircle2 className="h-4 w-4 text-lime-600" />
+                <AlertDescription className="text-lime-800">
+                  Email verified successfully! You can now log in.
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
           <Link href="/" className="inline-flex items-center gap-2 mb-12 group">
             <div className="size-10 rounded-xl bg-lime-400 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
               <Zap className="size-5 text-gray-950" />
