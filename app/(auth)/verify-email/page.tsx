@@ -47,11 +47,13 @@ export default function VerifyEmailPage() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="size-12 animate-spin text-lime-500 mx-auto" />
-          <h2 className="text-xl font-semibold">Verifying your email...</h2>
-          <p className="text-muted-foreground">Please wait while we confirm your email address.</p>
+      <div className="min-h-screen w-full flex items-center justify-center px-4">
+        <div className="w-full max-w-md text-center space-y-4">
+          <div className="mx-auto w-20 h-20 bg-lime-100 rounded-full flex items-center justify-center">
+            <Loader2 className="size-10 animate-spin text-lime-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900">Verifying your email…</h2>
+          <p className="text-gray-600">Please wait while we confirm your email address.</p>
         </div>
       </div>
     );
@@ -59,55 +61,53 @@ export default function VerifyEmailPage() {
 
   if (status === "success") {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="max-w-md w-full text-center space-y-6">
-          <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-            <CheckCircle2 className="w-10 h-10 text-green-600" />
+      <div className="min-h-screen w-full flex items-center justify-center px-4">
+        <div className="w-full max-w-md text-center space-y-6">
+          <div className="mx-auto w-20 h-20 bg-lime-100 rounded-full flex items-center justify-center">
+            <CheckCircle2 className="w-10 h-10 text-lime-600" />
           </div>
-          
+
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-gray-900">Email Verified!</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900">Email Verified!</h1>
             <p className="text-gray-600">{message}</p>
+            <p className="text-sm text-gray-500">Redirecting you to login…</p>
           </div>
-          
-          <div className="space-y-3">
-            <Link href="/login">
-              <Button className="w-full bg-lime-400 hover:bg-lime-500 text-gray-950">
-                Go to Login
-                <ArrowRight className="size-4 ml-2" />
-              </Button>
-            </Link>
-          </div>
+
+          <Link href="/login" className="block">
+            <Button className="w-full h-11 bg-lime-400 hover:bg-lime-500 text-gray-950 font-semibold">
+              Continue to Login
+              <ArrowRight className="size-4 ml-2" />
+            </Button>
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-md w-full text-center space-y-6">
+    <div className="min-h-screen w-full flex items-center justify-center px-4">
+      <div className="w-full max-w-md text-center space-y-6">
         <div className="mx-auto w-20 h-20 bg-red-100 rounded-full flex items-center justify-center">
           <XCircle className="w-10 h-10 text-red-600" />
         </div>
-        
+
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900">Verification Failed</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Verification Failed</h1>
           <p className="text-gray-600">{message}</p>
         </div>
-        
+
         <div className="space-y-3">
-          <Link href="/login">
-            <Button variant="outline" className="w-full">
+          <Link href="/verify-email-pending" className="block">
+            <Button className="w-full h-11 bg-lime-400 hover:bg-lime-500 text-gray-950 font-semibold">
+              Request a new link
+              <ArrowRight className="size-4 ml-2" />
+            </Button>
+          </Link>
+          <Link href="/login" className="block">
+            <Button variant="outline" className="w-full h-11">
               Back to Login
             </Button>
           </Link>
-          
-          <p className="text-sm text-gray-500">
-            Need a new link?{" "}
-            <Link href="/verify-email-pending" className="text-lime-600 hover:text-lime-700 font-medium">
-              Request a new verification email
-            </Link>
-          </p>
         </div>
       </div>
     </div>

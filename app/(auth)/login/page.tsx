@@ -85,6 +85,11 @@ export default function LoginPage() {
         toast.success("Login successful!");
         const target = await resolvePostLoginRedirect(result.data.access_token);
         router.push(target);
+      } else if (result.needsVerification) {
+        toast.error(result.message);
+        router.push(
+          `/verify-email-pending?email=${encodeURIComponent(loginUserData.email)}`,
+        );
       } else {
         toast.error(result.message);
       }
