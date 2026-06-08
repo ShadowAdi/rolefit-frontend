@@ -101,7 +101,7 @@ export default function VerifyEmailPendingPage() {
   const displayEmail = email || localStorage.getItem("pendingVerificationEmail");
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md flex flex-col items-center text-center space-y-8">
 
         {/* Icon */}
