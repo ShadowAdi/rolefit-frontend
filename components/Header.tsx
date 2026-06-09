@@ -32,6 +32,27 @@ export default function Header() {
   const { isAuthenticated, isLoading: isAuthLoading, user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  // On the home page the navbar stays hidden until the hero intro reveals it.
+  const [isHidden, setIsHidden] = useState(() => pathname === "/");
+
+  // Reveal the navbar when the hero animation signals it's ready (with a
+  // safety fallback in case the hero never mounts / the event is missed).
+  useEffect(() => {
+    if (pathname !== "/") {
+      setIsHidden(false);
+      return;
+    }
+
+    setIsHidden(true);
+    const reveal = () => setIsHidden(false);
+    window.addEventListener("rolefit:hero-ready", reveal);
+    const fallback = window.setTimeout(reveal, 4500);
+
+    return () => {
+      window.removeEventListener("rolefit:hero-ready", reveal);
+      window.clearTimeout(fallback);
+    };
+  }, [pathname]);
 
   // Handle scroll effect for header styling
   useEffect(() => {
@@ -61,7 +82,11 @@ export default function Header() {
   return (
     <>
       <header
-        className={`w-full border-b transition-all duration-300 sticky top-0 z-50 ${
+        className={`w-full border-b sticky top-0 z-50 transition-[transform,opacity,background-color,box-shadow] duration-500 ease-out ${
+          isHidden
+            ? "-translate-y-full opacity-0 pointer-events-none"
+            : "translate-y-0 opacity-100"
+        } ${
           isScrolled
             ? "bg-white/95 backdrop-blur-md shadow-sm"
             : "bg-white/80 backdrop-blur-sm"
