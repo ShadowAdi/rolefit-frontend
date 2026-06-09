@@ -166,19 +166,18 @@ export default function HeroSection() {
               </div>
             </div>
 
-            {/* Right: product preview */}
-            <div className="relative mx-auto flex h-[380px] w-full max-w-lg items-center justify-center md:h-[460px] lg:h-[520px]">
+            <div className="relative mx-auto flex aspect-4/3 w-full max-w-lg bg-red-600 items-start justify-start">
               <img
                 data-animate
                 src="/demo/hero_section_classic_cover_letter.png"
                 alt="Cover letter preview"
-                className="absolute left-0 top-1/2 w-[52%] -translate-y-1/2 -rotate-6 rounded-lg border border-white/50 shadow-xl"
+                className="absolute -left-4 top-[25%] max-h-[90%] w-[60%] -translate-y-1/2 -rotate-6 rounded-lg border border-white/50 object-contain shadow-xl"
               />
               <img
                 data-animate
                 src="/demo/hero_section_resume_bold.png"
                 alt="Resume preview"
-                className="absolute right-0 top-1/2 w-[62%] -translate-y-1/2 rotate-3 rounded-lg border border-white/50 shadow-2xl"
+                className="absolute -right-5 top-[25%] max-h-full w-[60%] -translate-y-1/2 rotate-3 rounded-lg  border-none bg-transparent object-contain shadow-2xl"
               />
             </div>
           </div>
