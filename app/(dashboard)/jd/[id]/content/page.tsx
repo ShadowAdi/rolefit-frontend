@@ -191,7 +191,7 @@ const JDContentPage = () => {
           created_at: new Date().toISOString() as any,
           updated_at: new Date().toISOString() as any,
           status: result.data.status || "pending",
-          document_type: (contentType === "resume" ? "resume" : "cover_letter") as "resume" | "cover_letter",
+          document_type: (contentType === "resume" ? "resume" : "Cover-letter") as "resume" | "Cover-letter",
         };
         
         setContents([newContent, ...contents]);
