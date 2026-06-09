@@ -3,34 +3,39 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"; // Remove useSearchParams
 import { Mail, ArrowRight, RefreshCw, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { resendVerificationEmail, checkVerificationStatus } from "@/action/verification/verification.action";
 import { toast } from "sonner";
 
 export default function VerifyEmailPendingPage() {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const email = searchParams.get("email");
+  const [email, setEmail] = useState<string | null>(null);
   const [isResending, setIsResending] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
   const [countdown, setCountdown] = useState(0);
 
+  // Get email from URL params on client-side only
   useEffect(() => {
-    if (!email) {
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get("email");
+    
+    if (!emailParam) {
       const storedEmail = localStorage.getItem("pendingVerificationEmail");
       if (!storedEmail) {
         router.push("/login");
         return;
       }
+      setEmail(storedEmail);
       checkVerificationStatusWithEmail(storedEmail);
     } else {
-      localStorage.setItem("pendingVerificationEmail", email);
-      checkVerificationStatusWithEmail(email);
+      setEmail(emailParam);
+      localStorage.setItem("pendingVerificationEmail", emailParam);
+      checkVerificationStatusWithEmail(emailParam);
     }
-  }, [email, router]);
+  }, [router]);
 
   const checkVerificationStatusWithEmail = async (emailToCheck: string) => {
     setIsChecking(true);
