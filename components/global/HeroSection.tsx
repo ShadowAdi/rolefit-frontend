@@ -166,7 +166,7 @@ export default function HeroSection() {
               </div>
             </div>
 
-            <div className="relative mx-auto flex aspect-4/3 w-full max-w-lg bg-red-600 items-start justify-start">
+            <div className="relative mx-auto flex aspect-4/3 w-full max-w-lg items-start justify-start">
               <img
                 data-animate
                 src="/demo/hero_section_classic_cover_letter.png"
