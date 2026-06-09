@@ -56,6 +56,13 @@ const DashboardPage = () => {
     fetchDashboard();
   }, [token, authLoading]);
 
+  
+  if (!token) {
+    router.push("/login");
+    return;
+  }
+
+
   if (authLoading || isLoading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center">
@@ -65,11 +72,6 @@ const DashboardPage = () => {
         </div>
       </div>
     );
-  }
-
-  if (!token) {
-    router.push("/login");
-    return;
   }
 
   const stats = data?.stats;
