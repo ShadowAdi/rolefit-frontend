@@ -6,7 +6,6 @@ import Header from "@/components/Header";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/context/AuthContext";
 import GooeyTransition from "@/components/global/GooeyTransition";
-import PageIntro from "@/components/global/PageIntro";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,7 +53,6 @@ export default function RootLayout({
             </filter>
           </defs>
         </svg>
-        {/* <PageIntro /> */}
         <AuthProvider>
           <Providers>
             <GooeyTransition>
@@ -64,7 +62,6 @@ export default function RootLayout({
             </GooeyTransition>
           </Providers>
         </AuthProvider>
-        {/* <PageIntro /> */}
       </body>
     </html>
   );
