@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation"; // Remove useSearchParams
 import {
   Zap,
   ArrowRight,
@@ -29,7 +29,7 @@ import {
 import { useEffect, useState } from "react";
 
 const loginSchema = z.object({
-  email: z.email("Please enter a valid email address"),
+  email: z.string().email("Please enter a valid email address"),
   password: z.string().min(3, "Password must be at least 3 characters"),
 });
 
@@ -37,12 +37,20 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const { login, token, isAuthenticated, isLoading: isAuthLoading } = useAuth();
-  const searchParams = useSearchParams();
-  const verified = searchParams.get("verified");
-
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+
+  // Access verified param from URL using window.location
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const verified = params.get("verified");
+    if (verified === "true") {
+      setShowAlert(true);
+      const timer = setTimeout(() => setShowAlert(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const {
     register,
@@ -51,15 +59,6 @@ export default function LoginPage() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
-
-  useEffect(() => {
-    if (verified === "true") {
-      setShowAlert(true);
-      // Hide alert after 5 seconds
-      const timer = setTimeout(() => setShowAlert(false), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [verified]);
 
   useEffect(() => {
     if (isAuthLoading || !isAuthenticated || !token) return;
@@ -115,6 +114,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex w-full">
+      {/* ... rest of your JSX remains exactly the same ... */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 relative overflow-hidden">
         <div className="pointer-events-none absolute -top-40 -right-40 h-80 w-80 rounded-full bg-lime-200/40 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-gray-200/40 blur-3xl" />
@@ -130,6 +130,7 @@ export default function LoginPage() {
               </Alert>
             </div>
           )}
+          {/* ... rest of your form remains the same ... */}
           <Link href="/" className="inline-flex items-center gap-2 mb-12 group">
             <div className="size-10 rounded-xl bg-lime-400 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
               <Zap className="size-5 text-gray-950" />
@@ -149,6 +150,7 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {/* ... form fields remain the same ... */}
             <div className="space-y-2">
               <Label
                 htmlFor="email"
