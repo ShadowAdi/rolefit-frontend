@@ -120,14 +120,6 @@ export default function Header() {
         >
           About
         </Link>
-        <Link 
-          href="/contact" 
-          className={`text-sm font-medium transition-colors ${
-            pathname === '/contact' ? 'text-lime-600' : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          Contact
-        </Link>
       </div>
 
             <nav className="hidden md:flex items-center gap-2">
