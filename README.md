@@ -84,10 +84,10 @@ rolefit-frontend/
 │   └── Header.tsx
 ├── context/               # React Context providers
 │   └── AuthContext.tsx
+|   └── WebSocketContext.tsx
 ├── hooks/                 # Custom React hooks
 ├── lib/                   # Utility functions
-├── public/
-│   └── demo/              # Demo images for templates
+├── demo/              `   # Demo images for templates
 ├── types/                 # TypeScript type definitions
 └── utils/                 # Helper functions
 🎨 Key Components
