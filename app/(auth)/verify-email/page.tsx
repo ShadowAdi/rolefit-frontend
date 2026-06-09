@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"; // Remove useSearchParams
 import Link from "next/link";
 import { CheckCircle2, XCircle, Loader2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,14 +9,21 @@ import { verifyEmail } from "@/action/verification/verification.action";
 import { toast } from "sonner";
 
 export default function VerifyEmailPage() {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const token = searchParams.get("token");
-  
+  const [token, setToken] = useState<string | null>(null);
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("");
 
+  // Get token from URL params on client-side only
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tokenParam = params.get("token");
+    setToken(tokenParam);
+  }, []);
+
+  useEffect(() => {
+    if (token === null) return; // Wait for token to be extracted
+    
     if (!token) {
       setStatus("error");
       setMessage("Invalid verification link. No token provided.");

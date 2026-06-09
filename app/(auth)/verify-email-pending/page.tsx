@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation"; // Remove useSearchParams
+import { useRouter } from "next/navigation";
 import { Mail, ArrowRight, RefreshCw, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { resendVerificationEmail, checkVerificationStatus } from "@/action/verification/verification.action";
