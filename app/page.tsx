@@ -1,10 +1,12 @@
 import HeroSection from "@/components/global/HeroSection";
+import TemplateShowcase from "@/components/global/TemplateShowcase";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <main className="flex flex-col items-center w-full">
       <HeroSection />
+      <TemplateShowcase />
 
       <section
         id="features"
