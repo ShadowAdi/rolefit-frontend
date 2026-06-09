@@ -36,29 +36,34 @@ cd rolefit-frontend
 ``
 Install dependencies
 
-bash
+```bash
+
 npm install
 # or
 yarn install
 # or
 pnpm install
+```
 Set up environment variables
 
-bash
-cp .env.local.example .env.local
+```bash
+cp .env.local.example .env
+```
 Fill in your environment variables:
 
-env
-NEXT_PUBLIC_API_URL=your_api_endpoint
+```env
+NEXT_PUBLIC_SERVER_API_URL=your_api_endpoint
+```
 # Add other required env vars
 Run the development server
 
-bash
+```bash
 npm run dev
 # or
 yarn dev
 # or
 pnpm dev
+```
 Open http://localhost:3000 to see the result
 
 📁 Project Structure
@@ -108,12 +113,13 @@ Built with Framer Motion for smooth physics-based animations
 
 🛠️ Development
 Scripts
-bash
+```bash
 npm run dev         # Start development server
 npm run build       # Build for production
 npm run start       # Start production server
 npm run lint        # Run ESLint
 npm run type-check  # Run TypeScript compiler
+```
 Adding New Templates
 Add template images to /public/demo/
 
@@ -159,9 +165,9 @@ Open a Pull Request
 Distributed under the MIT License. See LICENSE for more information.
 
 📧 Contact
-Your Name - @yourtwitter - email@example.com
+ShadowAdi
 
-Project Link: https://github.com/yourusername/rolefit-frontend
+Project Link: https://github.com/ShadowAdi/rolefit-frontend
 
 🙏 Acknowledgments
 Next.js - React framework
